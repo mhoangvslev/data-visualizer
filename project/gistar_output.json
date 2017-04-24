@@ -1,0 +1,37 @@
+[
+ {
+   "cell_x": 27,
+   "cell_y": 26,
+   "time_step": 17,
+   "zscore": 3.9889,
+   "pvalue": 0.0001
+ },
+ {
+   "cell_x": 26,
+   "cell_y": 32,
+   "time_step": 7,
+   "zscore": 3.9667,
+   "pvalue": 0.0001
+ },
+ {
+   "cell_x": 31,
+   "cell_y": 23,
+   "time_step": 2,
+   "zscore": 3.9455,
+   "pvalue": 0.0001
+ },
+ {
+   "cell_x": 28,
+   "cell_y": 23,
+   "time_step": 2,
+   "zscore": 3.9369,
+   "pvalue": 0.0001
+ },
+ {
+   "cell_x": 26,
+   "cell_y": 32,
+   "time_step": 12,
+   "zscore": 3.92,
+   "pvalue": 0.0001
+ }
+]
