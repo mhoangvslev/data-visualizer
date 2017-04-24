@@ -2,16 +2,14 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 var stats;
-/*var params = {
-	year: 2017,
-	month: 4,
-	day: 13,
-};*/
+var params = {
+	time_step: 100
+}
 var camera, controls, scene, renderer;
 
 init();
-render(); // remove when using next line for animation loop (requestAnimationFrame)
-//animate();
+//render(); // remove when using next line for animation loop (requestAnimationFrame)
+animate();
 
 function webglAvailable() {
 	try {
@@ -85,13 +83,16 @@ function init() {
 	// Cubes
 	var processedData;
 	var CSVLoader = new THREE.FileLoader();
+	var CUnitCluster = new THREE.Object3D();
+	//scene.add(CUnitCluster);
 	CSVLoader.setResponseType('text');
 	CSVLoader.load('gistar_output.json', function ( text ) {
 		processedData = JSON.parse(text);
 
         for (var entry of processedData) {
-            console.log(entry);
+            //console.log(entry);
 			var cunit = new CUnit(size/step, entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore']);
+			CUnitCluster.add(cunit);
 			scene.add(cunit.getMesh());
 
             /*var cunit = new THREE.Mesh(cunitGeo, new THREE.MeshBasicMaterial({
@@ -108,8 +109,7 @@ function init() {
 	});
 
 	// lights
-	var light = new THREE.PointLight( 0xffffff, 1 );
-	scene.add( light );
+    scene.add( new THREE.AmbientLight( 0x444444 ) );
 	
 	// Stats
 	stats = new Stats();
@@ -124,30 +124,29 @@ function init() {
 	controls.addEventListener( 'change', render ); // remove when using animation loop
 	controls.enableZoom = true;
 
-	//Pivot point
-	/*var pivotMesh = new THREE.Mesh(geometry, material);
-	pivotMesh.position.x = (size)/2 + size/step/2;
- 	pivotMesh.position.y = (baseXYGridHelper.position.y + size)/2;
-	pivotMesh.position.z = -(size)/2 + size/step/2;
-	scene.add(pivotMesh);
-
-	var pivot = new THREE.Object3D();
-	pivot.add(pivotMesh);
-	scene.add(pivot);*/
-
-	//
-
 	window.addEventListener( 'resize', onWindowResize, false );
 
 	// Control panel
-	/*var gui = new dat.GUI();
-	gui.add( params, 'toneMapping', Object.keys( toneMappingOptions ) );
-	gui.add( params, 'exposure', 0, 10 );
-	gui.add( params, 'whitePoint', 0, 10 );
-	gui.add( params, 'opacity', 0, 1 );
-	gui.add( params, 'renderMode', [ 'Renderer', 'Composer'] );
+	var gui = new dat.GUI({
+		height: 5 * 32 - 1
+	});
+	gui.add( params, 'time_step', 0, 100 ).name('Time step').onFinishChange(function () {
+		//console.log("lol");
+		CUnitCluster.traverse(function (child) {
+			if(child instanceof CUnit ) {
+                if (child.getTimeStep() < params['time_step']) {
+                    console.log('hi');
+                    child.setOpacity(0);
+                }
+                else
+                	child.reinitiate();
+
+                controls.update();
+            }
+        });
+    });
 	gui.open();
-	*/
+
 
 }
 

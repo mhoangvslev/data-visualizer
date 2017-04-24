@@ -4,17 +4,17 @@
  */
 function CUnit(dimension, latitude, longitude, time_step, zscore) {
 	THREE.Object3D.call( this );
-	this.type = 'CUnit';
-	this.geometry = new THREE.BoxGeometry( dimension, dimension, dimension);
-	this.getOpacityPerWeight = function(zscore){
-        var result = (zscore - 3.9) * 10;
-        console.log(result);
-        return result;
-	};
 
-	this.getColorPerWeight = function(zscore){
+    // Operations
+    this.getOpacityPerWeight = function(zscore){
+        var result = (zscore - 3.9) * 10;
+        //console.log(result);
+        return result.toFixed(4);
+    };
+
+    this.getColorPerWeight = function(zscore){
         var zcolor;
-        zcolor = Math.floor((zscore - 3) * 100);
+        zcolor = Math.ceil((zscore - 3) * 100);
         if(zscore > 3.96) {
             return new THREE.Color(`rgb(255, ${zcolor}, 0)`);
         }
@@ -22,12 +22,19 @@ function CUnit(dimension, latitude, longitude, time_step, zscore) {
             return new THREE.Color(`rgb(0, 255, ${zcolor})`);
         }
         return new THREE.Color(`rgb(${zcolor}, 0, 255)`);
-	};
+    };
+
+	// Attributes
+	this.type = 'CUnit';
+	this.color = this.getColorPerWeight(zscore);
+	this.opacity = this.getOpacityPerWeight(zscore);
+	this.geometry = new THREE.BoxGeometry( dimension, dimension, dimension);
+	this.latitude = latitude; this.longitude = longitude; this.time_step = time_step, this.zscore = zscore;
 
 	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshBasicMaterial({
-        color: this.getColorPerWeight(zscore),
+        color: this.color,
         transparent: true,
-        opacity: this.getOpacityPerWeight(zscore)
+        opacity: this.opacity
     }));
 	this.mesh.position.x = longitude;
 	this.mesh.position.z = - latitude;
@@ -39,6 +46,38 @@ CUnit.prototype.constructor = CUnit;
 
 CUnit.prototype.getMesh = function() {
 	return this.mesh;
+}
+
+CUnit.prototype.reinitiate = function () {
+    this.mesh.material = new THREE.MeshBasicMaterial({
+        color: this.getColorPerWeight(this.zscore),
+        transparent: true,
+        opacity: this.getOpacityPerWeight(this.zscore)
+    });
+}
+
+CUnit.prototype.setOpacity = function (value) {
+    this.mesh.material = new THREE.MeshBasicMaterial({
+        color: this.color,
+        transparent: true,
+        opacity: value
+    });
+}
+
+CUnit.prototype.getLongitude = function () {
+    return this.longitude;
+}
+
+CUnit.prototype.getLatitude = function () {
+    return this.latitude;
+}
+
+CUnit.prototype.getTimeStep = function () {
+    return this.time_step;
+}
+
+CUnit.prototype.getZScore = function () {
+    return this.zscore;
 }
 
 
