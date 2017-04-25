@@ -2,7 +2,7 @@
 /**
  * Created by Minh Hoang DANG on 04/19/2017.
  */
-function CUnit(dimension, latitude, longitude, time_step, zscore) {
+function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
 	THREE.Object3D.call( this );
 
     // Operations
@@ -29,13 +29,14 @@ function CUnit(dimension, latitude, longitude, time_step, zscore) {
 	this.color = this.getColorPerWeight(zscore);
 	this.opacity = this.getOpacityPerWeight(zscore);
 	this.geometry = new THREE.BoxGeometry( dimension, dimension, dimension);
-	this.latitude = latitude; this.longitude = longitude; this.time_step = time_step, this.zscore = zscore;
+	this.latitude = latitude; this.longitude = longitude; this.time_step = time_step, this.zscore = zscore; this.dimension = dimension;
 
-	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshBasicMaterial({
+	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshPhongMaterial({
         color: this.color,
         transparent: true,
         opacity: this.opacity
     }));
+	this.mesh.name = `lng: ${longitude}, lat: ${latitude}, t: ${time_step}, w: ${zscore}`;
 	this.mesh.position.x = longitude;
 	this.mesh.position.z = - latitude;
 	this.mesh.position.y = time_step;
@@ -49,7 +50,7 @@ CUnit.prototype.getMesh = function() {
 }
 
 CUnit.prototype.reinitiate = function () {
-    this.mesh.material = new THREE.MeshBasicMaterial({
+    this.mesh.material = new THREE.MeshPhongMaterial({
         color: this.getColorPerWeight(this.zscore),
         transparent: true,
         opacity: this.getOpacityPerWeight(this.zscore)
@@ -57,11 +58,16 @@ CUnit.prototype.reinitiate = function () {
 }
 
 CUnit.prototype.setOpacity = function (value) {
-    this.mesh.material = new THREE.MeshBasicMaterial({
+    this.mesh.material = new THREE.MeshPhongMaterial({
         color: this.color,
         transparent: true,
         opacity: value
     });
+}
+
+CUnit.prototype.setCunitSize = function (value) {
+    var newDim = this.dimension * value;
+    this.mesh.geometry = new THREE.BoxGeometry(newDim, newDim, newDim);
 }
 
 CUnit.prototype.getLongitude = function () {
@@ -78,6 +84,10 @@ CUnit.prototype.getTimeStep = function () {
 
 CUnit.prototype.getZScore = function () {
     return this.zscore;
+}
+
+CUnit.prototype.getDimension = function () {
+    return this.dimension;
 }
 
 
