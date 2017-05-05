@@ -34,12 +34,14 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
 	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshPhongMaterial({
         color: this.color,
         transparent: true,
-        opacity: this.opacity
+        opacity: this.opacity,
     }));
-	this.mesh.name = `lng: ${longitude}, lat: ${latitude}, t: ${time_step}, w: ${zscore}`;
-	this.mesh.position.x = longitude;
-	this.mesh.position.z = - latitude;
-	this.mesh.position.y = time_step;
+	//this.mesh.name = `lng: ${longitude}, lat: ${latitude}, t: ${time_step}, w: ${zscore}`;
+	this.mesh.name = `Longitude: ${longitude} | Latitude: ${latitude} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
+	this.mesh.position.x = longitude - offsetX;
+	this.mesh.position.z = - latitude - offsetZ;
+	this.mesh.position.y = time_step - offsetY;
+	this.mesh.renderOrder = 2;
 }
 
 CUnit.prototype = Object.create( THREE.Mesh.prototype );

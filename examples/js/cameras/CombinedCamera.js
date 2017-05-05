@@ -10,7 +10,6 @@
 
 
 THREE.CombinedCamera = function ( width, height, fov, near, far, orthoNear, orthoFar ) {
-
 	THREE.Camera.call( this );
 
 	this.fov = fov;
@@ -27,7 +26,6 @@ THREE.CombinedCamera = function ( width, height, fov, near, far, orthoNear, orth
 	this.zoom = 1;
 	this.view = null;
 	// We could also handle the projectionMatrix internally, but just wanted to test nested camera objects
-
 	this.cameraO = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 	orthoNear, orthoFar );
 	this.cameraP = new THREE.PerspectiveCamera( fov, width / height, near, far );
 
@@ -239,7 +237,7 @@ THREE.CombinedCamera.prototype.toFrontView = function() {
 	this.rotation.x = 0;
 	this.rotation.y = 0;
 	this.rotation.z = 0;
-
+	this.rotationAutoUpdate = false;
 	// should we be modifing the matrix instead?
 
 };
