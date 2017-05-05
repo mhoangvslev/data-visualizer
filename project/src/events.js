@@ -24,10 +24,11 @@ function onDocumentMouseReset() {
 }
 
 function onDocumentMouseWheel( event ) {
-    if(event.wheelDelta < 0 && zoomAmount > 0.51)
-        zoomAmount -= 0.01;
+    var zoomStep = 0.02;
+    if(event.wheelDelta < 0 && zoomAmount - (zoomStep*zoomFactor) > 0.51)
+        zoomAmount -= (zoomStep*zoomFactor);
     else if (event.wheelDelta > 0 )
-        zoomAmount += 0.01;
+        zoomAmount += (zoomStep*zoomFactor);
     camera.setZoom(zoomAmount);
     camera.updateProjectionMatrix();
 }

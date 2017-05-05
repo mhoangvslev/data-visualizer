@@ -4,24 +4,30 @@
 	<title>ExCELL Project - Data Visualization</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link rel="stylesheet" href="index_s.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 <body>
     <!-- Canvas -->
 	<div id="container">
-        <div class="cameraControl">
-            Mode: <a href="#" onclick="setOrthographic();return false;"> Orthographic</a> |
-            <a href="#" onclick="setPerspective();return false;">Perspective</a><br>
-            Views: <a href="#" onclick="switchTopCamera();return false;">Top view</a> |
-            <a href="#" onclick="switchBottomCamera();return false;">Bottom view</a> |
-            <a href="#" onclick="switchLeftCamera();return false;">Left view</a> |
-            <a href="#" onclick="switchRightCamera();return false;">Right view</a> |
-            <a href="#" onclick="switchFrontCamera();return false;">Front view</a> |
-            <a href="#" onclick="switchBackCamera();return false;">Back view</a> |
-            <br/>
-            <div id="fov"></div>
-            <div id="cunit_info"></div>
-            <div id="debug_tool"></div>
+        <div class="cameraControl" >
+            <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#cameraCP">Close/Open menu</button>
+            <div id="cameraCP" class="collapse">
+                Mode: <a href="#" onclick="setOrthographic();return false;"> Orthographic</a> |
+                <a href="#" onclick="setPerspective();return false;">Perspective</a><br>
+                Views: <a href="#" onclick="switchTopCamera();return false;">Top</a> |
+                <a href="#" onclick="switchBottomCamera();return false;">Bottom</a> |
+                <a href="#" onclick="switchLeftCamera();return false;">Left</a> |
+                <a href="#" onclick="switchRightCamera();return false;">Right</a> |
+                <a href="#" onclick="switchFrontCamera();return false;">Front</a> |
+                <a href="#" onclick="switchBackCamera();return false;">Back</a> |
+                <br/>
+                <div id="fov"></div>
+                <div id="cunit_info"></div>
+                <div id="debug_tool"></div>
+            </div>
         </div>
     </div>
     <!-- Include required plugins/modules from three.js library-->
@@ -40,6 +46,7 @@
     <script src="src/cunit.js"></script>
     <script src="src/utils.js"></script>
     <script src="src/events.js"></script>
+    <script src="src/ui.js"></script>
 
     <!-- Always call the main file at the end -->
 	<script src="src/main.js"></script>

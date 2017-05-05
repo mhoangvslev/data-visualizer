@@ -84,42 +84,99 @@ function webglAvailable() {
 }
 
 function setOrthographic() {
+    resetLabel();
     camera.toOrthographic();
     camera.setZoom(7); zoomAmount = 7;
     document.getElementById('fov').innerHTML = 'Orthographic mode' ;
 }
 function setPerspective() {
+    resetLabel();
     camera.toPerspective();
+    camera.setZoom(1); zoomAmount = 1; camera.position.copy(CAMERA_SPAWN);
     document.getElementById('fov').innerHTML = 'Perspective mode' ;
 }
 
 function switchFrontCamera() {
-    camera.toFrontView();
-    document.getElementById('fov').innerHTML = 'Orthographic mode: Front' ;
-    document.getElementById('debug_tool').innerHTML = `Camera: ${camera.rotation.x} | ${camera.position.x}`;
+    resetLabel();
+    camera.position.x = Math.cos( 2*Math.PI ) * 100;
+    camera.position.z = Math.sin( 2*Math.PI ) * 100;
+    camera.position.y = 0;
+    camera.lookAt( scene.position );
+    camera.updateProjectionMatrix();
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude/Timestep' ;
+    labelLat.visible = false;
+    //document.getElementById('debug_tool').innerHTML = `Camera: ${camera.rotation.x} | ${camera.position.x}`;
 }
 
 function switchBackCamera() {
-    camera.toLeftView();
-    document.getElementById('fov').innerHTML = 'Orthographic mode: Back' ;
+    resetLabel();
+    camera.position.x = Math.cos( Math.PI ) * 100;
+    camera.position.z = Math.sin( Math.PI ) * 100;
+    camera.position.y = 0;
+    camera.lookAt( scene.position );
+    camera.updateProjectionMatrix();
+    labelLat.visible = false;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Timestep' ;
 }
 
 function switchLeftCamera() {
-    camera.toLeftView();
-    document.getElementById('fov').innerHTML = 'Orthographic mode: Left' ;
+    resetLabel();
+    camera.position.x = Math.cos( 1.5 * Math.PI ) * 100;
+    camera.position.z = Math.sin( 1.5 * Math.PI ) * 100;
+    camera.position.y = 0;
+    camera.lookAt( scene.position );
+    camera.updateProjectionMatrix();
+    labelLng.visible = false;
+    labelOrigin.position.x -= 35;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Timestep' ;
 }
 
 function switchRightCamera() {
-    camera.toRightView();
-    document.getElementById('fov').innerHTML = 'Orthographic mode: Right' ;
+    resetLabel();
+    camera.position.x = Math.cos( Math.PI/2 ) * 100;
+    camera.position.z = Math.sin( Math.PI/2 ) * 100;
+    camera.position.y = 0;
+    camera.lookAt( scene.position );
+    camera.updateProjectionMatrix();
+    labelLng.visible = false;
+    labelOrigin.position.x += 20;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Timestep' ;
 }
 
 function switchTopCamera() {
-    camera.toTopView();
-    document.getElementById('fov').innerHTML = 'Orthographic mode: Top' ;
+    resetLabel();
+    camera.position.x = 0;
+    camera.position.z = Math.sin( 2 * Math.PI ) * 100;
+    camera.position.y = Math.cos( 2 * Math.PI ) * 100;
+    camera.lookAt( scene.position );
+    camera.updateProjectionMatrix();
+    labelT.visible = false;
+    labelLng.position.z += 10; labelLng.position.x -= 30; labelLat.position.x -= 50; labelOrigin.position.x -= 30;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Latitude' ;
 }
 
 function switchBottomCamera() {
-    camera.toBottomView();
-    document.getElementById('fov').innerHTML = 'Orthographic mode: Bottom' ;
+    resetLabel();
+    camera.position.x = 0;
+    camera.position.z = Math.sin( Math.PI ) * 100;
+    camera.position.y = Math.cos( Math.PI ) * 100;
+    camera.lookAt( scene.position );
+    camera.updateProjectionMatrix();
+    labelT.visible = false;
+    labelLng.position.z += 20;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Longitude' ;
+}
+
+function resetLabel(){
+    labelLat.visible = true;
+    labelLat.position.copy(LABEL_LAT_SPAWN);
+
+    labelOrigin.visible = true;
+    labelOrigin.position.copy(LABEL_ORIGIN_SPAWN);
+
+    labelT.visible = true;
+    labelT.position.copy(LABEL_TIME_SPAWN);
+
+    labelLng.visible = true;
+    labelLng.position.copy(LABEL_LNG_SPAWN);
 }

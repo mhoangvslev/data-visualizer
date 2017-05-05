@@ -237,7 +237,7 @@ THREE.CombinedCamera.prototype.toFrontView = function() {
 	this.rotation.x = 0;
 	this.rotation.y = 0;
 	this.rotation.z = 0;
-	this.rotationAutoUpdate = false;
+
 	// should we be modifing the matrix instead?
 
 };

@@ -4,46 +4,6 @@ if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 init();
 animate();
 
-function initCP(){
-	// Control panel
-	var gui = new dat.GUI({
-		height: 5 * 32 - 1
-	});
-	gui.add( params, 'time_step', 0, 100 ).name('Time step').onFinishChange(function () {
-		//console.log("lol");
-		CUnitCluster.traverse(function (child) {
-			if(child instanceof CUnit ) {
-				if (child.getTimeStep() > params['time_step'])
-					child.getMesh().visible = false;
-				else
-					child.getMesh().visible = true;
-			}
-		});
-	});
-	gui.add( params, 'cunit_size', 0, 1).name('Brush size').onFinishChange(function () {
-		CUnitCluster.traverse(function (child) {
-			if(child instanceof CUnit){
-				child.setCunitSize(params['cunit_size']);
-			}
-		});
-	});
-	gui.add( params, 'weight', 3.920, 3.999).name('Weight filter').onFinishChange(function () {
-		CUnitCluster.traverse( function (child) {
-			if(child instanceof CUnit) {
-				if (child.getZScore() < params['weight'])
-					child.getMesh().visible = false;
-				else
-					child.getMesh().visible = true;
-			}
-		});
-	});
-	gui.add( params, 'camera_fov', 50, 100).name('Camera FOV').onFinishChange(function () {
-		var fovAmount = params['camera_fov'];
-		camera.setFov(fovAmount);
-	});
-	gui.open();
-}
-
 function init() {
 	var container = document.getElementById( 'container' );
 	document.body.appendChild(container);
@@ -51,33 +11,25 @@ function init() {
 	renderer = new THREE.CanvasRenderer();
 
 	// World
-
 	// Grid
-	// Base XY Grid
-	var baseXYGridHelper = new THREE.GridHelper(size, step);
-	baseXYGridHelper.position.z = 0;
-	baseXYGridHelper.position.x = 0;
-	baseXYGridHelper.position.y = -size/2;
-    baseXYGridHelper.renderOrder = 1;
-    scene.add(baseXYGridHelper);
 
-	// Base XZ Grid
-	var baseXZGridHelper = new THREE.GridHelper(size, step);
-	baseXZGridHelper.rotation.z = (Math.PI/2);
-	baseXZGridHelper.position.x = baseXYGridHelper.position.x -size/2;
-	baseXZGridHelper.position.z = baseXYGridHelper.position.z;
-	baseXZGridHelper.position.y = baseXYGridHelper.position.y + size/2;
-    baseXZGridHelper.renderOrder = 1;
-    scene.add(baseXZGridHelper);
+	// Base OXY Grid
+    scene.add(baseOXYGridHelper);
 
-	var spritey = makeTextSprite("O"); spritey.position.set(baseXYGridHelper.position.x -50 , baseXYGridHelper.position.y - 10, baseXYGridHelper.position.z + 50);
-	scene.add( spritey );
-	var spritey = makeTextSprite("Time step"); spritey.position.set(baseXZGridHelper.position.x, baseXZGridHelper.position.y + 50, baseXZGridHelper.position.z + 50);
-	scene.add( spritey );
-	var spritey = makeTextSprite("Longitude"); spritey.position.set(baseXYGridHelper.position.x - 50, baseXYGridHelper.position.y - 10, -baseXYGridHelper.position.z - 100);
-	scene.add(spritey);
-	var spritey = makeTextSprite("Latitude"); spritey.position.set(baseXYGridHelper.position.x + 75, baseXYGridHelper.position.y - 10, baseXYGridHelper.position.z + 50);
-	scene.add(spritey);
+    // Base OYZ Grid
+	scene.add(baseOYZGridHelper);
+
+    // Base OXZ Grid
+    scene.add(baseOXZGridHelper);
+
+    labelOrigin = makeTextSprite("O"); labelOrigin.position.copy(LABEL_ORIGIN_SPAWN);
+	scene.add( labelOrigin );
+	labelT = makeTextSprite("Time step"); labelT.position.copy(LABEL_TIME_SPAWN);
+	scene.add( labelT );
+	labelLng = makeTextSprite("Longitude"); labelLng.position.copy(LABEL_LNG_SPAWN);
+	scene.add(labelLng);
+	labelLat = makeTextSprite("Latitude"); labelLat.position.copy(LABEL_LAT_SPAWN);
+	scene.add(labelLat);
 
 	// Berlin map below the Grid
 	var textureGeoLoader = new THREE.TextureLoader();
@@ -93,9 +45,9 @@ function init() {
 			var mapMesh = new THREE.Mesh( mapGeo, mapMat );
 
 			mapMesh.rotation.x = - ( Math.PI / 2 );
-			mapMesh.position.x = baseXYGridHelper.position.x;
-			mapMesh.position.z = baseXYGridHelper.position.z;
-			mapMesh.position.y = baseXYGridHelper.position.y - 0.5;
+			mapMesh.position.x = baseOXYGridHelper.position.x;
+			mapMesh.position.z = baseOXYGridHelper.position.z;
+			mapMesh.position.y = baseOXYGridHelper.position.y - 0.5;
             mapMesh.renderOrder = 0;
             scene.add( mapMesh );
 		}
@@ -139,7 +91,7 @@ function init() {
 	// Camera
 	camera = new THREE.CombinedCamera(window.innerWidth/2, window.innerHeight/2, 90, 1, 1000, -500, 1000);
 	camera.isPerspectiveCamera = true; camera.isOrthographicCamera = false;
-	camera.position.z = 100; camera.position.x = 100; camera.position.y = 100;
+	camera.position.copy(CAMERA_SPAWN);
 	camera.lookAt(new THREE.Vector3(size/2, size/2, size/2));
 
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
