@@ -1,45 +1,42 @@
 /**
  * Created by Minh Hoang DANG on 05/05/2017.
  */
-function initCP(){
-    // Control panel
-    var gui = new dat.GUI({
-        height: 5 * 32 - 1
+
+function updateZoomSpeedFilter(zspeed) {
+    zoomFactor = zspeed;
+}
+
+function updateCameraFOVFilter(fov) {
+    var fovAmount = fov;
+    camera.setFov(fovAmount);
+}
+
+function updateWeightFilter(interval1, interval2) {
+    CUnitCluster.traverse( function (child) {
+        if(child instanceof CUnit) {
+            if (child.getZScore() >= interval1 && child.getZScore() <= interval2)
+                child.getMesh().visible = true;
+            else
+                child.getMesh().visible = false;
+        }
     });
-    gui.add( params, 'time_step', 0, 100 ).name('Time step').onFinishChange(function () {
-        //console.log("lol");
-        CUnitCluster.traverse(function (child) {
-            if(child instanceof CUnit ) {
-                if (child.getTimeStep() > params['time_step'])
-                    child.getMesh().visible = false;
-                else
-                    child.getMesh().visible = true;
-            }
-        });
+}
+
+function updateBrushSizeFilter(bsize) {
+    CUnitCluster.traverse(function (child) {
+        if(child instanceof CUnit){
+            child.setCunitSize(bsize);
+        }
     });
-    gui.add( params, 'cunit_size', 0, 1).name('Brush size').onFinishChange(function () {
-        CUnitCluster.traverse(function (child) {
-            if(child instanceof CUnit){
-                child.setCunitSize(params['cunit_size']);
-            }
-        });
+}
+
+function updateTimeStepFilter(interval1, interval2) {
+    CUnitCluster.traverse(function (child) {
+        if (child instanceof CUnit) {
+            if (child.getTimeStep() >= interval1 && child.getTimeStep() <= interval2)
+                child.getMesh().visible = true;
+            else
+                child.getMesh().visible = false;
+        }
     });
-    gui.add( params, 'weight', 3.920, 3.999).name('Weight filter').onFinishChange(function () {
-        CUnitCluster.traverse( function (child) {
-            if(child instanceof CUnit) {
-                if (child.getZScore() < params['weight'])
-                    child.getMesh().visible = false;
-                else
-                    child.getMesh().visible = true;
-            }
-        });
-    });
-    gui.add( params, 'camera_fov', 50, 100).name('Camera FOV').onFinishChange(function () {
-        var fovAmount = params['camera_fov'];
-        camera.setFov(fovAmount);
-    });
-    gui.add( params, 'zoom_factor', 1, 10 ).name('Zoom speed').onFinishChange(function () {
-        zoomFactor = params['zoom_factor'];
-    });
-    gui.open();
 }

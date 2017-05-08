@@ -6,36 +6,22 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</head>
+    <script src="script.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script></head>
 <body>
-    <!-- Canvas -->
-	<div id="container">
-        <div class="cameraControl" >
-            <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#cameraCP">Close/Open menu</button>
-            <div id="cameraCP" class="collapse">
-                Mode: <a href="#" onclick="setOrthographic();return false;"> Orthographic</a> |
-                <a href="#" onclick="setPerspective();return false;">Perspective</a><br>
-                Views: <a href="#" onclick="switchTopCamera();return false;">Top</a> |
-                <a href="#" onclick="switchBottomCamera();return false;">Bottom</a> |
-                <a href="#" onclick="switchLeftCamera();return false;">Left</a> |
-                <a href="#" onclick="switchRightCamera();return false;">Right</a> |
-                <a href="#" onclick="switchFrontCamera();return false;">Front</a> |
-                <a href="#" onclick="switchBackCamera();return false;">Back</a> |
-                <br/>
-                <div id="fov"></div>
-                <div id="cunit_info"></div>
-                <div id="debug_tool"></div>
-            </div>
-        </div>
-    </div>
     <!-- Include required plugins/modules from three.js library-->
-	<script src="../build/three.js"></script>
-	<script src="../examples/js/controls/OrbitControls.js"></script>
-	<script src="../examples/js/Detector.js"></script>
-	<script src="../examples/js/libs/stats.min.js"></script>
-	<script src="../examples/js/libs/dat.gui.min.js"></script>
+    <script src="../build/three.js"></script>
+    <script src="../examples/js/controls/OrbitControls.js"></script>
+    <script src="../examples/js/Detector.js"></script>
+    <script src="../examples/js/libs/stats.min.js"></script>
+    <script src="../examples/js/libs/dat.gui.min.js"></script>
     <script src="../examples/js/cameras/CombinedCamera.js"></script>
     <script src="../examples/js/renderers/CanvasRenderer.js"></script>
     <script src="../examples/js/renderers/Projector.js"></script>
@@ -47,6 +33,106 @@
     <script src="src/utils.js"></script>
     <script src="src/events.js"></script>
     <script src="src/ui.js"></script>
+
+    <!-- Canvas -->
+	<div id="container">
+        <div class="panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable" id="toolbox-tools">
+            <div class="panel-heading lang-panel-header-tools">Control Panel
+                <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#cameraCP">Camera control</button>
+                <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#sceneCP">Scene control</button>
+                <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#miscCP">Miscellaneous</button>
+                <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#how-to">User guide</button>
+                <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#about">About</button>
+                <i class="fa fa-times pull-right close-panel" id="close-toolbox-tools"></i>
+                <i class="fa pull-right fa-chevron-down" id="toggle-toolbox-tools"></i>
+            </div>
+            <div class="cameraControl">
+                <div id="cameraCP" class="collapse">
+                    <h3> Camera options</h3>
+                    Mode: <a href="#" onclick="setOrthographic();return false;"> Orthographic</a> |
+                    <a href="#" onclick="setPerspective();return false;">Perspective</a><br>
+                    Views: <a href="#" onclick="switchTopCamera();return false;">Top</a> |
+                    <a href="#" onclick="switchBottomCamera();return false;">Bottom</a> |
+                    <a href="#" onclick="switchLeftCamera();return false;">Left</a> |
+                    <a href="#" onclick="switchRightCamera();return false;">Right</a> |
+                    <a href="#" onclick="switchFrontCamera();return false;">Front</a> |
+                    <a href="#" onclick="switchBackCamera();return false;">Back</a> |
+                    <br/>
+                    <div id="fov"></div>
+                    <div id="cunit_info"></div>
+                    <div id="debug_tool"></div>
+                </div>
+            </div>
+            <div class="sceneOptions">
+                <div id="sceneCP" class="collapse">
+                    <br/><h3>Scene options</h3>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Time step</div>
+                        <div class="col-md-6"><div id="time_step_int"></div></div>
+                        <div class="col-md-4"><div id="time_step_int_value">Interval: </div></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Brush size</div>
+                        <div class="col-md-8"><div id="brush_size"><div id="brush_size_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">ZScore filter</div>
+                        <div class="col-md-6"><div id="zscore_int"></div></div>
+                        <div class="col-md-4"><div id="zscore_int_value">Interval: </div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="miscOptions">
+                <div id="miscCP" class="collapse">
+                    <h3>Miscellaneous</h3>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Camera FOV</div>
+                        <div class="col-md-8"><div id="camera_fov"><div id="camera_fov_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Zoom factor</div>
+                        <div class="col-md-8"><div id="zoom_speed"><div id="zoom_speed_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="userGuide">
+                <div id="how-to" class="collapse">
+                    <h2> User manuel</h2>
+                    [INSERT INTRODUCTION HERE]
+                    <h3> Control </h3>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Rotate the cube</div>
+                        <div class="col-md-8">Hold LMB + Drag</div>
+                        <div class="col-md-2">
+                            <img class="img-responsive inline-block" src="https://cdn2.iconfinder.com/data/icons/touch-gestures-linear-black/614/3460_-_Drag-512.png" style="width: 50px;"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Zoom</div>
+                        <div class="col-md-8">Scroll MMB. Zoom factor is [Control Panel] -> [Miscellaneous]</div>
+                        <div class="col-md-2"><img class="img-responsive" src="https://d30y9cdsu7xlg0.cloudfront.net/png/393040-200.png" style="width: 50px;"/></div>
+                    </div>
+                </div>
+            </div>
+            <div class="About">
+                <div id="about" class="collapse">
+                    <h2> About</h2>
+                    <p>Dies irae, dies illa<br />
+                        Solvet saeclum in favilla,<br />
+                        Teste David cum Sibylla.</p>
+
+                    <p>Quantus tremor est futurus,<br />
+                        Quando Judex est venturus,<br />
+                        Cuncta stricte discussurus!</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Always call the main file at the end -->
 	<script src="src/main.js"></script>

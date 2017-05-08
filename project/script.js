@@ -1,36 +1,77 @@
+/**
+ * Created by Minh Hoang DANG on 08/05/2017.
+ */
 $(document).ready(function() {
 
     // Add drag and resize option to panel
-    $(".cameraControl").draggable({
-        handle: ".panel-heading",
-        stop: function(evt, el) {
-            // Save size and position in cookie
-            /*
-             $.cookie($(evt.target).attr("id"), JSON.stringify({
-             "el": $(evt.target).attr("id"),
-             "left": el.position.left,
-             "top": el.position.top,
-             "width": $(evt.target).width(),
-             "height": $(evt.target).height()
-             }));
-             */
-        }
+    $("#toolbox-tools").draggable({
+        handle: ".panel-heading"
     }).resizable({
-        handles: "e, w, s, se",
-        stop: function(evt, el) {
-            // Save size and position in cookie
-            /*
-             $.cookie($(evt.target).attr("id"), JSON.stringify({
-             "el": $(evt.target).attr("id"),
-             "left": el.position.left,
-             "top": el.position.top,
-             "width": el.size.width,
-             "height": el.size.height
-             }));
-             */
+        handles: "e, w, s, se"
+    });
+
+    //Sliders
+    $( "#time_step_int" ).slider({
+        range: true,
+        min: 0,
+        max: size,
+        values: [ 0, size ],
+        slide: function( event, ui ) {
+            updateTimeStepFilter(ui.values[0], ui.values[1]);
+            $('#time_step_int_value').text(ui.values[0] + " - " + ui.values[1]);
         }
     });
 
+    var handle = $( "#brush_size_handle" );
+    $( "#brush_size" ).slider({
+        min: 0.5,
+        max: 10,
+        create: function() {
+            handle.text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            handle.text( ui.value );
+            updateBrushSizeFilter(ui.value);
+        }
+    });
+
+    $( "#zscore_int" ).slider({
+        range: true,
+        min: 3920,
+        max: 3999,
+        values: [ 3920, 3999 ],
+        slide: function( event, ui ) {
+            updateWeightFilter(ui.values[0]/1000, ui.values[1]/1000);
+            $('#zscore_int_value').text(ui.values[0]/1000 + " - " + ui.values[1]/1000);
+        }
+    });
+
+    var handle = $( "#camera_fov_handle" );
+    $( "#camera_fov" ).slider({
+        min: 50,
+        max: 100,
+        value: 90,
+        create: function() {
+            handle.text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            handle.text( ui.value );
+            updateCameraFOVFilter(ui.value);
+        }
+    });
+
+    var handle = $( "#zoom_speed_handle" );
+    $( "#zoom_speed" ).slider({
+        min: 1,
+        max: 10,
+        create: function() {
+            handle.text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            handle.text( ui.value );
+            updateZoomSpeedFilter(ui.value);
+        }
+    });
 
     // Expand and collaps the toolbar
     $("#toggle-toolbox-tools").on("click", function() {

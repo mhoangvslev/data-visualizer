@@ -34,7 +34,7 @@ function init() {
 	// Berlin map below the Grid
 	var textureGeoLoader = new THREE.TextureLoader();
 	textureGeoLoader.load(
-		'./berlin-map-1.jpg',
+		'./data/berlin-map-1.jpg',
 		function (textureGeo) {
 			textureGeo.minFilter = THREE.LinearFilter;
 			var mapMat = new THREE.MeshPhongMaterial( { map: textureGeo } );
@@ -58,7 +58,7 @@ function init() {
 	var CSVLoader = new THREE.FileLoader();
 	//scene.add(CUnitCluster);
 	CSVLoader.setResponseType('text');
-	CSVLoader.load('gistar_output_a.json', function ( text ) {
+	CSVLoader.load('./data/gistar_output_a.json', function ( text ) {
 		processedData = JSON.parse(text);
 
 		for (var entry of processedData) {
@@ -122,8 +122,6 @@ function init() {
 	spriteToolTip.scale.set(100,50,1.0);
 	spriteToolTip.position.set( 50, 50, 0 );
 	scene.add( spriteToolTip );*/
-
-	initCP();
 }
 
 function animate() {

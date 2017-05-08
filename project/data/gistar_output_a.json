@@ -1,8 +1,8 @@
 [
  {
-   "cell_x": 27,
-   "cell_y": 26,
-   "time_step": 1,
+   "cell_x": 1,
+   "cell_y": 1,
+   "time_step": 0,
    "zscore": 3.9889,
    "pvalue": 0.0001
  },

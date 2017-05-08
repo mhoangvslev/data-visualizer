@@ -3,6 +3,8 @@
  */
 var stats;
 var params = {
+    cube_size: 100,
+    cube_step: 50,
     time_step: 0,
     cunit_size: 1,
     weight: 0,
@@ -10,7 +12,7 @@ var params = {
     zoom_factor: 1
 };
 
-var size = 100, step = 20;
+var size = 100, step = 50;
 
 var camera, controls, renderer;
 

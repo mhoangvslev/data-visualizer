@@ -23,11 +23,73 @@ a {
 }
 
 .cameraControl{
-    background-color: rgba(0, 0, 0, 0.75);
-    color: whitesmoke;
-    position: absolute;
-    bottom: 10px;
+    background-color: #f0f0f0;
+    position: relative;
+    color: black;
+    bottom: auto;
     width: 100%;
     text-align: center;
 }
 
+#toolbox-tools {
+    position: absolute;
+    width: 660px;
+    height: 160px;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.group-handle {
+    height: 34px;
+    width: 10px;
+    cursor: move;
+}
+
+.panel-heading {
+    cursor: move;
+}
+
+.draggable-group {
+    float: left;
+}
+
+#sortable {
+    padding: 0px;
+}
+
+#sort-holder {
+    display: none;
+}
+
+#toolbox-tools{
+    background-color: #f0f0f0;
+}
+
+#toggle-toolbox-tools {
+    cursor: pointer;
+}
+
+#close-toolbox-tools {
+    cursor: pointer;
+}
+
+.toggle-button-group {
+    cursor: pointer;
+}
+
+.draggable-group {
+    overflow: hidden;
+}
+
+.minimized {
+    width: 12px;
+    height: 36px;
+}
+
+.ui-slider-handle {
+    width: 50em;
+    height: 50em;
+    top: 100%;
+    text-align: center;
+    line-height: 3.5em;
+}
