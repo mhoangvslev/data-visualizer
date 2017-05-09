@@ -1,7 +1,7 @@
 [
  {
-   "cell_x": 1,
-   "cell_y": 1,
+   "cell_x": 0,
+   "cell_y": 0,
    "time_step": 0,
    "zscore": 3.9889,
    "pvalue": 0.0001

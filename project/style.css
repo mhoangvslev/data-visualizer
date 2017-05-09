@@ -93,3 +93,15 @@ a {
     text-align: center;
     line-height: 3.5em;
 }
+
+.unitScale{
+    position: fixed;
+    bottom: 5%;
+    right: 5%;
+}
+
+.controlPanel{
+    position: fixed;
+    bottom: 5%;
+    right: 50%;
+}

@@ -40,3 +40,12 @@ function updateTimeStepFilter(interval1, interval2) {
         }
     });
 }
+
+function updateTimeStepScale(scale, offset){
+    CUnitCluster.traverse(function (child) {
+        if(child instanceof CUnit){
+            //console.log(scale);
+            child.getMesh().position.y = child.getTimeStep()*scale - offset;
+        }
+    });
+}

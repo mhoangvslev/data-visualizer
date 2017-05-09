@@ -13,6 +13,7 @@ var params = {
 };
 
 var size = 100, step = 50;
+var newSize = size;
 
 var camera, controls, renderer;
 
