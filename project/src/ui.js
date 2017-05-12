@@ -11,13 +11,20 @@ function updateCameraFOVFilter(fov) {
     camera.setFov(fovAmount);
 }
 
-function updateWeightFilter(interval1, interval2) {
+function updateWeightFilter() {
     CUnitCluster.traverse( function (child) {
         if(child instanceof CUnit) {
-            if (child.getZScore() >= interval1 && child.getZScore() <= interval2)
-                child.getMesh().visible = true;
-            else
+            if (child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound ) {
+                if (withTimeFilter && child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() <= timeStepUpperBound)
+                    child.getMesh().visible = true;
+                else if(withOneLayer && child.getTimeStep() === extrudeLayer)
+                    child.getMesh().visible = true;
+                else
+                    child.getMesh().visible = false;
+            }
+            else {
                 child.getMesh().visible = false;
+            }
         }
     });
 }
@@ -25,18 +32,29 @@ function updateWeightFilter(interval1, interval2) {
 function updateBrushSizeFilter(bsize) {
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit){
-            child.setCunitSize(bsize);
+            if(mustExtrude){
+                child.getMesh().scale.x = bsize;
+                child.getMesh().scale.z = bsize;
+            }
+            else
+                child.setCunitSize(bsize);
         }
     });
 }
 
-function updateTimeStepFilter(interval1, interval2) {
+function updateTimeStepFilter() {
+    resetScene();
     CUnitCluster.traverse(function (child) {
         if (child instanceof CUnit) {
-            if (child.getTimeStep() >= interval1 && child.getTimeStep() <= interval2)
-                child.getMesh().visible = true;
-            else
+            if (child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() <= timeStepUpperBound ) {
+                if(withWeightFilter)
+                    child.getMesh().visible = true;
+                else
+                    child.getMesh().visible = false;
+            }
+            else {
                 child.getMesh().visible = false;
+            }
         }
     });
 }
@@ -44,8 +62,40 @@ function updateTimeStepFilter(interval1, interval2) {
 function updateTimeStepScale(scale, offset){
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit){
-            //console.log(scale);
             child.getMesh().position.y = child.getTimeStep()*scale - offset;
         }
+    });
+}
+
+function updateMapAlphaFilter(val) {
+    mapMesh.material.opacity = val;
+}
+
+function updateGeometryFilter(newGeo) {
+    CUnitCluster.traverse(function (child) {
+       if(child instanceof CUnit){
+           child.changeGeometry(newGeo);
+       }
+    });
+}
+
+function updateOneLayerFilter() {
+    resetScene();
+    CUnitCluster.traverse(function (child) {
+       if(child instanceof CUnit){
+           if(child.getTimeStep() == extrudeLayer) {
+               if (mustExtrude) {
+                   child.getMesh().scale.y = child.getScalePerWeight() * 0.5;
+                   child.getMesh().position.y = child.getScalePerWeight()/2 - offsetY;
+               }
+               if(withWeightFilter && child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
+                   child.getMesh().visible = true;
+               else
+                   child.getMesh().visible = false;
+           }
+           else {
+               child.getMesh().visible = false;
+           }
+       }
     });
 }

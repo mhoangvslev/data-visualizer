@@ -105,3 +105,9 @@ a {
     bottom: 5%;
     right: 50%;
 }
+
+.cp-icons{
+    width: 50px;
+    display: inline-block;
+}
+

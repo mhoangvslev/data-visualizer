@@ -16,21 +16,21 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
         var zcolor;
         zcolor = Math.ceil((zscore - 3) * 100);
         if(zscore > 3.96) {
-            return new THREE.Color(`rgb(255, ${zcolor}, 0)`);
+            return new THREE.Color(`rgb(${zcolor}, 0 , 0)`);
         }
         else if( zscore < 3.96 && zscore > 3.94) {
-            return new THREE.Color(`rgb(0, 255, ${zcolor})`);
+            return new THREE.Color(`rgb(${zcolor}, 0, ${zcolor})`);
         }
-        return new THREE.Color(`rgb(${zcolor}, 0, 255)`);
+        return new THREE.Color(`rgb(0, 0, ${zcolor})`);
     };
 
 	// Attributes
 	this.type = 'CUnit';
 	this.color = this.getColorPerWeight(zscore);
 	this.opacity = this.getOpacityPerWeight(zscore);
-	this.geometry = new THREE.BoxGeometry( dimension, dimension, dimension);
+	this.geometry = GEO_CUBE;
 	this.latitude = latitude; this.longitude = longitude; this.time_step = time_step, this.zscore = zscore; this.dimension = dimension;
-
+    
 	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshPhongMaterial({
         color: this.color,
         transparent: true,
@@ -38,9 +38,9 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
     }));
 	//this.mesh.name = `lng: ${longitude}, lat: ${latitude}, t: ${time_step}, w: ${zscore}`;
 	this.mesh.name = `Longitude: ${longitude} | Latitude: ${latitude} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
-	this.mesh.position.x = longitude - offsetX;
-	this.mesh.position.z = - latitude - offsetZ;
-	this.mesh.position.y = time_step - offsetY;
+	this.mesh.position.x = longitude * axisLength - offsetX;
+	this.mesh.position.z = - latitude * axisLength - offsetZ;
+	this.mesh.position.y = time_step * axisLength - offsetY;
 	this.mesh.renderOrder = 2;
 }
 
@@ -49,7 +49,11 @@ CUnit.prototype.constructor = CUnit;
 
 CUnit.prototype.getMesh = function() {
 	return this.mesh;
-}
+};
+
+CUnit.prototype.changeGeometry = function(newGeo){
+  this.mesh.geometry = newGeo;
+};
 
 CUnit.prototype.reinitiate = function () {
     this.mesh.material = new THREE.MeshPhongMaterial({
@@ -57,7 +61,13 @@ CUnit.prototype.reinitiate = function () {
         transparent: true,
         opacity: this.getOpacityPerWeight(this.zscore)
     });
-}
+
+    this.mesh.position.x = this.longitude * axisLength - offsetX;
+    this.mesh.position.z = - this.latitude * axisLength - offsetZ;
+    this.mesh.position.y = this.time_step * axisLength - offsetY;
+
+    this.setCunitSize(BRUSH_SIZE);
+};
 
 CUnit.prototype.setOpacity = function (value) {
     this.mesh.material = new THREE.MeshPhongMaterial({
@@ -65,31 +75,38 @@ CUnit.prototype.setOpacity = function (value) {
         transparent: true,
         opacity: value
     });
-}
+};
 
 CUnit.prototype.setCunitSize = function (value) {
     var newDim = this.dimension * value;
-    this.mesh.geometry = new THREE.BoxGeometry(newDim, newDim, newDim);
-}
+    this.mesh.scale.set(newDim, newDim, newDim) ;
+};
 
 CUnit.prototype.getLongitude = function () {
     return this.longitude;
-}
+};
 
 CUnit.prototype.getLatitude = function () {
     return this.latitude;
-}
+};
 
 CUnit.prototype.getTimeStep = function () {
     return this.time_step;
-}
+};
 
 CUnit.prototype.getZScore = function () {
     return this.zscore;
-}
+};
 
 CUnit.prototype.getDimension = function () {
     return this.dimension;
-}
+};
 
+CUnit.prototype.isOffGrid = function () {
+    return (this.mesh.position.x > size || this.mesh.position.y > size || this.mesh.position.z > size);
+};
+
+CUnit.prototype.getScalePerWeight = function () {
+    return Math.ceil((this.zscore - 3.9) * 1000)*(79/size);
+};
 

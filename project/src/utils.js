@@ -180,3 +180,10 @@ function resetLabel(){
     labelLng.visible = true;
     labelLng.position.copy(LABEL_LNG_SPAWN);
 }
+
+function resetScene() {
+    CUnitCluster.traverse(function (child) {
+        if(child instanceof CUnit)
+            child.reinitiate();
+    });
+}

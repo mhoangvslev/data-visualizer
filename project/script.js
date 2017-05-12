@@ -1,4 +1,5 @@
-let offsetN = 0;
+/* eslint-disable padded-blocks */
+let offsetN = 0, mustScale = false;
 let checkTimeStepScale = function (b) {
 	if(b){
 		var scale = size/newSize;
@@ -6,7 +7,7 @@ let checkTimeStepScale = function (b) {
 		$('#time_step_unit').text(scale.toFixed(3) + ' unit(s)');
 	}
 	else{
-		updateTimeStepScale(1, offsetY);
+		updateTimeStepScale(size/axisLength, offsetY);
         $('#time_step_unit').text('1 unit');
 
     }
@@ -15,7 +16,6 @@ let checkTimeStepScale = function (b) {
  * Created by Minh Hoang DANG on 08/05/2017.
  */
 $(document).ready(function() {
-
 	// Add drag and resize option to panel
 	$("#toolbox-tools").draggable({
 		handle: ".panel-heading"
@@ -23,41 +23,74 @@ $(document).ready(function() {
 		handles: "e, w, s, se"
 	});
 
-	var mustScale = false;
 	$('#time_step_scale').click(function () {
-		if(this.checked)
-			mustScale = true;
-		else 
-			mustScale = false;
-		checkTimeStepScale(mustScale);
+		mustScale = this.checked;
+		checkTimeStepScale(this.checked);
 	});
 
 	//Sliders
 	$( "#time_step_int" ).slider({
 		range: true,
 		min: 0,
-		max: size,
-		values: [ 0, size ],
+		max: axisLength,
+		values: [ 0, axisLength ],
 		slide: function( event, ui ) {
-			updateTimeStepFilter(ui.values[0], ui.values[1]);
+			timeStepLowerBound = ui.values[0]; timeStepUpperBound = ui.values[1];
+            withTimeFilter = true; withOneLayer = false;
+            updateTimeStepFilter();
 			$('#time_step_int_value').text(ui.values[0] + " - " + ui.values[1]);
 			newSize = Math.abs(ui.values[1] - ui.values[0]); offsetN = ui.values[0];
+			$('#one_layer_extrusion').prop('checked', false); mustExtrude = false;
 			checkTimeStepScale(mustScale);
 		}
 	});
 
-	var handle = $( "#brush_size_handle" );
 	$( "#brush_size" ).slider({
-		min: 0.5,
-		max: 10,
+		min: 1,
+		max: 20,
 		create: function() {
-			handle.text( $( this ).slider( "value" ) );
+            $( "#brush_size_handle" ).text( $( this ).slider( "value" ) );
 		},
 		slide: function( event, ui ) {
-			handle.text( ui.value );
-			updateBrushSizeFilter(ui.value);
+			BRUSH_SIZE = ui.value/10;
+            $( "#brush_size_handle" ).text(  );
+			updateBrushSizeFilter(BRUSH_SIZE);
 		}
 	});
+
+    $('#one_layer_extrusion').click(function () {
+        mustExtrude = this.checked;
+        if(this.checked && extrudeLayer != -1)
+        	updateOneLayerFilter();
+    });
+
+    $( "#one_layer" ).slider({
+        min: 0,
+        max: axisLength - 1,
+        create: function() {
+            $( "#one_layer_handle" ).text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            withTimeFilter = false; withOneLayer = true;
+            $( "#one_layer_handle" ).text( ui.value );
+            extrudeLayer = ui.value;
+            newSize = 1; offsetN = ui.value;
+            checkTimeStepScale(true);
+            updateOneLayerFilter();
+        }
+    });
+
+    $( "#map_display" ).slider({
+        min: 0,
+        max: 10,
+        create: function() {
+            $( "#map_display_handle" ).text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $( "#map_display_handle" ).text( ui.value/10 );
+            updateMapAlphaFilter(ui.value/10);
+        }
+    });
 
 	$( "#zscore_int" ).slider({
 		range: true,
@@ -65,9 +98,11 @@ $(document).ready(function() {
 		max: 3999,
 		values: [ 3920, 3999 ],
 		slide: function( event, ui ) {
-			updateWeightFilter(ui.values[0]/1000, ui.values[1]/1000);
-			$('#zscore_int_value').text(ui.values[0]/1000 + " - " + ui.values[1]/1000);
-		}
+			zScoreLowerBound = ui.values[0]/1000;
+			zScoreUpperBound = ui.values[1]/1000
+			$('#zscore_int_value').text(zScoreLowerBound + " - " + zScoreUpperBound);
+            updateWeightFilter();
+        }
 	});
 
 	var handle = $( "#camera_fov_handle" );

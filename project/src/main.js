@@ -42,7 +42,7 @@ function init() {
 			textureGeo.wrapS = THREE.RepeatWrapping;
 			textureGeo.wrapT = THREE.RepeatWrapping;
 			var mapGeo = new THREE.PlaneGeometry( size, size );
-			var mapMesh = new THREE.Mesh( mapGeo, mapMat );
+			mapMesh = new THREE.Mesh( mapGeo, mapMat );
 
 			mapMesh.rotation.x = - ( Math.PI / 2 );
 			mapMesh.position.x = baseOXYGridHelper.position.x;
@@ -54,20 +54,11 @@ function init() {
 	);
 
 	// Cubes
-	var processedData;
-	var CSVLoader = new THREE.FileLoader();
-	//scene.add(CUnitCluster);
-	CSVLoader.setResponseType('text');
-	CSVLoader.load('./data/gistar_output_a.json', function ( text ) {
-		processedData = JSON.parse(text);
-
-		for (var entry of processedData) {
-			//console.log(entry);
-			var cunit = new CUnit(size/step, entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore'], entry['pvalue']);
-			CUnitCluster.add(cunit);
-			scene.add(cunit.getMesh());
-		}
-	});
+    for (var entry of processedData) {
+        var cunit = new CUnit(size/step, entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore'], entry['pvalue']);
+        CUnitCluster.add(cunit);
+        scene.add(cunit.getMesh());
+    }
 
 	// lights
 	var ambientLight = new THREE.AmbientLight( 0xffffff, 0.2 );

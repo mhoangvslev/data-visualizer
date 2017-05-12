@@ -12,8 +12,15 @@ var params = {
     zoom_factor: 1
 };
 
+var fileName = 'gistar_output_c.json';
 var size = 100, step = 50;
-var newSize = size;
+var processedData, dataAmount, axisLength = 10;
+var CSVLoader = new THREE.FileLoader();
+CSVLoader.setResponseType('text');
+CSVLoader.load(`./data/${fileName}`, function ( text ) {
+    processedData = JSON.parse(text);
+    dataAmount = processedData.length;
+});
 
 var camera, controls, renderer;
 
@@ -30,6 +37,16 @@ var isLMB = false, isRMB = false;
 var offsetZ = -size/2 + size/step/2;
 var offsetX = size/2 - size/step/2;
 var offsetY = size/2 - size/step/2;
+
+var mapMesh;
+var dimension = size/step;
+
+var timeStepLowerBound = 0, timeStepUpperBound = axisLength;
+var zScoreLowerBound = 3.920, zScoreUpperBound = 3.999;
+
+var extrudeLayer = -1, mustExtrude = false;
+
+var withWeightFilter = true, withTimeFilter = true, withOneLayer = false;
 
 var baseOXYGridHelper = new THREE.GridHelper(size, step);
 baseOXYGridHelper.position.z = 0;
@@ -51,6 +68,10 @@ baseOXZGridHelper.position.x = baseOXYGridHelper.position.x -size/2;
 baseOXZGridHelper.position.z = baseOXYGridHelper.position.z;
 baseOXZGridHelper.position.y = baseOXYGridHelper.position.y + size/2;
 baseOXZGridHelper.renderOrder = 1;
+
+var GEO_PRISM = new THREE.CylinderGeometry( dimension, dimension, dimension, 6, 4 );
+var GEO_CUBE = new THREE.BoxGeometry( dimension, dimension, dimension);
+var BRUSH_SIZE = size/step;
 
 var CAMERA_SPAWN = new THREE.Vector3(100, 100, 100);
 
