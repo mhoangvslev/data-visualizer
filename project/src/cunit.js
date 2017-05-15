@@ -30,7 +30,7 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
 	this.opacity = this.getOpacityPerWeight(zscore);
 	this.geometry = GEO_CUBE;
 	this.latitude = latitude; this.longitude = longitude; this.time_step = time_step, this.zscore = zscore; this.dimension = dimension;
-    
+
 	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshPhongMaterial({
         color: this.color,
         transparent: true,
@@ -66,7 +66,7 @@ CUnit.prototype.reinitiate = function () {
     this.mesh.position.z = - this.latitude * axisLength - offsetZ;
     this.mesh.position.y = this.time_step * axisLength - offsetY;
 
-    this.setCunitSize(BRUSH_SIZE);
+    this.setCunitSize(BRUSH_SIZE, BRUSH_SIZE, BRUSH_SIZE);
 };
 
 CUnit.prototype.setOpacity = function (value) {
@@ -77,9 +77,18 @@ CUnit.prototype.setOpacity = function (value) {
     });
 };
 
-CUnit.prototype.setCunitSize = function (value) {
-    var newDim = this.dimension * value;
-    this.mesh.scale.set(newDim, newDim, newDim) ;
+CUnit.prototype.setCunitSize = function (x, y, z) {
+    this.mesh.scale.set(x, y, z) ;
+
+    // Recalculate the offset
+    offsetZ = -size/2 + this.mesh.scale.z*this.dimension/2;
+    offsetX = size/2 - this.mesh.scale.x*this.dimension/2;
+    offsetY = size/2 - this.mesh.scale.y*this.dimension/2;
+
+    // Recalculate the position
+    this.mesh.position.x = this.longitude * axisLength - offsetX;
+    this.mesh.position.z = - this.latitude * axisLength - offsetZ;
+    this.mesh.position.y = this.time_step * axisLength - offsetY;
 };
 
 CUnit.prototype.getLongitude = function () {

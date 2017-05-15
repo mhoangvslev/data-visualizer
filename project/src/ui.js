@@ -33,11 +33,10 @@ function updateBrushSizeFilter(bsize) {
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit){
             if(mustExtrude){
-                child.getMesh().scale.x = bsize;
-                child.getMesh().scale.z = bsize;
+                child.setCunitSize(bsize, child.getScalePerWeight() * 0.5, bsize);
             }
             else
-                child.setCunitSize(bsize);
+                child.setCunitSize(bsize, bsize, bsize);
         }
     });
 }
@@ -47,7 +46,7 @@ function updateTimeStepFilter() {
     CUnitCluster.traverse(function (child) {
         if (child instanceof CUnit) {
             if (child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() <= timeStepUpperBound ) {
-                if(withWeightFilter)
+                if(child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
                     child.getMesh().visible = true;
                 else
                     child.getMesh().visible = false;
@@ -84,9 +83,10 @@ function updateOneLayerFilter() {
     CUnitCluster.traverse(function (child) {
        if(child instanceof CUnit){
            if(child.getTimeStep() == extrudeLayer) {
+               child.getMesh().visible = true;
                if (mustExtrude) {
                    child.getMesh().scale.y = child.getScalePerWeight() * 0.5;
-                   child.getMesh().position.y = child.getScalePerWeight()/2 - offsetY;
+                   child.getMesh().position.y = child.getScalePerWeight() - (size/2 + child.getMesh().scale.y*child.getDimension()/2);
                }
                if(withWeightFilter && child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
                    child.getMesh().visible = true;

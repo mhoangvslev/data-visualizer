@@ -4,7 +4,7 @@ let checkTimeStepScale = function (b) {
 	if(b){
 		var scale = size/newSize;
 		updateTimeStepScale(scale, offsetY + offsetN*scale);
-		$('#time_step_unit').text(scale.toFixed(3) + ' unit(s)');
+		$('#time_step_unit').text(scale.toFixed(2) + ' unit(s)');
 	}
 	else{
 		updateTimeStepScale(size/axisLength, offsetY);
@@ -47,7 +47,7 @@ $(document).ready(function() {
 
 	$( "#brush_size" ).slider({
 		min: 1,
-		max: 20,
+		max: 50,
 		create: function() {
             $( "#brush_size_handle" ).text( $( this ).slider( "value" ) );
 		},
@@ -60,8 +60,12 @@ $(document).ready(function() {
 
     $('#one_layer_extrusion').click(function () {
         mustExtrude = this.checked;
-        if(this.checked && extrudeLayer != -1)
-        	updateOneLayerFilter();
+        if(this.checked && extrudeLayer != -1) {
+            updateOneLayerFilter();
+            $('#time_step_scale').prop('checked', false);
+        }
+        else if(!this.checked)
+        	resetScene();
     });
 
     $( "#one_layer" ).slider({
@@ -71,6 +75,7 @@ $(document).ready(function() {
             $( "#one_layer_handle" ).text( $( this ).slider( "value" ) );
         },
         slide: function( event, ui ) {
+            $('#time_step_scale').prop('checked', false);
             withTimeFilter = false; withOneLayer = true;
             $( "#one_layer_handle" ).text( ui.value );
             extrudeLayer = ui.value;
