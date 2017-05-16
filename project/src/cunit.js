@@ -7,27 +7,32 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
 
     // Operations
     this.getOpacityPerWeight = function(zscore){
-        var result = (zscore - 3.9) * 10;
+        var result = (zscore - ZSCORE_LOWER_BOUND)/ZSCORE_SCALE;
         //console.log(result);
         return result.toFixed(4);
     };
 
     this.getColorPerWeight = function(zscore){
-        var zcolor;
-        zcolor = Math.ceil((zscore - 3) * 100);
-        if(zscore > 3.96) {
-            return new THREE.Color(`rgb(${zcolor}, 0 , 0)`);
-        }
-        else if( zscore < 3.96 && zscore > 3.94) {
-            return new THREE.Color(`rgb(${zcolor}, 0, ${zcolor})`);
-        }
-        return new THREE.Color(`rgb(0, 0, ${zcolor})`);
+        if(zscore < -2.58)
+            return new THREE.Color(0x3366cc);
+        else if(zscore >= -2.58 && zscore < -1.96)
+            return new THREE.Color(0x9999cc);
+        else if(zscore >= -1.96 && zscore < -1.65)
+            return new THREE.Color(0xc0c0c0);
+        else if(zscore >= -1.65 && zscore < 1.65)
+            return new THREE.Color(0xffffcc);
+        else if(zscore >= 1.65 && zscore < 1.96)
+            return new THREE.Color(0xffcc99);
+        else if(zscore >= 1.96 && zscore < 2.58)
+            return new THREE.Color(0xff6666);
+        else
+            return new THREE.Color(0xcc3333);
     };
 
 	// Attributes
 	this.type = 'CUnit';
 	this.color = this.getColorPerWeight(zscore);
-	this.opacity = this.getOpacityPerWeight(zscore);
+	this.opacity = 1;
 	this.geometry = GEO_CUBE;
 	this.latitude = latitude; this.longitude = longitude; this.time_step = time_step, this.zscore = zscore; this.dimension = dimension;
 
@@ -38,9 +43,9 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
     }));
 	//this.mesh.name = `lng: ${longitude}, lat: ${latitude}, t: ${time_step}, w: ${zscore}`;
 	this.mesh.name = `Longitude: ${longitude} | Latitude: ${latitude} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
-	this.mesh.position.x = longitude * axisLength - offsetX;
-	this.mesh.position.z = - latitude * axisLength - offsetZ;
-	this.mesh.position.y = time_step * axisLength - offsetY;
+    this.mesh.position.x = (this.latitude - X_LOWER_BOUND)*size/X_SCALE - offsetX;
+    this.mesh.position.z = -(this.longitude - Y_LOWER_BOUND)*size/Z_SCALE - offsetZ;
+    this.mesh.position.y = (this.time_step - TIME_STEP_LOWER_BOUND)*size/Y_SCALE - offsetY;
 	this.mesh.renderOrder = 2;
 }
 
@@ -62,9 +67,9 @@ CUnit.prototype.reinitiate = function () {
         opacity: this.getOpacityPerWeight(this.zscore)
     });
 
-    this.mesh.position.x = this.longitude * axisLength - offsetX;
-    this.mesh.position.z = - this.latitude * axisLength - offsetZ;
-    this.mesh.position.y = this.time_step * axisLength - offsetY;
+    this.mesh.position.x = (this.latitude - X_LOWER_BOUND)*size/X_SCALE - offsetX;
+    this.mesh.position.z = -(this.longitude - Y_LOWER_BOUND)*size/Z_SCALE - offsetZ;
+    this.mesh.position.y = (this.time_step - TIME_STEP_LOWER_BOUND)*size/Y_SCALE - offsetY;
 
     this.setCunitSize(BRUSH_SIZE, BRUSH_SIZE, BRUSH_SIZE);
 };
@@ -86,9 +91,9 @@ CUnit.prototype.setCunitSize = function (x, y, z) {
     offsetY = size/2 - this.mesh.scale.y*this.dimension/2;
 
     // Recalculate the position
-    this.mesh.position.x = this.longitude * axisLength - offsetX;
-    this.mesh.position.z = - this.latitude * axisLength - offsetZ;
-    this.mesh.position.y = this.time_step * axisLength - offsetY;
+    this.mesh.position.x = (this.latitude - X_LOWER_BOUND)*size/X_SCALE - offsetX;
+    this.mesh.position.z = -(this.longitude - Y_LOWER_BOUND)*size/Z_SCALE - offsetZ;
+    this.mesh.position.y = (this.time_step - TIME_STEP_LOWER_BOUND)*size/Y_SCALE - offsetY;
 };
 
 CUnit.prototype.getLongitude = function () {
@@ -116,6 +121,6 @@ CUnit.prototype.isOffGrid = function () {
 };
 
 CUnit.prototype.getScalePerWeight = function () {
-    return Math.ceil((this.zscore - 3.9) * 1000)*(79/size);
+    return (this.zscore - ZSCORE_LOWER_BOUND)*size*0.79/ZSCORE_SCALE;
 };
 

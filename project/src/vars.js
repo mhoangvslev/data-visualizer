@@ -1,29 +1,74 @@
 /**
  * Created by Minh Hoang DANG on 05/05/2017.
  */
-var stats;
-var params = {
-    cube_size: 100,
-    cube_step: 50,
-    time_step: 0,
-    cunit_size: 1,
-    weight: 0,
-    camera_fov: 90,
-    zoom_factor: 1
-};
 
-var fileName = 'gistar_output_c.json';
 var size = 100, step = 50, newSize = size;
-var processedData, dataAmount, axisLength = 10;
+var processedData, dataAmount;
+var fileName = 'gistar_output_b.json';
+
+var TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND, ZSCORE_LOWER_BOUND, ZSCORE_UPPER_BOUND, ZSCORE_SCALE, X_LOWER_BOUND, X_UPPER_BOUND, Y_LOWER_BOUND, Y_UPPER_BOUND;
+var timeStepLowerBound, timeStepUpperBound, zScoreLowerBound, zScoreUpperBound;
+var axisXScale, axisYScale, axisZScale;
+var X_SCALE, Y_SCALE, Z_SCALE;
+
 var CSVLoader = new THREE.FileLoader();
 CSVLoader.setResponseType('text');
 CSVLoader.load(`./data/${fileName}`, function ( text ) {
     processedData = JSON.parse(text);
     dataAmount = processedData.length;
+
+    TIME_STEP_LOWER_BOUND = (processedData[0])['time_step'], TIME_STEP_UPPER_BOUND = (processedData[processedData.length - 1])['time_step'];
+    ZSCORE_LOWER_BOUND = (processedData[0])['zscore'], ZSCORE_UPPER_BOUND = (processedData[processedData.length - 1])['zscore'];
+    X_LOWER_BOUND = (processedData[0])['cell_x'], X_UPPER_BOUND = (processedData[processedData.length - 1])['cell_x'];
+    Y_LOWER_BOUND = (processedData[0])['cell_y'], Y_UPPER_BOUND = (processedData[processedData.length - 1])['cell_y'];
+
+    for(var entry of processedData){
+        if(entry['time_step'] < TIME_STEP_LOWER_BOUND)
+            TIME_STEP_LOWER_BOUND = entry["time_step"];
+        if(entry["time_step"] > TIME_STEP_LOWER_BOUND)
+            TIME_STEP_UPPER_BOUND = entry["time_step"];
+
+        if(entry["zscore"] < ZSCORE_LOWER_BOUND)
+            ZSCORE_LOWER_BOUND = entry["zscore"];
+        if(entry["zscore"] > ZSCORE_UPPER_BOUND)
+            ZSCORE_UPPER_BOUND = entry["zscore"];
+
+        if(entry["cell_x"] < X_LOWER_BOUND)
+            X_LOWER_BOUND = entry["cell_x"];
+        if(entry["cell_x"] > X_UPPER_BOUND)
+            X_UPPER_BOUND = entry["cell_x"];
+
+        if(entry["cell_y"] < Y_LOWER_BOUND)
+            Y_LOWER_BOUND = entry["cell_y"];
+        if(entry["cell_y"] > Y_UPPER_BOUND)
+            X_UPPER_BOUND = entry["cell_y"];
+    }
+
+    console.log(`Time_step: ${TIME_STEP_LOWER_BOUND} - ${TIME_STEP_UPPER_BOUND}`);
+    console.log(`zScore: ${ZSCORE_LOWER_BOUND} - ${ZSCORE_UPPER_BOUND}`);
+    console.log(`cell_x: ${X_LOWER_BOUND} - ${X_UPPER_BOUND}`);
+    console.log(`cell_y: ${Y_LOWER_BOUND} - ${Y_UPPER_BOUND}`);
+
+    timeStepLowerBound = TIME_STEP_LOWER_BOUND; timeStepUpperBound = TIME_STEP_UPPER_BOUND;
+    zScoreLowerBound = ZSCORE_LOWER_BOUND; zScoreUpperBound = ZSCORE_UPPER_BOUND;
+
+    X_SCALE = X_UPPER_BOUND - X_LOWER_BOUND;
+    Y_SCALE = TIME_STEP_UPPER_BOUND - TIME_STEP_LOWER_BOUND;
+    Z_SCALE = Y_UPPER_BOUND - Y_LOWER_BOUND;
+
+    axisXScale = (X_SCALE > size) ? size/(X_SCALE + 1) : 1;
+    axisYScale = (Y_SCALE > size) ? size/(Y_SCALE + 1) : (Y_SCALE + 1)/size;
+    axisZScale = (Z_SCALE > size) ? size/(Z_SCALE + 1) : 1;
+
+    ZSCORE_SCALE = ZSCORE_UPPER_BOUND - ZSCORE_LOWER_BOUND;
+
+    console.log(`X Scale: ${axisXScale} | ${X_SCALE}`);
+    console.log(`Z Scale: ${axisZScale} | ${Z_SCALE}`);
+    console.log(`Y Scale: ${axisYScale} | ${Y_SCALE}`);
+
 });
 
-var camera, controls, renderer;
-
+var stats, camera, controls, renderer;
 var scene = new THREE.Scene();
 var raycaster = new THREE.Raycaster();
 
@@ -41,11 +86,7 @@ var offsetY = size/2 - (size/step)/2;
 var mapMesh;
 var dimension = size/step;
 
-var timeStepLowerBound = 0, timeStepUpperBound = axisLength;
-var zScoreLowerBound = 3.920, zScoreUpperBound = 3.999;
-
-var extrudeLayer = -1, mustExtrude = false;
-
+var extrudeLayer = -1, mustExtrude = false, mustScale = false;
 var withWeightFilter = true, withTimeFilter = true, withOneLayer = false;
 
 var baseOXYGridHelper = new THREE.GridHelper(size, step);

@@ -1,5 +1,5 @@
 /* eslint-disable padded-blocks */
-let offsetN = 0, mustScale = false;
+let offsetN = 0;
 let checkTimeStepScale = function (b) {
 	if(b){
 		var scale = size/newSize;
@@ -7,7 +7,7 @@ let checkTimeStepScale = function (b) {
 		$('#time_step_unit').text(scale.toFixed(2) + ' unit(s)');
 	}
 	else{
-		updateTimeStepScale(size/axisLength, offsetY);
+		updateTimeStepScale(axisYScale, offsetY);
         $('#time_step_unit').text('1 unit');
 
     }
@@ -31,9 +31,9 @@ $(document).ready(function() {
 	//Sliders
 	$( "#time_step_int" ).slider({
 		range: true,
-		min: 0,
-		max: axisLength,
-		values: [ 0, axisLength ],
+		min: TIME_STEP_LOWER_BOUND,
+		max: TIME_STEP_UPPER_BOUND,
+		values: [ TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND ],
 		slide: function( event, ui ) {
 			timeStepLowerBound = ui.values[0]; timeStepUpperBound = ui.values[1];
             withTimeFilter = true; withOneLayer = false;
@@ -69,8 +69,8 @@ $(document).ready(function() {
     });
 
     $( "#one_layer" ).slider({
-        min: 0,
-        max: axisLength - 1,
+        min: TIME_STEP_LOWER_BOUND,
+        max: TIME_STEP_UPPER_BOUND,
         create: function() {
             $( "#one_layer_handle" ).text( $( this ).slider( "value" ) );
         },
@@ -99,9 +99,9 @@ $(document).ready(function() {
 
 	$( "#zscore_int" ).slider({
 		range: true,
-		min: 3920,
-		max: 3999,
-		values: [ 3920, 3999 ],
+		min: ZSCORE_LOWER_BOUND * 1000,
+		max: ZSCORE_UPPER_BOUND * 1000,
+		values: [ ZSCORE_LOWER_BOUND, ZSCORE_UPPER_BOUND ],
 		slide: function( event, ui ) {
 			zScoreLowerBound = ui.values[0]/1000;
 			zScoreUpperBound = ui.values[1]/1000
