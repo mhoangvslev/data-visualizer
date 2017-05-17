@@ -6,11 +6,11 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
 	THREE.Object3D.call( this );
 
     // Operations
-    this.getOpacityPerWeight = function(zscore){
+    /*this.getOpacityPerWeight = function(zscore){
         var result = (zscore - ZSCORE_LOWER_BOUND)/ZSCORE_SCALE;
         //console.log(result);
         return result.toFixed(4);
-    };
+    };*/
 
     this.getColorPerWeight = function(zscore){
         if(zscore < -2.58)
@@ -64,7 +64,7 @@ CUnit.prototype.reinitiate = function () {
     this.mesh.material = new THREE.MeshPhongMaterial({
         color: this.getColorPerWeight(this.zscore),
         transparent: true,
-        opacity: this.getOpacityPerWeight(this.zscore)
+        opacity: this.opacity
     });
 
     this.mesh.position.x = (this.latitude - X_LOWER_BOUND)*size/X_SCALE - offsetX;
@@ -74,13 +74,13 @@ CUnit.prototype.reinitiate = function () {
     this.setCunitSize(BRUSH_SIZE, BRUSH_SIZE, BRUSH_SIZE);
 };
 
-CUnit.prototype.setOpacity = function (value) {
+/*CUnit.prototype.setOpacity = function (value) {
     this.mesh.material = new THREE.MeshPhongMaterial({
         color: this.color,
         transparent: true,
         opacity: value
     });
-};
+};*/
 
 CUnit.prototype.setCunitSize = function (x, y, z) {
     this.mesh.scale.set(x, y, z) ;
@@ -114,10 +114,6 @@ CUnit.prototype.getZScore = function () {
 
 CUnit.prototype.getDimension = function () {
     return this.dimension;
-};
-
-CUnit.prototype.isOffGrid = function () {
-    return (this.mesh.position.x > size || this.mesh.position.y > size || this.mesh.position.z > size);
 };
 
 CUnit.prototype.getScalePerWeight = function () {

@@ -8,7 +8,17 @@ function init() {
 	var container = document.getElementById( 'container' );
 	document.body.appendChild(container);
 
-	renderer = new THREE.CanvasRenderer();
+    // Renderer
+    /*if ( webglAvailable() ) {
+        renderer = new THREE.WebGLRenderer( { antialias: true } );
+    } else {
+        renderer = new THREE.CanvasRenderer();
+    }*/
+    renderer = new THREE.CanvasRenderer();
+    renderer.setClearColor( 0xf0f0f0 );
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    container.appendChild( renderer.domElement );
 
 	// World
 	// Grid
@@ -32,12 +42,13 @@ function init() {
 	scene.add(labelLat);
 
 	// Berlin map below the Grid
-	var textureGeoLoader = new THREE.TextureLoader();
+	/*var textureGeoLoader = new THREE.TextureLoader();
+	//var textureGeoLoader = new THREE.SVGLoader();
 	textureGeoLoader.load(
-		'./data/berlin-map-1.jpg',
+		'./data/nyc_location_map.svg',
 		function (textureGeo) {
 			textureGeo.minFilter = THREE.LinearFilter;
-			var mapMat = new THREE.MeshPhongMaterial( { map: textureGeo } );
+			mapMat = new THREE.MeshPhongMaterial( { map: textureGeo } );
 			mapMat.needsUpdate = true;
 			textureGeo.wrapS = THREE.RepeatWrapping;
 			textureGeo.wrapT = THREE.RepeatWrapping;
@@ -51,7 +62,41 @@ function init() {
             mapMesh.renderOrder = 0;
             scene.add( mapMesh );
 		}
-	);
+	);*/
+
+    var svg = document.getElementById("svgContainer").querySelector("svg");
+    var svgData = (new XMLSerializer()).serializeToString(svg);
+
+    svgCanvas = document.createElement("canvas");
+    var svgSize = svg.getBoundingClientRect();
+    console.log(`${svgSize.width} | ${svgSize.height}`);
+    svgCanvas.width = 541;
+    svgCanvas.height = 529;
+    svgContext = svgCanvas.getContext("2d");
+
+    var img = document.createElement("img");
+    img.setAttribute("src", "data:image/svg+xml;base64," + window.btoa(decodeURIComponent(encodeURIComponent(svgData))) );
+
+    img.onload = function() {
+        svgContext.drawImage(img, 0, 0);
+        var textureGeo = new THREE.Texture(svgCanvas);
+        textureGeo.needsUpdate = true;
+
+        textureGeo.minFilter = THREE.LinearFilter;
+        mapMat = new THREE.MeshBasicMaterial( { map: textureGeo, side: THREE.DoubleSide } );
+        mapMat.needsUpdate = true;
+        textureGeo.wrapS = THREE.RepeatWrapping;
+        textureGeo.wrapT = THREE.RepeatWrapping;
+        var mapGeo = new THREE.PlaneGeometry( size, size );
+        mapMesh = new THREE.Mesh( mapGeo, mapMat );
+
+        mapMesh.rotation.x = - ( Math.PI / 2 );
+        mapMesh.position.x = baseOXYGridHelper.position.x;
+        mapMesh.position.z = baseOXYGridHelper.position.z;
+        mapMesh.position.y = baseOXYGridHelper.position.y - 0.5;
+        mapMesh.renderOrder = 0;
+        scene.add( mapMesh );
+    };
 
 	// Cubes
     for (var entry of processedData) {
@@ -64,17 +109,6 @@ function init() {
 	var ambientLight = new THREE.AmbientLight( 0xffffff, 0.2 );
 	scene.add( ambientLight );
 
-	/*if ( webglAvailable() ) {
-	 renderer = new THREE.WebGLRenderer( { antialias: true } );
-	 } else {
-	 renderer = new THREE.CanvasRenderer();
-	 }*/
-
-	renderer.setClearColor( 0xf0f0f0 );
-	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth, window.innerHeight );
-	container.appendChild( renderer.domElement );
-	
 	// Stats
 	stats = new Stats();
 	container.appendChild( stats.dom );

@@ -3,11 +3,11 @@ let offsetN = 0;
 let checkTimeStepScale = function (b) {
 	if(b){
 		var scale = size/newSize;
-		updateTimeStepScale(scale, offsetY + offsetN*scale);
+		updateTimeStepScale(newSize, offsetY + offsetN*scale);
 		$('#time_step_unit').text(scale.toFixed(2) + ' unit(s)');
 	}
 	else{
-		updateTimeStepScale(axisYScale, offsetY);
+		updateTimeStepScale(size, offsetY);
         $('#time_step_unit').text('1 unit');
 
     }
@@ -16,6 +16,9 @@ let checkTimeStepScale = function (b) {
  * Created by Minh Hoang DANG on 08/05/2017.
  */
 $(document).ready(function() {
+    // Include svg
+    //$('#svgContainer').load("./data/nyc_location_map.svg");
+
 	// Add drag and resize option to panel
 	$("#toolbox-tools").draggable({
 		handle: ".panel-heading"
@@ -29,6 +32,30 @@ $(document).ready(function() {
 	});
 
 	//Sliders
+    $( "#texture_offset" ).slider({
+        min: 1,
+        max: 10,
+        create: function() {
+            $( "#texture_offset_handle" ).text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $( "#texture_offset_handle" ).text( ui.value );
+            updateTextureOffsetFilter(ui.value);
+        }
+    });
+
+    $( "#texture_zoom" ).slider({
+        min: 1,
+        max: 10,
+        create: function() {
+            $( "#texture_zoom_handle" ).text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $( "#texture_zoom_handle" ).text( ui.value );
+            updateTextureScaleFilter(ui.value);
+        }
+    });
+
 	$( "#time_step_int" ).slider({
 		range: true,
 		min: TIME_STEP_LOWER_BOUND,
@@ -36,11 +63,10 @@ $(document).ready(function() {
 		values: [ TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND ],
 		slide: function( event, ui ) {
 			timeStepLowerBound = ui.values[0]; timeStepUpperBound = ui.values[1];
-            withTimeFilter = true; withOneLayer = false;
             updateTimeStepFilter();
 			$('#time_step_int_value').text(ui.values[0] + " - " + ui.values[1]);
 			newSize = Math.abs(ui.values[1] - ui.values[0]); offsetN = ui.values[0];
-			$('#one_layer_extrusion').prop('checked', false); mustExtrude = false;
+			$('#one_layer_extrusion').prop('checked', false); mustExtrude = false; extrudeLayer = -1;
 			checkTimeStepScale(mustScale);
 		}
 	});
@@ -53,7 +79,7 @@ $(document).ready(function() {
 		},
 		slide: function( event, ui ) {
 			BRUSH_SIZE = ui.value/10;
-            $( "#brush_size_handle" ).text(  );
+            $( "#brush_size_handle" ).text( BRUSH_SIZE );
 			updateBrushSizeFilter(BRUSH_SIZE);
 		}
 	});
@@ -76,7 +102,6 @@ $(document).ready(function() {
         },
         slide: function( event, ui ) {
             $('#time_step_scale').prop('checked', false);
-            withTimeFilter = false; withOneLayer = true;
             $( "#one_layer_handle" ).text( ui.value );
             extrudeLayer = ui.value;
             newSize = 1; offsetN = ui.value;

@@ -17,6 +17,7 @@ CSVLoader.load(`./data/${fileName}`, function ( text ) {
     processedData = JSON.parse(text);
     dataAmount = processedData.length;
 
+    // Sorting algorithm
     TIME_STEP_LOWER_BOUND = (processedData[0])['time_step'], TIME_STEP_UPPER_BOUND = (processedData[processedData.length - 1])['time_step'];
     ZSCORE_LOWER_BOUND = (processedData[0])['zscore'], ZSCORE_UPPER_BOUND = (processedData[processedData.length - 1])['zscore'];
     X_LOWER_BOUND = (processedData[0])['cell_x'], X_UPPER_BOUND = (processedData[processedData.length - 1])['cell_x'];
@@ -83,11 +84,12 @@ var offsetZ = -size/2 + (size/step)/2;
 var offsetX = size/2 - (size/step)/2;
 var offsetY = size/2 - (size/step)/2;
 
-var mapMesh;
+var mapMesh, mapMat;
 var dimension = size/step;
 
+var svgCanvas, svgContext;
+
 var extrudeLayer = -1, mustExtrude = false, mustScale = false;
-var withWeightFilter = true, withTimeFilter = true, withOneLayer = false;
 
 var baseOXYGridHelper = new THREE.GridHelper(size, step);
 baseOXYGridHelper.position.z = 0;

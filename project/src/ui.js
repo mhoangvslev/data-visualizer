@@ -15,9 +15,9 @@ function updateWeightFilter() {
     CUnitCluster.traverse( function (child) {
         if(child instanceof CUnit) {
             if (child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound ) {
-                if (withTimeFilter && child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() <= timeStepUpperBound)
+                if (child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() <= timeStepUpperBound)
                     child.getMesh().visible = true;
-                else if(withOneLayer && child.getTimeStep() === extrudeLayer)
+                else if(child.getTimeStep() === extrudeLayer)
                     child.getMesh().visible = true;
                 else
                     child.getMesh().visible = false;
@@ -61,7 +61,7 @@ function updateTimeStepFilter() {
 function updateTimeStepScale(scale, offset){
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit){
-            child.getMesh().position.y = child.getTimeStep()*scale - offset;
+            child.getMesh().position.y = (child.getTimeStep() - TIME_STEP_LOWER_BOUND)*scale/Y_SCALE - offset;
         }
     });
 }
@@ -82,13 +82,13 @@ function updateOneLayerFilter() {
     resetScene();
     CUnitCluster.traverse(function (child) {
        if(child instanceof CUnit){
-           if(child.getTimeStep() == extrudeLayer) {
+           if(child.getTimeStep() === extrudeLayer) {
                child.getMesh().visible = true;
                if (mustExtrude) {
                    child.getMesh().scale.y = child.getScalePerWeight() * 0.5;
                    child.getMesh().position.y = child.getScalePerWeight() - (size/2 + child.getMesh().scale.y*child.getDimension()/2);
                }
-               if(withWeightFilter && child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
+               if(child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
                    child.getMesh().visible = true;
                else
                    child.getMesh().visible = false;
@@ -98,4 +98,15 @@ function updateOneLayerFilter() {
            }
        }
     });
+}
+
+function updateTextureOffsetFilter(val) {
+    mapMat.map.offset.x = val;
+}
+
+function updateTextureScaleFilter(val) {
+    var rp = Math.pow(val, -1); // The zoom factor is inversely proportional to repeat
+    //console.log(rp);
+    mapMat.map.repeat.set(rp, rp);
+    svgContext.drawImage()
 }
