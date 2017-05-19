@@ -43,9 +43,9 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
     }));
 	//this.mesh.name = `lng: ${longitude}, lat: ${latitude}, t: ${time_step}, w: ${zscore}`;
 	this.mesh.name = `Longitude: ${longitude} | Latitude: ${latitude} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
-    this.mesh.position.x = (this.latitude - X_LOWER_BOUND)*size/X_SCALE - offsetX;
-    this.mesh.position.z = -(this.longitude - Y_LOWER_BOUND)*size/Z_SCALE - offsetZ;
-    this.mesh.position.y = (this.time_step - TIME_STEP_LOWER_BOUND)*size/Y_SCALE - offsetY;
+    this.mesh.position.x = this.latitude - offsetX;
+    this.mesh.position.z = -this.longitude - offsetZ;
+    this.mesh.position.y = this.time_step - offsetY;
 	this.mesh.renderOrder = 2;
 }
 
@@ -67,9 +67,12 @@ CUnit.prototype.reinitiate = function () {
         opacity: this.opacity
     });
 
-    this.mesh.position.x = (this.latitude - X_LOWER_BOUND)*size/X_SCALE - offsetX;
+    /*this.mesh.position.x = (this.latitude - X_LOWER_BOUND)*size/X_SCALE - offsetX;
     this.mesh.position.z = -(this.longitude - Y_LOWER_BOUND)*size/Z_SCALE - offsetZ;
-    this.mesh.position.y = (this.time_step - TIME_STEP_LOWER_BOUND)*size/Y_SCALE - offsetY;
+    this.mesh.position.y = (this.time_step - TIME_STEP_LOWER_BOUND)*size/Y_SCALE - offsetY;*/
+    this.mesh.position.x = this.latitude - offsetX;
+    this.mesh.position.z = -this.longitude - offsetZ;
+    this.mesh.position.y = this.time_step - offsetY;
 
     this.setCunitSize(BRUSH_SIZE, BRUSH_SIZE, BRUSH_SIZE);
 };
@@ -91,9 +94,9 @@ CUnit.prototype.setCunitSize = function (x, y, z) {
     offsetY = size/2 - this.mesh.scale.y*this.dimension/2;
 
     // Recalculate the position
-    this.mesh.position.x = (this.latitude - X_LOWER_BOUND)*size/X_SCALE - offsetX;
-    this.mesh.position.z = -(this.longitude - Y_LOWER_BOUND)*size/Z_SCALE - offsetZ;
-    this.mesh.position.y = (this.time_step - TIME_STEP_LOWER_BOUND)*size/Y_SCALE - offsetY;
+    this.mesh.position.x = this.latitude - offsetX;
+    this.mesh.position.z = -this.longitude - offsetZ;
+    this.mesh.position.y = this.time_step - offsetY;
 };
 
 CUnit.prototype.getLongitude = function () {

@@ -101,12 +101,14 @@ function updateOneLayerFilter() {
 }
 
 function updateTextureOffsetFilter(val) {
+    /*mapMat.map.wrapS = mapMat.map.wrapT = THREE.RepeatWrapping;
+    mapMat.map.repeat.set( val / mapMat.map.width, val / mapMat.map.height );*/
     mapMat.map.offset.x = val;
+    mapMat.map.offset.y = val;
 }
 
 function updateTextureScaleFilter(val) {
     var rp = Math.pow(val, -1); // The zoom factor is inversely proportional to repeat
     //console.log(rp);
     mapMat.map.repeat.set(rp, rp);
-    svgContext.drawImage()
 }

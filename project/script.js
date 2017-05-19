@@ -11,7 +11,8 @@ let checkTimeStepScale = function (b) {
         $('#time_step_unit').text('1 unit');
 
     }
-}
+};
+
 /**
  * Created by Minh Hoang DANG on 08/05/2017.
  */
@@ -33,14 +34,14 @@ $(document).ready(function() {
 
 	//Sliders
     $( "#texture_offset" ).slider({
-        min: 1,
+        min: 0,
         max: 10,
         create: function() {
             $( "#texture_offset_handle" ).text( $( this ).slider( "value" ) );
         },
         slide: function( event, ui ) {
-            $( "#texture_offset_handle" ).text( ui.value );
-            updateTextureOffsetFilter(ui.value);
+            $( "#texture_offset_handle" ).text( ui.value/10 );
+            updateTextureOffsetFilter(ui.value/10);
         }
     });
 
