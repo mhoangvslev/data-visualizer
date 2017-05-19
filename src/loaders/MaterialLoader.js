@@ -21,10 +21,9 @@ Object.assign( MaterialLoader.prototype, {
 		var scope = this;
 
 		var loader = new FileLoader( scope.manager );
-		loader.setResponseType( 'json' );
-		loader.load( url, function ( json ) {
+		loader.load( url, function ( text ) {
 
-			onLoad( scope.parse( json ) );
+			onLoad( scope.parse( JSON.parse( text ) ) );
 
 		}, onProgress, onError );
 
@@ -144,18 +143,6 @@ Object.assign( MaterialLoader.prototype, {
 		if ( json.aoMapIntensity !== undefined ) material.aoMapIntensity = json.aoMapIntensity;
 
 		if ( json.gradientMap !== undefined ) material.gradientMap = getTexture( json.gradientMap );
-
-		// MultiMaterial
-
-		if ( json.materials !== undefined ) {
-
-			for ( var i = 0, l = json.materials.length; i < l; i ++ ) {
-
-				material.materials.push( this.parse( json.materials[ i ] ) );
-
-			}
-
-		}
 
 		return material;
 

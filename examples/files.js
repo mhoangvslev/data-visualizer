@@ -1,6 +1,7 @@
 var files = {
 	"webgl": [
 		"webgl_animation_cloth",
+		"webgl_animation_keyframes_json",
 		"webgl_animation_scene",
 		"webgl_animation_skinning_blending",
 		"webgl_animation_skinning_morph",
@@ -43,6 +44,7 @@ var files = {
 		"webgl_geometry_text",
 		"webgl_geometry_text_earcut",
 		"webgl_geometry_text_pnltri",
+		"webgl_geometry_text_shapes",
 		"webgl_gpgpu_birds",
 		"webgl_gpgpu_water",
 		"webgl_gpgpu_protoplanet",
@@ -73,6 +75,7 @@ var files = {
 		"webgl_lines_dashed",
 		"webgl_lines_sphere",
 		"webgl_lines_splines",
+		"webgl_loader_3ds",
 		"webgl_loader_3mf",
 		"webgl_loader_amf",
 		"webgl_loader_assimp",
@@ -81,7 +84,6 @@ var files = {
 		"webgl_loader_babylon",
 		"webgl_loader_bvh",
 		"webgl_loader_collada",
-		"webgl_loader_collada_keyframe",
 		"webgl_loader_collada_kinematics",
 		"webgl_loader_collada_skinning",
 		"webgl_loader_ctm",
