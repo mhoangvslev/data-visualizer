@@ -188,14 +188,14 @@ function resetScene() {
     });
 }
 
-function createCSS3DObject(s) {
+function createCSS3DObject(s, width, height, scaleW, scaleH) {
     // create outerdiv and set inner HTML from supplied string
     var div = document.createElement('div');
     div.innerHTML = s;
 
     // set some values on the div to style it, standard CSS
-    div.style.width = '370px';
-    div.style.height = '370px';
+    div.style.width = `${width*scaleW}px`;
+    div.style.height = `${height*scaleH}px`;
     div.style.opacity = 0.7;
     div.style.background = new THREE.Color(Math.random() * 0xffffff).getStyle();
 

@@ -66,15 +66,16 @@ function init() {
 		}
 	);*/
 
-	var mapMesh = createCSS3DObject(iframe.replace("LOCATION",loc));
-    mapMesh.rotation.x = - ( Math.PI / 2 );
-    mapMesh.position.x = baseOXYGridHelper.position.x;
-    mapMesh.position.z = baseOXYGridHelper.position.z;
-    mapMesh.position.y = baseOXYGridHelper.position.y - 0.5;
-    mapMesh.scale.x = (sizeX/size);
-    mapMesh.scale.y = (sizeZ/size);
-    mapMesh.renderOrder = 0;
-	scene.add(mapMesh);
+	var mapLayer = createCSS3DObject(iframe.replace("MAPTYPE", maptype).replace("LOCATION",loc), 661, 689, sizeX/size, sizeZ/size );
+    mapLayer.rotation.x = - ( Math.PI / 2 );
+    mapLayer.position.x = baseOXYGridHelper.position.x;
+    mapLayer.position.z = baseOXYGridHelper.position.z;
+    mapLayer.position.y = baseOXYGridHelper.position.y - 10;
+    mapLayer.scale.x = (sizeZ/size)*0.5;
+    mapLayer.scale.y = (sizeX/size)*0.5;
+    mapLayer.renderOrder = 0;
+	scene.add(mapLayer);
+	//document.getElementById('svgContainer').innerHTML = iframe.replace("MAPTYPE", maptype).replace("LOCATION",loc);
 
 	// Cubes
     for (var entry of processedData) {
@@ -94,13 +95,18 @@ function init() {
 	// Camera
 	camera = new THREE.CombinedCamera(window.innerWidth/2, window.innerHeight/2, 90, 1, 1000, -500, 1000);
 	camera.isPerspectiveCamera = true; camera.isOrthographicCamera = false;
-    //camera1 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
 	camera.position.copy(CAMERA_SPAWN);
 	camera.lookAt(new THREE.Vector3(size/2, size/2, size/2));
 
-	controls = new THREE.OrbitControls( camera, renderer1.domElement );
+    /*camera1 = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
+    camera1.position.set( 500, 350, 750 );*/
+
+	controls = new THREE.OrbitControls( camera, renderer2.domElement );
 	controls.addEventListener( 'change', render ); // remove when using animation loop
 	controls.enableZoom = true;
+
+    /*controls = new THREE.TrackballControls( camera );
+    controls.rotateSpeed = 4;*/
 
 	// Event
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -142,7 +148,7 @@ function update() {
 
 function render() {
 	renderer1.render( scene, camera );
-	//renderer2.render( scene, camera1 );
+	renderer2.render( scene, camera );
 }
 
 

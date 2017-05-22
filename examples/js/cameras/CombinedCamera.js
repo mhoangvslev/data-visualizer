@@ -34,11 +34,11 @@ THREE.CombinedCamera = function ( width, height, fov, near, far, orthoNear, orth
 };
 
 THREE.CombinedCamera.prototype = Object.create( THREE.Camera.prototype );
+
 THREE.CombinedCamera.prototype.constructor = THREE.CombinedCamera;
 
 THREE.CombinedCamera.prototype.getEffectiveFOV = function () {
-    return Math.RAD2DEG * 2 * Math.atan(
-            Math.tan( Math.DEG2RAD * 0.5 * this.fov ) / this.zoom );
+	return THREE.Math.RAD2DEG * 2 * Math.atan(Math.tan( THREE.Math.DEG2RAD * 0.5 * this.fov ) / this.zoom );
 };
 
 THREE.CombinedCamera.prototype.toPerspective = function () {
