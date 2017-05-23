@@ -9,84 +9,99 @@ function init() {
 	document.body.appendChild(container);
 
     // Renderer
-    renderer1 = new THREE.CanvasRenderer();
-    renderer1.setClearColor( 0xf0f0f0 );
-    renderer1.setPixelRatio( window.devicePixelRatio );
-    renderer1.setSize( window.innerWidth, window.innerHeight );
-    container.appendChild( renderer1.domElement );
+    WebGLRenderer = new THREE.CanvasRenderer({alpha: true});
+    WebGLRenderer.setClearColor( 0xf0f0f0 );
+    WebGLRenderer.setPixelRatio( window.devicePixelRatio );
+    WebGLRenderer.setSize( window.innerWidth, window.innerHeight );
+    //WebGLRenderer.domElement.style.position = 'absolute';
+    WebGLRenderer.domElement.style.top = 0;
+    // make sure original renderer appears on top of CSS renderer
+    WebGLRenderer.domElement.style.zIndex   = 1;
+    container.appendChild( WebGLRenderer.domElement );
 
-    renderer2 = new THREE.CSS3DRenderer();
-    renderer2.setSize( window.innerWidth, window.innerHeight );
-    renderer2.domElement.style.position = 'absolute';
-    renderer2.domElement.style.top = 0;
-    container.appendChild( renderer2.domElement );
+    cssRenderer = new THREE.CSS3DRenderer();
+    cssRenderer.setSize( window.innerWidth, window.innerHeight );
+    cssRenderer.domElement.style.position = 'absolute';
+    cssRenderer.domElement.style.top = 0;
+    cssRenderer.domElement.style.margin = 0;
+    cssRenderer.domElement.style.padding = 0;
+    container.appendChild( cssRenderer.domElement );
+
+    //cssRenderer.domElement.appendChild( WebGLRenderer.domElement );
 
     // World
 	// Grid
 
 	// Base OXY Grid
-    scene.add(baseOXYGridHelper);
+    WebGLScene.add(baseOXYGridHelper);
 
     // Base OYZ Grid
-	scene.add(baseOYZGridHelper);
+	WebGLScene.add(baseOYZGridHelper);
 
     // Base OXZ Grid
-    scene.add(baseOXZGridHelper);
+    WebGLScene.add(baseOXZGridHelper);
 
     labelOrigin = makeTextSprite("O"); labelOrigin.position.copy(LABEL_ORIGIN_SPAWN);
-	scene.add( labelOrigin );
+	WebGLScene.add( labelOrigin );
 	labelT = makeTextSprite("Time"); labelT.position.copy(LABEL_TIME_SPAWN);
-	scene.add( labelT );
+	WebGLScene.add( labelT );
 	labelLng = makeTextSprite("Lng"); labelLng.position.copy(LABEL_LNG_SPAWN);
-	scene.add(labelLng);
+	WebGLScene.add(labelLng);
 	labelLat = makeTextSprite("Lat"); labelLat.position.copy(LABEL_LAT_SPAWN);
-	scene.add(labelLat);
+	WebGLScene.add(labelLat);
 
 	// Berlin map below the Grid
-	/*textureGeoLoader = new THREE.TextureLoader();
-	textureGeoLoader.load(
-		'./data/nyc_location_map_raster.png',
-		function (textureGeo) {
-			textureGeo.minFilter = THREE.LinearFilter;
-			mapMat = new THREE.MeshPhongMaterial( { map: textureGeo } );
-			mapMat.needsUpdate = true;
-			textureGeo.wrapS = THREE.RepeatWrapping;
-			textureGeo.wrapT = THREE.RepeatWrapping;
-			var mapGeo = new THREE.PlaneGeometry( size, size );
-			mapMesh = new THREE.Mesh( mapGeo, mapMat );
+	textureGeoLoader = new THREE.TextureLoader();
+	var textureGeo = textureGeoLoader.load('./data/nyc_location_map_raster.png');
+    textureGeo.minFilter = THREE.LinearFilter;
+    mapMat = new THREE.MeshPhongMaterial( { map: textureGeo } );
+    mapMat.needsUpdate = true;
+    textureGeo.wrapS = THREE.RepeatWrapping;
+    textureGeo.wrapT = THREE.RepeatWrapping;
+    var mapGeo = new THREE.PlaneGeometry( size, size );
+    mapMesh = new THREE.Mesh( mapGeo, mapMat );
+    mapMesh.rotation.x = - ( Math.PI / 2 );
+    mapMesh.position.x = baseOXYGridHelper.position.x;
+    mapMesh.position.z = baseOXYGridHelper.position.z;
+    mapMesh.position.y = baseOXYGridHelper.position.y - 0.5;
+    mapMesh.scale.x = (sizeX/size);
+    mapMesh.scale.y = (sizeZ/size);
+    mapMesh.renderOrder = 0;
+    mapMesh.visible = false;
+    //mapMeshBBox = new THREE.Box3().setFromObject(mapMesh);
+    WebGLScene.add( mapMesh );
 
-			mapMesh.rotation.x = - ( Math.PI / 2 );
-			mapMesh.position.x = baseOXYGridHelper.position.x;
-			mapMesh.position.z = baseOXYGridHelper.position.z;
-			mapMesh.position.y = baseOXYGridHelper.position.y - 0.5;
-            mapMesh.scale.x = (sizeX/size);
-            mapMesh.scale.y = (sizeZ/size);
-            mapMesh.renderOrder = 0;
-            scene.add( mapMesh );
-		}
-	);*/
+    /*var mapLayerPlane = new THREE.Mesh(mapGeo, new THREE.MeshBasicMaterial({color: 0x000000, transparent: true, opacity: 0, blending: THREE.NoBlending}));
+    mapLayerPlane.rotation.copy(mapMesh.rotation);
+    mapLayerPlane.position.copy(mapMesh.position);
+    mapLayerPlane.position.y = baseOXYGridHelper.position.y - 10;
+    WebGLScene.add(mapLayerPlane);*/
 
-	var mapLayer = createCSS3DObject(iframe.replace("MAPTYPE", maptype).replace("LOCATION",loc), 661, 689, sizeX/size, sizeZ/size );
-    mapLayer.rotation.x = - ( Math.PI / 2 );
-    mapLayer.position.x = baseOXYGridHelper.position.x;
-    mapLayer.position.z = baseOXYGridHelper.position.z;
-    mapLayer.position.y = baseOXYGridHelper.position.y - 10;
-    mapLayer.scale.x = (sizeZ/size)*0.5;
-    mapLayer.scale.y = (sizeX/size)*0.5;
+    mapLayer = createCSS3DObject(iframe.replace("MAPTYPE", maptype).replace("LOCATION",loc));
+    mapLayer.rotation.copy(mapMesh.rotation);
+    mapLayer.position.copy(mapMesh.position);
+    mapLayer.position.z = baseOXYGridHelper.position.z + 10;
+    mapLayer.position.x = baseOXYGridHelper.position.x -10;
+    mapLayer.position.y = baseOXYGridHelper.position.y - 25;
+
+    var percentBorder = 0.05;
+    /*mapLayer.scale.x /= (1 + percentBorder) * (689 / size); MAP_SCALE_FACTOR_X = mapLayer.scale.x;
+    mapLayer.scale.y /= (1 + percentBorder) * (661 / size); MAP_SCALE_FACTOR_Y = mapLayer.scale.y;*/
+    mapLayer.scale.x = 0.46;
+    mapLayer.scale.y = 0.46;
     mapLayer.renderOrder = 0;
-	scene.add(mapLayer);
-	//document.getElementById('svgContainer').innerHTML = iframe.replace("MAPTYPE", maptype).replace("LOCATION",loc);
+	cssScene.add(mapLayer);
 
 	// Cubes
     for (var entry of processedData) {
         var cunit = new CUnit(size/step, entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore'], entry['pvalue']);
         CUnitCluster.add(cunit);
-        scene.add(cunit.getMesh());
+        WebGLScene.add(cunit.getMesh());
     }
 
 	// lights
 	var ambientLight = new THREE.AmbientLight( 0xffffff, 0.2 );
-	scene.add( ambientLight );
+	WebGLScene.add( ambientLight );
 
 	// Stats
 	stats = new Stats();
@@ -101,7 +116,7 @@ function init() {
     /*camera1 = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
     camera1.position.set( 500, 350, 750 );*/
 
-	controls = new THREE.OrbitControls( camera, renderer2.domElement );
+	controls = new THREE.OrbitControls( camera, cssRenderer.domElement );
 	controls.addEventListener( 'change', render ); // remove when using animation loop
 	controls.enableZoom = true;
 
@@ -115,18 +130,20 @@ function init() {
 	document.addEventListener( 'wheel', onDocumentMouseWheel, false);
 
 	window.addEventListener( 'resize', onWindowResize, false );
+
+    THREEx.WindowResize(cssRenderer, camera);
+    THREEx.WindowResize(WebGLRenderer, camera);
 }
 
 function animate() {
-
 	requestAnimationFrame( animate );
-	update();
+    update();
 	render();
 }
 
 function update() {
 	raycaster.setFromCamera( mouse, camera );
-	var intersects = raycaster.intersectObjects( scene.children );
+	var intersects = raycaster.intersectObjects( WebGLScene.children );
 	if ( intersects.length > 0 ) {
 		if ( INTERSECTED != intersects[ 0 ].object && intersects[0].object.material.emissive != null) {
 			if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
@@ -147,8 +164,8 @@ function update() {
 }
 
 function render() {
-	renderer1.render( scene, camera );
-	renderer2.render( scene, camera );
+    cssRenderer.render( cssScene, camera );
+    WebGLRenderer.render( WebGLScene, camera );
 }
 
 

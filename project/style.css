@@ -8,6 +8,8 @@ body {
     background-color: #fff;
     margin: 0px;
     overflow: hidden;
+    perspective: 800px;
+    -webkit-perspective: 800px;
 }
 
 #info {

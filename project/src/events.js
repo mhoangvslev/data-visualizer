@@ -5,13 +5,6 @@ function onDocumentMouseMove( event ) {
     //event.preventDefault();
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-    /*var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-     vector.unproject(camera);
-
-     var dir = vector.sub( camera.position ).normalize();
-     var distance = - camera.position.z / dir.z;
-     var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
-     spriteToolTip.position.copy(pos);*/
 }
 
 function onDocumentLMB() {
@@ -25,9 +18,9 @@ function onDocumentMouseReset() {
 
 function onDocumentMouseWheel( event ) {
     var zoomStep = 0.02;
-    if(event.wheelDelta < 0 && zoomAmount - (zoomStep*zoomFactor) > 0.51)
+    if(event.wheelDelta < 0 && zoomAmount - (zoomStep*zoomFactor) > 1.5)
         zoomAmount -= (zoomStep*zoomFactor);
-    else if (event.wheelDelta > 0 )
+    else if (event.wheelDelta > 0 && zoomAmount + (zoomStep*zoomFactor) < 5)
         zoomAmount += (zoomStep*zoomFactor);
     camera.setZoom(zoomAmount);
     camera.updateProjectionMatrix();
@@ -38,5 +31,6 @@ function onWindowResize() {
     camera.setSize( window.innerWidth, window.innerHeight );
     camera.updateProjectionMatrix();
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    WebGLRenderer.setSize( window.innerWidth, window.innerHeight );
+    cssRenderer.setSize( window.innerWidth, window.innerHeight );
 }

@@ -68,6 +68,7 @@ function updateTimeStepScale(scale, offset){
 
 function updateMapAlphaFilter(val) {
     mapMesh.material.opacity = val;
+    document.getElementById("OSMLayer").style.opacity = val;
 }
 
 function updateGeometryFilter(newGeo) {
@@ -100,15 +101,33 @@ function updateOneLayerFilter() {
     });
 }
 
-function updateTextureOffsetFilter(val) {
-    /*mapMat.map.wrapS = mapMat.map.wrapT = THREE.RepeatWrapping;
-    mapMat.map.repeat.set( val / mapMat.map.width, val / mapMat.map.height );*/
-    mapMat.map.offset.x = val;
-    mapMat.map.offset.y = val;
+function updateDynamicMapFilter(b){
+    if(b){
+        mapMesh.visible = true;
+        document.getElementById("OSMLayer").style.display = "none";
+    }
+    else{
+        mapMesh.visible = false;
+        document.getElementById("OSMLayer").style.display = "block";
+    }
 }
 
-function updateTextureScaleFilter(val) {
-    var rp = Math.pow(val, -1); // The zoom factor is inversely proportional to repeat
-    //console.log(rp);
-    mapMat.map.repeat.set(rp, rp);
+function updateMapScaleXFilter(val) {
+    mapLayer.scale.x = val;
+}
+
+function updateMapScaleYFilter(val) {
+    mapLayer.scale.y = val;
+}
+
+function updateMapOffsetX(val) {
+    mapLayer.position.x = baseOXYGridHelper.position.x + val;
+}
+
+function updateMapOffsetZ(val) {
+    mapLayer.position.z = baseOXYGridHelper.position.z + val;
+}
+
+function updateMapOffsetY(val) {
+    mapLayer.position.y = baseOXYGridHelper.position.y + val;
 }

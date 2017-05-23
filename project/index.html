@@ -9,7 +9,6 @@
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.css" />
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="import" href="data/nyc_location_map.svg"/>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
@@ -18,7 +17,7 @@
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
-<body>
+<body onload="cleanMap();">
     <!-- Include required plugins/modules from three.js library-->
     <script src="../build/three.js"></script>
     <script src="../examples/js/controls/OrbitControls.js"></script>
@@ -30,6 +29,9 @@
     <script src="../examples/js/renderers/Projector.js"></script>
     <script src="../examples/js/renderers/CSS3DRenderer.js"></script>
     <script src="../examples/js/controls/TrackballControls.js"></script>
+    <script src="../examples/js/THREEx.KeyboardState.js"></script>
+    <script src="../examples/js/THREEx.FullScreen.js"></script>
+    <script src="../examples/js/THREEx.WindowResize.js"></script>
 
     <!-- Include dependencies
          Compile functions before using them in main -->
@@ -137,15 +139,39 @@
                         <div class="col-md-2"></div>
                     </div><br/>
                     <div class="row">
-                        <div class="col-md-2"> Texture zoom</div>
-                        <div class="col-md-8"><div id="texture_zoom"><div id="texture_zoom_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-4"> Static/Dynamic Map</div>
+                        <div class="col-md-8"><input id="dynamic_map" type="checkbox"/></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map transparency</div>
+                        <div class="col-md-8"><div id="map_opacity"><div id="map_opacity_handle" class="ui-slider-handle cp-handle"></div></div></div>
                         <div class="col-md-2"></div>
                     </div><br/>
                     <div class="row">
-                        <div class="col-md-2"> Texture offset</div>
-                        <div class="col-md-8"><div id="texture_offset"><div id="texture_offset_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2 text-center"> Map scale X</div>
+                        <div class="col-md-8"><div id="map_scale_x"><div id="map_scale_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
                         <div class="col-md-2"></div>
-                    </div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map scale Y</div>
+                        <div class="col-md-8"><div id="map_scale_y"><div id="map_scale_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map offset x</div>
+                        <div class="col-md-8"><div id="map_offset_x"><div id="map_offset_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map offset z</div>
+                        <div class="col-md-8"><div id="map_offset_z"><div id="map_offset_z_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map offset y</div>
+                        <div class="col-md-8"><div id="map_offset_y"><div id="map_offset_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
                 </div>
             </div>
             <div class="userGuide">
@@ -175,8 +201,8 @@
                 <div id="about" class="collapse">
                     <h3>New York City - USA</h3>
                     <div id="svgContainer" style="width: 150px; height: 150px;">
-
                     </div>
+                    <button onclick="cleanMap()">Clean up!</button>
                 </div>
             </div>
         </div>

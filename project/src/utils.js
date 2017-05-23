@@ -98,10 +98,10 @@ function setPerspective() {
 
 function switchFrontCamera() {
     resetLabel();
-    camera.position.x = Math.cos( 2*Math.PI ) * 100;
-    camera.position.z = Math.sin( 2*Math.PI ) * 100;
+    camera.position.x = Math.cos( 2*Math.PI ) * size;
+    camera.position.z = Math.sin( 2*Math.PI ) * size;
     camera.position.y = 0;
-    camera.lookAt( scene.position );
+    camera.lookAt( WebGLScene.position );
     camera.updateProjectionMatrix();
     document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude/Timestep' ;
     labelLat.visible = false;
@@ -110,10 +110,10 @@ function switchFrontCamera() {
 
 function switchBackCamera() {
     resetLabel();
-    camera.position.x = Math.cos( Math.PI ) * 100;
-    camera.position.z = Math.sin( Math.PI ) * 100;
+    camera.position.x = Math.cos( Math.PI ) * size;
+    camera.position.z = Math.sin( Math.PI ) * size;
     camera.position.y = 0;
-    camera.lookAt( scene.position );
+    camera.lookAt( WebGlScene.position );
     camera.updateProjectionMatrix();
     labelLat.visible = false;
     document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Timestep' ;
@@ -121,10 +121,10 @@ function switchBackCamera() {
 
 function switchLeftCamera() {
     resetLabel();
-    camera.position.x = Math.cos( 1.5 * Math.PI ) * 100;
-    camera.position.z = Math.sin( 1.5 * Math.PI ) * 100;
+    camera.position.x = Math.cos( 1.5 * Math.PI ) * size;
+    camera.position.z = Math.sin( 1.5 * Math.PI ) * size;
     camera.position.y = 0;
-    camera.lookAt( scene.position );
+    camera.lookAt( WebGlScene.position );
     camera.updateProjectionMatrix();
     labelLng.visible = false;
     labelOrigin.position.x -= 35;
@@ -133,10 +133,10 @@ function switchLeftCamera() {
 
 function switchRightCamera() {
     resetLabel();
-    camera.position.x = Math.cos( Math.PI/2 ) * 100;
-    camera.position.z = Math.sin( Math.PI/2 ) * 100;
+    camera.position.x = Math.cos( Math.PI/2 ) * size;
+    camera.position.z = Math.sin( Math.PI/2 ) * size;
     camera.position.y = 0;
-    camera.lookAt( scene.position );
+    camera.lookAt( WebGlScene.position );
     camera.updateProjectionMatrix();
     labelLng.visible = false;
     labelOrigin.position.x += 20;
@@ -146,9 +146,9 @@ function switchRightCamera() {
 function switchTopCamera() {
     resetLabel();
     camera.position.x = 0;
-    camera.position.z = Math.sin( 2 * Math.PI ) * 100;
-    camera.position.y = Math.cos( 2 * Math.PI ) * 100;
-    camera.lookAt( scene.position );
+    camera.position.z = Math.sin( 2 * Math.PI ) * size;
+    camera.position.y = Math.cos( 2 * Math.PI ) * size;
+    camera.lookAt( WebGLScene.position );
     camera.updateProjectionMatrix();
     labelT.visible = false;
     labelLng.position.z += 10; labelLng.position.x -= 30; labelLat.position.x -= 50; labelOrigin.position.x -= 30;
@@ -158,9 +158,9 @@ function switchTopCamera() {
 function switchBottomCamera() {
     resetLabel();
     camera.position.x = 0;
-    camera.position.z = Math.sin( Math.PI ) * 100;
-    camera.position.y = Math.cos( Math.PI ) * 100;
-    camera.lookAt( scene.position );
+    camera.position.z = Math.sin( Math.PI ) * size;
+    camera.position.y = Math.cos( Math.PI ) * size;
+    camera.lookAt( WebGlScene.position );
     camera.updateProjectionMatrix();
     labelT.visible = false;
     labelLng.position.z += 20;
@@ -188,16 +188,16 @@ function resetScene() {
     });
 }
 
-function createCSS3DObject(s, width, height, scaleW, scaleH) {
+function createCSS3DObject(s) {
     // create outerdiv and set inner HTML from supplied string
     var div = document.createElement('div');
     div.innerHTML = s;
 
-    // set some values on the div to style it, standard CSS
-    div.style.width = `${width*scaleW}px`;
-    div.style.height = `${height*scaleH}px`;
     div.style.opacity = 0.7;
-    div.style.background = new THREE.Color(Math.random() * 0xffffff).getStyle();
+    /*// set some values on the div to style it, standard CSS
+    div.style.width = `${661}px`;
+    div.style.height = `${689}px`;
+    div.style.zIndex = 4;*/
 
     // create a CSS3Dobject and return it.
     var object = new THREE.CSS3DObject(div);
@@ -252,7 +252,7 @@ function createSides(s, geometry) {
         matrix4.makeRotationAxis(axis,angle);
 
         side.rotation.setFromRotationMatrix(matrix4);
-        scene.add(side);
+        cssScene.add(side);
         sides.push(side);
     }
 }

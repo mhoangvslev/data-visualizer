@@ -27,36 +27,16 @@ $(document).ready(function() {
 		handles: "e, w, s, se"
 	});
 
+    $('#dynamic_map').click(function () {
+        updateDynamicMapFilter(this.checked);
+    });
+
 	$('#time_step_scale').click(function () {
 		mustScale = this.checked;
 		checkTimeStepScale(this.checked);
 	});
 
 	//Sliders
-    $( "#texture_offset" ).slider({
-        min: 0,
-        max: 10,
-        create: function() {
-            $( "#texture_offset_handle" ).text( $( this ).slider( "value" ) );
-        },
-        slide: function( event, ui ) {
-            $( "#texture_offset_handle" ).text( ui.value/10 );
-            updateTextureOffsetFilter(ui.value/10);
-        }
-    });
-
-    $( "#texture_zoom" ).slider({
-        min: 1,
-        max: 10,
-        create: function() {
-            $( "#texture_zoom_handle" ).text( $( this ).slider( "value" ) );
-        },
-        slide: function( event, ui ) {
-            $( "#texture_zoom_handle" ).text( ui.value );
-            updateTextureScaleFilter(ui.value);
-        }
-    });
-
 	$( "#time_step_int" ).slider({
 		range: true,
 		min: TIME_STEP_LOWER_BOUND,
@@ -108,6 +88,54 @@ $(document).ready(function() {
             newSize = 1; offsetN = ui.value;
             checkTimeStepScale(true);
             updateOneLayerFilter();
+        }
+    });
+
+    $( "#map_opacity" ).slider({
+        min: 1,
+        max: 10,
+        create: function() {
+            $( "#map_opacity_handle" ).text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $( "#map_opacity_handle" ).text( ui.value/10 );
+            updateMapAlphaFilter(ui.value/10);
+        }
+    });
+
+    $( "#map_offset_x" ).slider({
+        min: -200,
+        max: 200,
+        create: function() {
+            $( "#map_offset_x_handle" ).text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $( "#map_offset_x_handle" ).text( ui.value);
+            updateMapOffsetX(ui.value);
+        }
+    });
+
+    $( "#map_offset_y" ).slider({
+        min: -200,
+        max: 200,
+        create: function() {
+            $( "#map_offset_y_handle" ).text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $( "#map_offset_y_handle" ).text( ui.value);
+            updateMapOffsetY(ui.value);
+        }
+    });
+
+    $( "#map_offset_z" ).slider({
+        min: -200,
+        max: 200,
+        create: function() {
+            $( "#map_offset_z_handle" ).text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $( "#map_offset_z_handle" ).text( ui.value);
+            updateMapOffsetZ(ui.value);
         }
     });
 
@@ -163,6 +191,30 @@ $(document).ready(function() {
 		}
 	});
 
+    $( "#map_scale_x" ).slider({
+        min: 1,
+        max: 1000,
+        create: function() {
+            $('#map_scale_x_handle').text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $('#map_scale_x_handle').text( ui.value/100 );
+            updateMapScaleXFilter(ui.value/100);
+        }
+    });
+
+    $( "#map_scale_y" ).slider({
+        min: 1,
+        max: 1000,
+        create: function() {
+            $('#map_scale_Y_handle').text( $( this ).slider( "value" ) );
+        },
+        slide: function( event, ui ) {
+            $('#map_scale_Y_handle').text( ui.value/100 );
+            updateMapScaleYFilter(ui.value/100);
+        }
+    });
+
 	// Expand and collaps the toolbar
 	$("#toggle-toolbox-tools").on("click", function() {
 		var panel = $("#toolbox-tools");
@@ -216,7 +268,6 @@ $(document).ready(function() {
 	});
 
 
-
 	// Close thr panel
 	$(".close-panel").on("click", function() {
 		$(this).parent().parent().hide();
@@ -227,4 +278,10 @@ $(document).ready(function() {
 	$('button').tooltip();
 	$('.toggle-button-group').tooltip();
 
+
 });
+
+let cleanMap = function () {
+	var elem = document.getElementById("OSMLayer")/*.contentWindow.document*/;
+	//console.log(elem);
+};
