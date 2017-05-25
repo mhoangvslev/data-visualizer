@@ -2,12 +2,15 @@
  * Created by Minh Hoang DANG on 05/05/2017.
  */
 
-var size = 300, step = 50, newSize = size;
+var size = 300, step = 50;
+var sizeX = 235, sizeY = size, sizeZ = 237;
+var newSizeX = sizeX, newSizeY = sizeY, newSizeZ = sizeZ;
+var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
 var processedData, dataAmount;
 var fileName = 'gistar_output_d.json';
 
 var TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND, ZSCORE_LOWER_BOUND, ZSCORE_UPPER_BOUND, ZSCORE_SCALE, X_LOWER_BOUND, X_UPPER_BOUND, Y_LOWER_BOUND, Y_UPPER_BOUND;
-var timeStepLowerBound, timeStepUpperBound, zScoreLowerBound, zScoreUpperBound;
+var xLowerBound, xUpperBound, yLowerBound, yUpperBound, timeStepLowerBound, timeStepUpperBound, zScoreLowerBound, zScoreUpperBound;
 var axisXScale, axisYScale, axisZScale;
 var X_SCALE, Y_SCALE, Z_SCALE;
 
@@ -26,7 +29,7 @@ CSVLoader.load(`./data/${fileName}`, function ( text ) {
     for(var entry of processedData){
         if(entry['time_step'] < TIME_STEP_LOWER_BOUND)
             TIME_STEP_LOWER_BOUND = entry["time_step"];
-        if(entry["time_step"] > TIME_STEP_LOWER_BOUND)
+        if(entry["time_step"] > TIME_STEP_UPPER_BOUND)
             TIME_STEP_UPPER_BOUND = entry["time_step"];
 
         if(entry["zscore"] < ZSCORE_LOWER_BOUND)
@@ -52,6 +55,8 @@ CSVLoader.load(`./data/${fileName}`, function ( text ) {
 
     timeStepLowerBound = TIME_STEP_LOWER_BOUND; timeStepUpperBound = TIME_STEP_UPPER_BOUND;
     zScoreLowerBound = ZSCORE_LOWER_BOUND; zScoreUpperBound = ZSCORE_UPPER_BOUND;
+    xLowerBound = X_LOWER_BOUND; xUpperBound = X_UPPER_BOUND;
+    yLowerBound = Y_LOWER_BOUND; yUpperBound = Y_UPPER_BOUND;
 
     X_SCALE = X_UPPER_BOUND - X_LOWER_BOUND;
     Y_SCALE = TIME_STEP_UPPER_BOUND - TIME_STEP_LOWER_BOUND;
@@ -88,11 +93,7 @@ var offsetY = size/2 - (size/step)/2;
 var mapMesh, mapMat, mapLayer;
 var dimension = size/step;
 
-var svgCanvas, svgContext;
-
 var extrudeLayer = -1, mustExtrude = false, mustScale = false;
-
-var sizeX = 235, sizeY = size, sizeZ = 237;
 
 var baseOXYGridHelper = new THREE.GridHelper(size, step);
 baseOXYGridHelper.position.z = (size - sizeZ)/2;
@@ -140,6 +141,7 @@ var iframe= '<div style="position:fixed;width:100%;height:100%;"></div>'+
     'style="border: 1px solid black"></iframe>';
 
 var LNG_MIN = -74.25909, LNG_MAX = -73.70009, LAT_MIN = 40.477399, LAT_MAX = 40.917577;
+var newLngMin = LNG_MIN, newLatMin = LAT_MIN, newLngMax = LNG_MAX, newLatMax = LAT_MAX;
 var loc = encodeURIComponent(`${LNG_MIN.toFixed(14)}, ${LAT_MIN.toFixed(14)},${LNG_MAX.toFixed(14)},${LAT_MAX.toFixed(14)}`);
 
 // Choose between roadmap, satellite, hybrid or terrain

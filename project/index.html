@@ -55,6 +55,7 @@
                         <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#cameraCP">Camera control</button>
                         <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#sceneCP">Scene control</button>
                         <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#miscCP">Miscellaneous</button>
+                        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#mapCP">Map control</button>
                         <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#how-to">User guide</button>
                         <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#about">About</button>
                     </div>
@@ -81,6 +82,43 @@
                     <div id="debug_tool"></div>
                 </div>
             </div>
+            <div id="mapCP" class="collapse">
+                <h3>Map layout options</h3>
+                <div class="row">
+                    <div class="col-md-4"> Static/Dynamic Map</div>
+                    <div class="col-md-8"><input id="dynamic_map" type="checkbox"/></div>
+                </div><br/>
+                <div class="row">
+                    <div class="col-md-2 text-center"> Map transparency</div>
+                    <div class="col-md-8"><div id="map_opacity"><div id="map_opacity_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                    <div class="col-md-2"></div>
+                </div><br/>
+                <div class="row">
+                    <div class="col-md-2 text-center"> Map scale X</div>
+                    <div class="col-md-8"><div id="map_scale_x"><div id="map_scale_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                    <div class="col-md-2"></div>
+                </div><br/>
+                <div class="row">
+                    <div class="col-md-2 text-center"> Map scale Y</div>
+                    <div class="col-md-8"><div id="map_scale_y"><div id="map_scale_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                    <div class="col-md-2"></div>
+                </div><br/>
+                <div class="row">
+                    <div class="col-md-2 text-center"> Map offset x</div>
+                    <div class="col-md-8"><div id="map_offset_x"><div id="map_offset_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                    <div class="col-md-2"></div>
+                </div><br/>
+                <div class="row">
+                    <div class="col-md-2 text-center"> Map offset z</div>
+                    <div class="col-md-8"><div id="map_offset_z"><div id="map_offset_z_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                    <div class="col-md-2"></div>
+                </div><br/>
+                <div class="row">
+                    <div class="col-md-2 text-center"> Map offset y</div>
+                    <div class="col-md-8"><div id="map_offset_y"><div id="map_offset_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                    <div class="col-md-2"></div>
+                </div><br/>
+            </div>
             <div class="sceneOptions">
                 <div id="sceneCP" class="collapse">
                     <h3>Scene options</h3>
@@ -89,7 +127,17 @@
                         <div class="col-md-6"><div id="time_step_int"></div></div>
                         <div class="col-md-2">Interval: <div id="time_step_int_value"></div></div>
                         <div class="col-md-2">Scale to grid? <input id="time_step_scale" type="checkbox"/></div>
-                    </div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Cell X</div>
+                        <div class="col-md-8"><div id="cell_x_int"></div></div>
+                        <div class="col-md-2">Interval: <div id="cell_x_int_value"></div></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Cell Y</div>
+                        <div class="col-md-8"><div id="cell_y_int"></div></div>
+                        <div class="col-md-2">Interval: <div id="cell_y_int_value"></div></div>
+                    </div><br/>
                     <div class="row">
                         <div class="col-md-2 text-center">1-layer</div>
                         <div class="col-md-8"><div id="one_layer"><div id="one_layer_handle" class="ui-slider-handle cp-handle"></div></div></div>
@@ -137,41 +185,7 @@
                             <a onclick="updateGeometryFilter(GEO_PRISM); return false;">Prism</a>
                         </div>
                         <div class="col-md-2"></div>
-                    </div><br/>
-                    <div class="row">
-                        <div class="col-md-4"> Static/Dynamic Map</div>
-                        <div class="col-md-8"><input id="dynamic_map" type="checkbox"/></div>
-                    </div><br/>
-                    <div class="row">
-                        <div class="col-md-2 text-center"> Map transparency</div>
-                        <div class="col-md-8"><div id="map_opacity"><div id="map_opacity_handle" class="ui-slider-handle cp-handle"></div></div></div>
-                        <div class="col-md-2"></div>
-                    </div><br/>
-                    <div class="row">
-                        <div class="col-md-2 text-center"> Map scale X</div>
-                        <div class="col-md-8"><div id="map_scale_x"><div id="map_scale_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
-                        <div class="col-md-2"></div>
-                    </div><br/>
-                    <div class="row">
-                        <div class="col-md-2 text-center"> Map scale Y</div>
-                        <div class="col-md-8"><div id="map_scale_y"><div id="map_scale_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
-                        <div class="col-md-2"></div>
-                    </div><br/>
-                    <div class="row">
-                        <div class="col-md-2 text-center"> Map offset x</div>
-                        <div class="col-md-8"><div id="map_offset_x"><div id="map_offset_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
-                        <div class="col-md-2"></div>
-                    </div><br/>
-                    <div class="row">
-                        <div class="col-md-2 text-center"> Map offset z</div>
-                        <div class="col-md-8"><div id="map_offset_z"><div id="map_offset_z_handle" class="ui-slider-handle cp-handle"></div></div></div>
-                        <div class="col-md-2"></div>
-                    </div><br/>
-                    <div class="row">
-                        <div class="col-md-2 text-center"> Map offset y</div>
-                        <div class="col-md-8"><div id="map_offset_y"><div id="map_offset_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
-                        <div class="col-md-2"></div>
-                    </div><br/>
+                    </div>
                 </div>
             </div>
             <div class="userGuide">

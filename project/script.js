@@ -1,24 +1,9 @@
 /* eslint-disable padded-blocks */
-let offsetN = 0;
-let checkTimeStepScale = function (b) {
-	if(b){
-		var scale = size/newSize;
-		updateTimeStepScale(newSize, offsetY + offsetN*scale);
-		$('#time_step_unit').text(scale.toFixed(2) + ' unit(s)');
-	}
-	else{
-		updateTimeStepScale(size, offsetY);
-        $('#time_step_unit').text('1 unit');
-
-    }
-};
 
 /**
  * Created by Minh Hoang DANG on 08/05/2017.
  */
 $(document).ready(function() {
-    // Include svg
-    //$('#svgContainer').load("./data/nyc_location_map.svg");
 
 	// Add drag and resize option to panel
 	$("#toolbox-tools").draggable({
@@ -33,8 +18,12 @@ $(document).ready(function() {
 
 	$('#time_step_scale').click(function () {
 		mustScale = this.checked;
-		checkTimeStepScale(this.checked);
-	});
+		if(mustScale)
+            $('#time_step_unit').text(`X: ${(sizeX/newSizeX).toFixed(2)} Y: ${(sizeY/newSizeY).toFixed(2)} Z: ${(sizeZ/newSizeZ).toFixed(2)}` + ' unit(s)');
+        else
+            $('#time_step_unit').text('1 unit');
+        updateMapLayerDisplay(mustScale);
+    });
 
 	//Sliders
 	$( "#time_step_int" ).slider({
@@ -44,13 +33,41 @@ $(document).ready(function() {
 		values: [ TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND ],
 		slide: function( event, ui ) {
 			timeStepLowerBound = ui.values[0]; timeStepUpperBound = ui.values[1];
-            updateTimeStepFilter();
+            updateSceneFilters();
 			$('#time_step_int_value').text(ui.values[0] + " - " + ui.values[1]);
-			newSize = Math.abs(ui.values[1] - ui.values[0]); offsetN = ui.values[0];
+			newSizeY = Math.abs(ui.values[1] - ui.values[0]); offsetNY = ui.values[0];
 			$('#one_layer_extrusion').prop('checked', false); mustExtrude = false; extrudeLayer = -1;
-			checkTimeStepScale(mustScale);
+			updateMapLayerDisplay(mustScale);
 		}
 	});
+
+    $( "#cell_x_int" ).slider({
+        range: true,
+        min: X_LOWER_BOUND,
+        max: X_UPPER_BOUND,
+        values: [ X_LOWER_BOUND, X_UPPER_BOUND ],
+        slide: function( event, ui ) {
+            xLowerBound = ui.values[0]; xUpperBound = ui.values[1];
+            updateSceneFilters();
+            $('#cell_x_int_value').text(ui.values[0] + " - " + ui.values[1]);
+            newSizeX = Math.abs(ui.values[1] - ui.values[0]); offsetNX = ui.values[0];
+            updateMapLayerDisplay(mustScale);
+        }
+    });
+
+    $( "#cell_y_int" ).slider({
+        range: true,
+        min: X_LOWER_BOUND,
+        max: X_UPPER_BOUND,
+        values: [ X_LOWER_BOUND, X_UPPER_BOUND ],
+        slide: function( event, ui ) {
+            yLowerBound = ui.values[0]; yUpperBound = ui.values[1];
+            updateSceneFilters();
+            $('#cell_y_int_value').text(ui.values[0] + " - " + ui.values[1]);
+            newSizeZ = Math.abs(ui.values[1] - ui.values[0]); offsetNZ = ui.values[0];
+            updateMapLayerDisplay(mustScale);
+        }
+    });
 
 	$( "#brush_size" ).slider({
 		min: 1,
@@ -70,6 +87,7 @@ $(document).ready(function() {
         if(this.checked && extrudeLayer != -1) {
             updateOneLayerFilter();
             $('#time_step_scale').prop('checked', false);
+            mustScale = false;
         }
         else if(!this.checked)
         	resetScene();
@@ -82,10 +100,10 @@ $(document).ready(function() {
             $( "#one_layer_handle" ).text( $( this ).slider( "value" ) );
         },
         slide: function( event, ui ) {
-            $('#time_step_scale').prop('checked', false);
+            $('#time_step_scale').prop('checked', false); mustScale = false;
             $( "#one_layer_handle" ).text( ui.value );
             extrudeLayer = ui.value;
-            newSize = 1; offsetN = ui.value;
+            newSizeY = 1; offsetNY = ui.value;
             checkTimeStepScale(true);
             updateOneLayerFilter();
         }
@@ -117,7 +135,7 @@ $(document).ready(function() {
 
     $( "#map_offset_y" ).slider({
         min: -200,
-        max: 200,
+        max: size,
         create: function() {
             $( "#map_offset_y_handle" ).text( $( this ).slider( "value" ) );
         },
