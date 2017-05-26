@@ -40,7 +40,11 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
     this.mesh.position.z = -this.cell_y - offsetZ;
     this.mesh.position.y = this.time_step - offsetY;
 	this.mesh.renderOrder = 2;
-	this.latitude = this.calcLatitude();
+
+	// Always calculate in this order
+    this.bearing = this.calcBearing();
+    this.angularDistance = this.calcAngularDistance();
+    this.latitude = this.calcLatitude();
 	this.longitude = this.calcLongitude();
 }
 
@@ -62,23 +66,12 @@ CUnit.prototype.reinitiate = function () {
         opacity: this.opacity
     });
 
-    /*this.mesh.position.x = (this.cell_x - X_LOWER_BOUND)*size/X_SCALE - offsetX;
-    this.mesh.position.z = -(this.cell_y - Y_LOWER_BOUND)*size/Z_SCALE - offsetZ;
-    this.mesh.position.y = (this.time_step - TIME_STEP_LOWER_BOUND)*size/Y_SCALE - offsetY;*/
     this.mesh.position.x = this.cell_x - offsetX;
     this.mesh.position.z = -this.cell_y - offsetZ;
     this.mesh.position.y = this.time_step - offsetY;
 
     //this.setCunitSize(1, 1, 1);
 };
-
-/*CUnit.prototype.setOpacity = function (value) {
-    this.mesh.material = new THREE.MeshPhongMaterial({
-        color: this.color,
-        transparent: true,
-        opacity: value
-    });
-};*/
 
 CUnit.prototype.setCunitSize = function (x, y, z) {
     this.mesh.scale.set(x, y, z) ;
@@ -118,19 +111,61 @@ CUnit.prototype.getScalePerWeight = function () {
     return (this.zscore - ZSCORE_LOWER_BOUND)*sizeY*0.1/ZSCORE_SCALE;
 };
 
+/**
+ * Calculate the longitude of given CUnit using its angular distance and its bearing
+ * @returns {number} Longitude point in radians
+ */
 CUnit.prototype.calcLatitude = function () {
-    return Math.asin(THREE.Math.degToRad(LAT_MIN) * Math.cos(200*this.cell_x*0.001/6371) + Math.cos(THREE.Math.degToRad(LAT_MIN)) * Math.sin(200*this.cell_x*0.001/6371) * Math.cos(Math.PI/2));
+    //console.log(`sin(${THREE.Math.degToRad(LAT_MIN)}) * cos(${this.angularDistance}) + ${THREE.Math.degToRad(bearing)}`);
+    return Math.asin(
+        Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.cos(this.angularDistance) +
+        Math.cos(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(this.bearing))
+    );
 };
 
+/**
+ * Calculate the longitude of given CUnit using its angular distance and its bearing
+ * @returns {*} longitude in radians
+ */
 CUnit.prototype.calcLongitude = function () {
-    return THREE.Math.degToRad(LNG_MIN) + Math.atan2(Math.sin(Math.PI/2) * Math.sin(200*this.cell_x*0.001/6371) * Math.cos(THREE.Math.degToRad(LAT_MIN)), Math.cos(200*this.cell_x*0.001/6371) - Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.latitude) )
+    //console.log(`sin(${THREE.Math.degToRad(LAT_MIN)}) * cos(${this.angularDistance}) + ${THREE.Math.degToRad(bearing)}`);
+    return THREE.Math.degToRad(LNG_MIN) + Math.atan2(
+        Math.sin(THREE.Math.degToRad(this.bearing))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(LAT_MIN)),
+            Math.cos(this.angularDistance)-Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.latitude));
 };
+
+/**
+ * Calculate the angular distance to  O = {0, 0, 0}. T
+ * @returns number distance in radians
+ */
+CUnit.prototype.calcAngularDistance = function () {
+    return Math.sqrt(Math.pow(this.cell_x*200, 2) + Math.pow(this.cell_y*200, 2)) * 0.001/6371;
+};
+
+/**
+ * Deviation angle to the north (Longitude axis)
+ * @returns {number} angle is radians
+ */
+CUnit.prototype.calcBearing = function () {
+    return Math.atan2(this.cell_x, this.cell_y);
+};
+
 
 CUnit.prototype.getLongitude = function () {
     return THREE.Math.radToDeg(this.longitude);
+    //return THREE.Math.radToDeg(this.calcLongitude());
 };
 
 CUnit.prototype.getLatitude = function () {
     return THREE.Math.radToDeg(this.latitude);
+    //return THREE.Math.radToDeg(this.calcLatitude());
+};
+
+CUnit.prototype.getAngularDistance = function () {
+    return THREE.Math.radToDeg(this.angularDistance);
+};
+
+CUnit.prototype.getBearing = function () {
+    return this.bearing;
 };
 

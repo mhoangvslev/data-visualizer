@@ -16,7 +16,7 @@ var X_SCALE, Y_SCALE, Z_SCALE;
 
 var CSVLoader = new THREE.FileLoader();
 CSVLoader.setResponseType('text');
-CSVLoader.load(`./data/${fileName}`, function ( text ) {
+CSVLoader.load(`./data/${fileName}`, function (text) {
     processedData = JSON.parse(text);
     dataAmount = processedData.length;
 
@@ -71,7 +71,6 @@ CSVLoader.load(`./data/${fileName}`, function ( text ) {
     console.log(`X Scale: ${axisXScale} | ${X_SCALE}`);
     console.log(`Z Scale: ${axisZScale} | ${Z_SCALE}`);
     console.log(`Y Scale: ${axisYScale} | ${Y_SCALE}`);
-
 });
 
 var stats, camera, controls, WebGLRenderer, cssRenderer;
@@ -134,19 +133,17 @@ var LABEL_LAT_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x + (size - 
 var labelOrigin, labelT, labelLng, labelLat;
 
 // Embed layer from OpenStreet Map
-// A empty is added in front of it to prevent users from interacting with the cube
+// A empty div is added in front of it to prevent users from interacting with the cube
 var iframe= '<div style="position:fixed;width:100%;height:100%;"></div>'+
     `<iframe id="OSMLayer" width="${661}" height="${689}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
-    'src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layer=MAPTYPE" ' +
+    'src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE" ' +
     'style="border: 1px solid black"></iframe>';
 
 var LNG_MIN = -74.25909, LNG_MAX = -73.70009, LAT_MIN = 40.477399, LAT_MAX = 40.917577;
 var newLngMin = LNG_MIN, newLatMin = LAT_MIN, newLngMax = LNG_MAX, newLatMax = LAT_MAX;
-var loc = encodeURIComponent(`${LNG_MIN.toFixed(14)}, ${LAT_MIN.toFixed(14)},${LNG_MAX.toFixed(14)},${LAT_MAX.toFixed(14)}`);
+var loc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
 
 // Choose between roadmap, satellite, hybrid or terrain
-var maptype = 'mapnik';
+var mapoption = '';
+var maptype = 'mapnik' + mapoption;
 var sides = [];
-
-var MAP_SCALE_FACTOR_X, MAP_SCALE_FACTOR_Y;
-var mapMeshBBox, mapLayerBBox;

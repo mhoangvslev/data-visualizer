@@ -22,10 +22,43 @@ $(document).ready(function() {
             $('#time_step_unit').text(`X: ${(sizeX/newSizeX).toFixed(2)} Y: ${(sizeY/newSizeY).toFixed(2)} Z: ${(sizeZ/newSizeZ).toFixed(2)}` + ' unit(s)');
         else
             $('#time_step_unit').text('1 unit');
+        updateSceneFilters();
         updateMapLayerDisplay(mustScale);
     });
 
-	//Sliders
+	// Dropdown
+    $('#map_type').change(function () {
+        updateMapLayerType($(this).find(':selected').val());
+    });
+
+    /*$('#map_markers').click(function () {
+        mapoption.replace("N", '');
+        if(this.checked) {
+            mapoption += 'N';
+            maptype += mapoption;
+        }
+        updateMapLayerDisplay(mustScale);
+    });
+
+    $('#map_data').click(function () {
+        mapoption.replace("D", '');
+        if(this.checked) {
+            mapoption += 'D';
+            maptype += mapoption;
+        }
+        updateMapLayerDisplay(mustScale);
+    });
+
+    $('#map_gps_trace').click(function () {
+        mapoption.replace("G", '');
+        if(this.checked) {
+            mapoption += 'G';
+            maptype += mapoption;
+        }
+        updateMapLayerDisplay(mustScale);
+    });*/
+
+    //Sliders
 	$( "#time_step_int" ).slider({
 		range: true,
 		min: TIME_STEP_LOWER_BOUND,
@@ -48,9 +81,9 @@ $(document).ready(function() {
         values: [ X_LOWER_BOUND, X_UPPER_BOUND ],
         slide: function( event, ui ) {
             xLowerBound = ui.values[0]; xUpperBound = ui.values[1];
-            updateSceneFilters();
             $('#cell_x_int_value').text(ui.values[0] + " - " + ui.values[1]);
             newSizeX = Math.abs(ui.values[1] - ui.values[0]); offsetNX = ui.values[0];
+            updateSceneFilters();
             updateMapLayerDisplay(mustScale);
         }
     });
@@ -62,10 +95,23 @@ $(document).ready(function() {
         values: [ X_LOWER_BOUND, X_UPPER_BOUND ],
         slide: function( event, ui ) {
             yLowerBound = ui.values[0]; yUpperBound = ui.values[1];
-            updateSceneFilters();
             $('#cell_y_int_value').text(ui.values[0] + " - " + ui.values[1]);
             newSizeZ = Math.abs(ui.values[1] - ui.values[0]); offsetNZ = ui.values[0];
+            updateSceneFilters();
             updateMapLayerDisplay(mustScale);
+        }
+    });
+
+    $( "#zscore_int" ).slider({
+        range: true,
+        min: ZSCORE_LOWER_BOUND * 1000,
+        max: ZSCORE_UPPER_BOUND * 1000,
+        values: [ ZSCORE_LOWER_BOUND*1000, ZSCORE_UPPER_BOUND*1000 ],
+        slide: function( event, ui ) {
+            zScoreLowerBound = ui.values[0]/1000;
+            zScoreUpperBound = ui.values[1]/1000
+            $('#zscore_int_value').text(zScoreLowerBound + " - " + zScoreUpperBound);
+            updateSceneFilters();
         }
     });
 
@@ -85,9 +131,10 @@ $(document).ready(function() {
     $('#one_layer_extrusion').click(function () {
         mustExtrude = this.checked;
         if(this.checked && extrudeLayer != -1) {
-            updateOneLayerFilter();
             $('#time_step_scale').prop('checked', false);
             mustScale = false;
+            updateOneLayerFilter();
+
         }
         else if(!this.checked)
         	resetScene();
@@ -104,7 +151,6 @@ $(document).ready(function() {
             $( "#one_layer_handle" ).text( ui.value );
             extrudeLayer = ui.value;
             newSizeY = 1; offsetNY = ui.value;
-            checkTimeStepScale(true);
             updateOneLayerFilter();
         }
     });
@@ -168,19 +214,6 @@ $(document).ready(function() {
             updateMapAlphaFilter(ui.value/10);
         }
     });
-
-	$( "#zscore_int" ).slider({
-		range: true,
-		min: ZSCORE_LOWER_BOUND * 1000,
-		max: ZSCORE_UPPER_BOUND * 1000,
-		values: [ ZSCORE_LOWER_BOUND, ZSCORE_UPPER_BOUND ],
-		slide: function( event, ui ) {
-			zScoreLowerBound = ui.values[0]/1000;
-			zScoreUpperBound = ui.values[1]/1000
-			$('#zscore_int_value').text(zScoreLowerBound + " - " + zScoreUpperBound);
-            updateWeightFilter();
-        }
-	});
 
 	var handle = $( "#camera_fov_handle" );
 	$( "#camera_fov" ).slider({
