@@ -16,6 +16,7 @@
     <script src="script.js"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD41YLU4BuYQN0E91t7IA1UeONzzoF3PpA" type="text/javascript"></script>
 </head>
 <body onload="cleanMap();">
     <!-- Include required plugins/modules from three.js library-->
@@ -88,6 +89,10 @@
                     <div class="row">
                         <div class="col-md-4"> Static/Dynamic Map</div>
                         <div class="col-md-8"><input id="dynamic_map" type="checkbox"/></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4"> Interactive map</div>
+                        <div class="col-md-8"><input id="map_interactive" type="checkbox"/></div>
                     </div><br/>
                     <div class="row">
                         <div class="col-md-2 text-center"> Map transparency</div>
@@ -152,12 +157,12 @@
                         <div class="col-md-2">Scale to grid? <input id="time_step_scale" type="checkbox"/></div>
                     </div><br/>
                     <div class="row">
-                        <div class="col-md-2 text-center">Cell X</div>
+                        <div class="col-md-2 text-center">Longitude</div>
                         <div class="col-md-8"><div id="cell_x_int"></div></div>
                         <div class="col-md-2">Interval: <div id="cell_x_int_value"></div></div>
                     </div><br/>
                     <div class="row">
-                        <div class="col-md-2 text-center">Cell Y</div>
+                        <div class="col-md-2 text-center">Latitude</div>
                         <div class="col-md-8"><div id="cell_y_int"></div></div>
                         <div class="col-md-2">Interval: <div id="cell_y_int_value"></div></div>
                     </div><br/>
@@ -237,9 +242,7 @@
             <div class="About">
                 <div id="about" class="collapse">
                     <h3>New York City - USA</h3>
-                    <div id="svgContainer" style="width: 150px; height: 150px;">
-                    </div>
-                    <button onclick="cleanMap()">Clean up!</button>
+                    <div id="google_map" style="width: 500px; height: 400px;"></div>
                 </div>
             </div>
         </div>

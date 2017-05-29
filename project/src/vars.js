@@ -127,17 +127,23 @@ var CAMERA_SPAWN = new THREE.Vector3(size, size, size);
 
 var LABEL_ORIGIN_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x - (size - sizeX/2), baseOXYGridHelper.position.y, baseOXYGridHelper.position.z + (size - sizeZ/2));
 var LABEL_TIME_SPAWN = new THREE.Vector3( baseOXZGridHelper.position.x, baseOXZGridHelper.position.y + (size - sizeY/2), baseOXZGridHelper.position.z + (size - sizeZ/2) );
-var LABEL_LNG_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x - (size - sizeX/2), baseOXYGridHelper.position.y - size*0.1, - baseOXYGridHelper.position.z - (size - sizeZ/2) );
-var LABEL_LAT_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x + (size - sizeX/2), baseOXYGridHelper.position.y - size*0.1, baseOXYGridHelper.position.z + (size - sizeZ/2) );
+var LABEL_LAT_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x - (size - sizeX/2), baseOXYGridHelper.position.y - size*0.1, - baseOXYGridHelper.position.z - (size - sizeZ/2) );
+var LABEL_LNG_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x + (size - sizeX/2), baseOXYGridHelper.position.y - size*0.1, baseOXYGridHelper.position.z + (size - sizeZ/2) );
 
 var labelOrigin, labelT, labelLng, labelLat;
 
 // Embed layer from OpenStreet Map
 // A empty div is added in front of it to prevent users from interacting with the cube
-var iframe= '<div style="position:fixed;width:100%;height:100%;"></div>'+
+var OSMFrame= '<div id="OSMLayerBlocker" style="position:fixed;width:100%;height:100%;"></div>'+
     `<iframe id="OSMLayer" width="${661}" height="${689}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
     'src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE" ' +
     'style="border: 1px solid black"></iframe>';
+
+var GMFrame ='<div style="position:fixed;width:100%;height:100%;"></div>'+
+    '<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m11!1m3!1d1213.93486794387!2d-74.25689642554477!3d40.548215515832084!2m2!1f5.6871391876627335!2f0!3m2!1i1024!2i768!4f35!3m3!1m2!1s0x0%3A0x0!2zNDDCsDMyJzUwLjAiTiA3NMKwMTUnMzIuNyJX!5e1!3m2!1sen!2sde!4v1496044141280" ' +
+    'width="661" height="689" frameborder="0" style="border: 1px solid black"</iframe>';
+
+var locations = [];
 
 var LNG_MIN = -74.25909, LNG_MAX = -73.70009, LAT_MIN = 40.477399, LAT_MAX = 40.917577;
 var newLngMin = LNG_MIN, newLatMin = LAT_MIN, newLngMax = LNG_MAX, newLatMax = LAT_MAX;

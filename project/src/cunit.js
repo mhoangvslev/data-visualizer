@@ -28,7 +28,7 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
     this.color = this.getColorPerWeight(zscore);
 	this.opacity = 1;
 	this.geometry = GEO_CUBE;
-	this.cell_x = latitude; this.cell_y = longitude; this.time_step = time_step, this.zscore = zscore; this.dimension = dimension;
+	this.cell_x = longitude; this.cell_y = latitude; this.time_step = time_step, this.zscore = zscore; this.dimension = dimension;
 
 	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshPhongMaterial({
         color: this.color,
@@ -36,8 +36,8 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
         opacity: this.opacity,
     }));
     this.mesh.name = `Longitude: ${longitude} | Latitude: ${latitude} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
-    this.mesh.position.x = this.cell_x - offsetX;
-    this.mesh.position.z = -this.cell_y - offsetZ;
+    this.mesh.position.x = this.cell_y - offsetX;
+    this.mesh.position.z = -this.cell_x - offsetZ;
     this.mesh.position.y = this.time_step - offsetY;
 	this.mesh.renderOrder = 2;
 
@@ -46,6 +46,12 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
     this.angularDistance = this.calcAngularDistance();
     this.latitude = this.calcLatitude();
 	this.longitude = this.calcLongitude();
+
+	locations.push([
+        this.mesh.name,
+        this.latitude,
+        this.longitude
+    ]);
 }
 
 CUnit.prototype = Object.create( THREE.Mesh.prototype );
@@ -66,8 +72,8 @@ CUnit.prototype.reinitiate = function () {
         opacity: this.opacity
     });
 
-    this.mesh.position.x = this.cell_x - offsetX;
-    this.mesh.position.z = -this.cell_y - offsetZ;
+    this.mesh.position.x = this.cell_y - offsetX;
+    this.mesh.position.z = -this.cell_x - offsetZ;
     this.mesh.position.y = this.time_step - offsetY;
 
     //this.setCunitSize(1, 1, 1);
@@ -82,8 +88,8 @@ CUnit.prototype.setCunitSize = function (x, y, z) {
     offsetY = size/2 - this.mesh.scale.y*this.dimension/2;
 
     // Recalculate the position
-    this.mesh.position.x = this.cell_x - offsetX;
-    this.mesh.position.z = -this.cell_y - offsetZ;
+    this.mesh.position.x = this.cell_y - offsetX;
+    this.mesh.position.z = -this.cell_x - offsetZ;
     this.mesh.position.y = this.time_step - offsetY;
 };
 
@@ -117,10 +123,11 @@ CUnit.prototype.getScalePerWeight = function () {
  */
 CUnit.prototype.calcLatitude = function () {
     //console.log(`sin(${THREE.Math.degToRad(LAT_MIN)}) * cos(${this.angularDistance}) + ${THREE.Math.degToRad(bearing)}`);
-    return Math.asin(
+    /*return Math.asin(
         Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.cos(this.angularDistance) +
         Math.cos(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(this.bearing))
-    );
+    );*/
+    return THREE.Math.degToRad(LAT_MIN - (this.cell_y * 0.2) / 111.2);
 };
 
 /**
@@ -129,9 +136,10 @@ CUnit.prototype.calcLatitude = function () {
  */
 CUnit.prototype.calcLongitude = function () {
     //console.log(`sin(${THREE.Math.degToRad(LAT_MIN)}) * cos(${this.angularDistance}) + ${THREE.Math.degToRad(bearing)}`);
-    return THREE.Math.degToRad(LNG_MIN) + Math.atan2(
+    /*return THREE.Math.degToRad(LNG_MIN) + Math.atan2(
         Math.sin(THREE.Math.degToRad(this.bearing))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(LAT_MIN)),
-            Math.cos(this.angularDistance)-Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.latitude));
+            Math.cos(this.angularDistance)-Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.latitude));*/
+    return THREE.Math.degToRad(LNG_MIN + (this.cell_x*0.2)/(this.latitude * 111.2));
 };
 
 /**
@@ -147,7 +155,7 @@ CUnit.prototype.calcAngularDistance = function () {
  * @returns {number} angle is radians
  */
 CUnit.prototype.calcBearing = function () {
-    return Math.atan2(this.cell_x, this.cell_y);
+    return Math.atan2(this.cell_x - xLowerBound, this.cell_y - yLowerBound);
 };
 
 
@@ -169,3 +177,8 @@ CUnit.prototype.getBearing = function () {
     return this.bearing;
 };
 
+CUnit.prototype.update = function () {
+    this.bearing = this.calcBearing();
+    this.latitude = this.calcLatitude();
+    this.longitude = this.calcLongitude();
+};

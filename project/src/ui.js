@@ -28,8 +28,8 @@ function updateSceneFilters() {
     CUnitCluster.traverse(function (child) {
         if (child instanceof CUnit) {
             if (((child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() <= timeStepUpperBound ) &&
-                (child.getCellY() >= yLowerBound && child.getCellY() <= yUpperBound ) &&
-                (child.getCellX() >= xLowerBound && child.getCellX() <= xUpperBound ) &&
+                (child.getCellY() >= xLowerBound && child.getCellY() <= xUpperBound ) &&
+                (child.getCellX() >= yLowerBound && child.getCellX() <= yUpperBound ) &&
                 (child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
             ) || (extrudeLayer !== -1 && child.getTimeStep() === extrudeLayer)) {
                 child.getMesh().visible = true;
@@ -92,6 +92,15 @@ function updateDynamicMapFilter(b){
     }
 }
 
+function updateInteractiveMapFilter(b) {
+    if(b){
+        document.getElementById("OSMLayerBlocker").style.display = "none";
+    }
+    else {
+        document.getElementById("OSMLayerBlocker").style.display = "block";
+    }
+}
+
 function updateMapScaleXFilter(val) {
     mapLayer.scale.x = val;
 }
@@ -117,25 +126,29 @@ function updateMapLayerDisplay(bScale) {
     if(bScale) {
         CUnitCluster.traverse(function (child) {
             if (child instanceof CUnit) {
-                child.getMesh().position.x = (child.getCellX() - xLowerBound) * (sizeX / newSizeX) - offsetX;
+                // Reposition
+                child.getMesh().position.z = -(child.getCellX() - yLowerBound) * (sizeZ / newSizeZ) - offsetZ;
                 child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * (sizeY / newSizeY) - offsetY;
-                child.getMesh().position.z = -(child.getCellY() - yLowerBound) * (sizeZ / newSizeZ) - offsetZ;
+                child.getMesh().position.x = (child.getCellY() - xLowerBound) * (sizeX / newSizeX) - offsetX;
+
+                //Recalculate lng and alt
+                child.update();
 
                 // Calculate new bounding box for OSM Layer
 
-                if (child.getCellY() == yLowerBound) {
+                if (child.getCellX() == yLowerBound) {
                     newLngMin = child.getLongitude();
                 }
 
-                if (child.getCellY() == yUpperBound) {
+                if (child.getCellX() == yUpperBound) {
                     newLngMax = child.getLongitude();
                 }
 
-                if (child.getCellX() == xLowerBound) {
+                if (child.getCellY() == xLowerBound) {
                     newLatMin = child.getLatitude();
                 }
 
-                if (child.getCellX() == xUpperBound) {
+                if (child.getCellY() == xUpperBound) {
                     newLatMax = child.getLatitude();
                 }
             }

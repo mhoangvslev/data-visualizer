@@ -153,6 +153,12 @@ function switchTopCamera() {
     labelT.visible = false;
     labelLng.position.z += 10; labelLng.position.x -= 30; labelLat.position.x -= 50; labelOrigin.position.x -= 30;
     document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Latitude' ;
+
+    // Adjust map layer manually
+    updateMapScaleXFilter(0.34);
+    updateMapScaleYFilter(0.33);
+    updateMapOffsetX(2);
+    updateMapOffsetZ(-1);
 }
 
 function switchBottomCamera() {

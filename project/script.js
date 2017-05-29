@@ -16,6 +16,10 @@ $(document).ready(function() {
         updateDynamicMapFilter(this.checked);
     });
 
+    $('#map_interactive').click(function () {
+        updateInteractiveMapFilter(this.checked);
+    });
+
 	$('#time_step_scale').click(function () {
 		mustScale = this.checked;
 		if(mustScale)
@@ -169,7 +173,7 @@ $(document).ready(function() {
 
     $( "#map_offset_x" ).slider({
         min: -200,
-        max: 200,
+        max: sizeX,
         create: function() {
             $( "#map_offset_x_handle" ).text( $( this ).slider( "value" ) );
         },
@@ -181,7 +185,7 @@ $(document).ready(function() {
 
     $( "#map_offset_y" ).slider({
         min: -200,
-        max: size,
+        max: sizeY,
         create: function() {
             $( "#map_offset_y_handle" ).text( $( this ).slider( "value" ) );
         },
@@ -193,7 +197,7 @@ $(document).ready(function() {
 
     $( "#map_offset_z" ).slider({
         min: -200,
-        max: 200,
+        max: sizeZ,
         create: function() {
             $( "#map_offset_z_handle" ).text( $( this ).slider( "value" ) );
         },
@@ -258,10 +262,10 @@ $(document).ready(function() {
         min: 1,
         max: 1000,
         create: function() {
-            $('#map_scale_Y_handle').text( $( this ).slider( "value" ) );
+            $('#map_scale_y_handle').text( $( this ).slider( "value" ) );
         },
         slide: function( event, ui ) {
-            $('#map_scale_Y_handle').text( ui.value/100 );
+            $('#map_scale_y_handle').text( ui.value/100 );
             updateMapScaleYFilter(ui.value/100);
         }
     });
