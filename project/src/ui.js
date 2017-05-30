@@ -153,8 +153,13 @@ function updateMapLayerDisplay(bScale) {
                 }
             }
         });
-        newLoc = encodeURIComponent(`${newLngMin},${newLatMin},${newLngMax},${newLatMax}`);
 
+        /*newLatMin = calcLatitude(xLowerBound);
+        newLatMax = calcLatitude(xUpperBound);
+        newLngMin = calcLongitude(yLowerBound, newLatMin);
+        newLngMax = calcLongitude(yUpperBound, newLatMax);*/
+
+        newLoc = encodeURIComponent(`${newLngMin},${newLatMin},${newLngMax},${newLatMax}`);
     }
     else {
         newLoc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);

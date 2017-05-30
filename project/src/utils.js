@@ -262,3 +262,11 @@ function createSides(s, geometry) {
         sides.push(side);
     }
 }
+
+function calcLatitude(cell_y) {
+    return LAT_MIN + (cell_y * 0.2) / 111.321;
+}
+
+function  calcLongitude(cell_x, latitude) {
+    return LNG_MIN + (cell_x*0.2)/(Math.cos(latitude) * 111.321);
+}

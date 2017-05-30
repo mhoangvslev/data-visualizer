@@ -127,7 +127,7 @@ CUnit.prototype.calcLatitude = function () {
         Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.cos(this.angularDistance) +
         Math.cos(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(this.bearing))
     );*/
-    return THREE.Math.degToRad(LAT_MIN - (this.cell_y * 0.2) / 111.2);
+    return THREE.Math.degToRad(LAT_MIN + (this.cell_y * 0.2) / 111.321);
 };
 
 /**
@@ -139,7 +139,7 @@ CUnit.prototype.calcLongitude = function () {
     /*return THREE.Math.degToRad(LNG_MIN) + Math.atan2(
         Math.sin(THREE.Math.degToRad(this.bearing))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(LAT_MIN)),
             Math.cos(this.angularDistance)-Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.latitude));*/
-    return THREE.Math.degToRad(LNG_MIN + (this.cell_x*0.2)/(this.latitude * 111.2));
+    return THREE.Math.degToRad(LNG_MIN + (this.cell_x*0.2)/(Math.cos(this.latitude) * 111.321));
 };
 
 /**

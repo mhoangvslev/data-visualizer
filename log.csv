@@ -1,0 +1,24 @@
+d336ee4,Minh Hoang DANG,2017-05-29 15:24:52 +0200,"- Fundamental change: cell_x is longitude, cell_y is latitude, x axis for latitude, z axis for longitude. - New, simpler, efficient but less accurate approach to calculate coordinates, using degree length."
+80c4efe,Minh Hoang DANG,2017-05-29 10:04:07 +0200,Merge branch 'dev' of https://github.com/mrdoob/three.js into dev
+029cebd,Minh Hoang DANG,2017-05-27 01:09:04 +0200,Merge branch 'dev' of https://github.com/mrdoob/three.js into dev
+4182bee,Minh Hoang DANG,2017-05-27 01:08:51 +0200,- Integrated map scaling feature with some issue: unable to translate or precision loss at higher scale.
+bc7fe10,Minh Hoang DANG,2017-05-25 13:43:00 +0200,Merge branch 'dev' of https://github.com/mrdoob/three.js into dev
+6c3e91e,Minh Hoang DANG,2017-05-25 13:42:33 +0200,- Added New menu for map manipulation - Merge similar function into one (more performance) - for OSM map layer automatically update the map coordinates when scaled (concept prooven)
+3b86a53,Minh Hoang DANG,2017-05-23 17:25:07 +0200,Merge branch 'dev' of https://github.com/mrdoob/three.js into dev
+1c8c88a,Minh Hoang DANG,2017-05-23 17:23:01 +0200,- Add more options to manipulate the map due to incompatibility between CSS3D and WebGL
+7cd7d1b,Minh Hoang DANG,2017-05-22 12:03:19 +0200,Merge branch 'dev' of https://github.com/mrdoob/three.js into dev
+b5d409c,Minh Hoang DANG,2017-05-22 12:02:40 +0200,"- Resolve map quality loss issue"" using CSS3D"""
+e99987e,Minh Hoang DANG,2017-05-21 09:27:08 +0200,Merge branch 'dev' of https://github.com/mrdoob/three.js into dev
+2e67ef7,Minh Hoang DANG,2017-05-19 18:32:43 +0200,- Fixed grid scale issue - map with correct size
+075e9b8,Minh Hoang DANG,2017-05-19 10:41:50 +0200,Merge branch 'dev' of https://github.com/mrdoob/three.js into dev
+d967e9f,Minh Hoang DANG,2017-05-18 00:04:25 +0200,- Fix proportion issue - Clean up codes - New map layer in SVG format and in correct size
+9f908b9,Minh Hoang DANG,2017-05-16 17:11:09 +0200,- Test with real data - Fix projection issue: data are now projected proportionally within the 100x100x100 Cube. Values range are taken into consideration.
+1d3cecd,Minh Hoang DANG,2017-05-15 16:28:37 +0200,- Fix offset error where CUnit falls out of the grid - Resolve conflicts between filters.
+a17c996,Minh Hoang DANG,2017-05-12 17:07:04 +0200,"- New colour code: blue - red gradient - Larger dataset with 1000 entries - FIx unproper display/projection due to miscalculation in proportion. - Fix issue where modifying one filter will break others - Add more filters: change CUnit geometry, one layer "
+bc4d55f,Minh Hoang DANG,2017-05-09 16:38:22 +0200,- Added unit measure HUD - User can choose to project just a certain amount of cubes via time_step filter
+69a089c,Minh Hoang DANG,2017-05-08 16:52:07 +0200,- Remove GUI.js - Centralize all UI elements in one control panel - Integrate Bootstrap and jQuery into the framework.
+7db0b8f,Minh Hoang DANG,2017-05-05 17:30:26 +0200,- Implemented Camera System:     + Adjust label automatically base on camera view     + Control panel collapsible (bootstrap)
+bb48673,Minh Hoang DANG,2017-05-05 14:03:06 +0200,- Restructure the project - New type of Camera: CombinedCamera to have both Perspective and Orthogonal functionalities - Added zoom function for CombinedCamera
+fc1c817,Minh Hoang DANG,2017-04-25 11:31:44 +0200,"- Added labels for each axis (longitude, latitude, time_step) - each CUnit can be picked: it would be highlighted and a its information will be shown."
+ab66fc0,Minh Hoang DANG,2017-04-24 18:15:06 +0200,Added a slider that allow to see data from certain time_step
+3792565,Minh Hoang DANG,2017-04-24 10:59:51 +0200,"- with sample dataset, build a small demo"

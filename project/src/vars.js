@@ -136,7 +136,7 @@ var labelOrigin, labelT, labelLng, labelLat;
 // A empty div is added in front of it to prevent users from interacting with the cube
 var OSMFrame= '<div id="OSMLayerBlocker" style="position:fixed;width:100%;height:100%;"></div>'+
     `<iframe id="OSMLayer" width="${661}" height="${689}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
-    'src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE" ' +
+    'src="http://www.openstreetmap.org/export/embed.html?map=ZOOM&amp;bbox=LOCATION&amp;layers=MAPTYPE;" ' +
     'style="border: 1px solid black"></iframe>';
 
 var GMFrame ='<div style="position:fixed;width:100%;height:100%;"></div>'+

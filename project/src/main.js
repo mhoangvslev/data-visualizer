@@ -77,7 +77,7 @@ function init() {
     mapLayerPlane.position.y = baseOXYGridHelper.position.y - 10;
     WebGLScene.add(mapLayerPlane);*/
 
-    mapLayer = createCSS3DObject(OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc));
+    mapLayer = createCSS3DObject(OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc).replace("ZOOM", 10));
     mapLayer.rotation.copy(mapMesh.rotation);
     mapLayer.position.copy(mapMesh.position);
     mapLayer.position.z = baseOXYGridHelper.position.z + 10;
