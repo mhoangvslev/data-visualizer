@@ -3,7 +3,7 @@
  */
 
 var size = 300, step = 50;
-var sizeX = 235, sizeY = size, sizeZ = 237;
+var sizeX = 237, sizeY = size, sizeZ = 235;
 var newSizeX = sizeX, newSizeY = sizeY, newSizeZ = sizeZ;
 var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
 var processedData, dataAmount;

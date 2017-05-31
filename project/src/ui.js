@@ -31,19 +31,37 @@ function updateSceneFilters() {
                 (child.getCellY() >= xLowerBound && child.getCellY() <= xUpperBound ) &&
                 (child.getCellX() >= yLowerBound && child.getCellX() <= yUpperBound ) &&
                 (child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
-            ) || (extrudeLayer !== -1 && child.getTimeStep() === extrudeLayer)) {
+            ) /*|| (extrudeLayer !== -1 && child.getTimeStep() === extrudeLayer))*/ {
                 child.getMesh().visible = true;
+                if (mustExtrude) {
+                    child.getMesh().scale.y = child.getScalePerWeight();
+                    child.getMesh().position.y = (size/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeY;
+                }
             }
             else {
                 child.getMesh().visible = false;
             }
+        }
+    });
 
-            if (mustExtrude) {
-                child.getMesh().scale.y = child.getScalePerWeight();
-                child.getMesh().position.y = (size/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeY;
+    if(mustScale)
+        document.getElementById('time_step_unit').innerHTML = `X: ${(200*newSizeX/sizeX).toFixed(2)}m Y: ${(sizeY/newSizeY).toFixed(2)}x Z: ${(200*newSizeZ/sizeZ).toFixed(2)}m` + ' unit(s)';
+    else
+        document.getElementById('time_step_unit').innerHTML = '1 unit';
+}
+
+function updateOneLayerFilter() {
+    CUnitCluster.traverse(function (child) {
+        if(child instanceof CUnit){
+            if(child.getTimeStep() === extrudeLayer) {
+                child.getMesh().visible = true;
+                if (mustExtrude) {
+                    child.getMesh().scale.y = child.getScalePerWeight();
+                    child.getMesh().position.y = (size/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeY;
+                }
             }
             else {
-                child.getMesh().scale.y = 1;
+                child.getMesh().visible = false;
             }
         }
     });
@@ -62,24 +80,7 @@ function updateGeometryFilter(newGeo) {
     });
 }
 
-function updateOneLayerFilter() {
-    resetScene();
-    CUnitCluster.traverse(function (child) {
-       if(child instanceof CUnit){
-           if(child.getTimeStep() === extrudeLayer) {
-               child.getMesh().visible = true;
-               if (mustExtrude) {
-                   child.getMesh().scale.y = child.getScalePerWeight();
-                   child.getMesh().position.y = (size/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeY;
-               }
-               updateSceneFilters();
-           }
-           else {
-               child.getMesh().visible = false;
-           }
-       }
-    });
-}
+
 
 function updateDynamicMapFilter(b){
     if(b){

@@ -1,11 +1,2 @@
-/**
- * Created by Minh Hoang DANG on 30/05/2017.
- */
-function onDocumentMouseMove(event){mouse.x=(event.clientX/window.innerWidth)*2-1;mouse.y=-(event.clientY/window.innerHeight)*2+1}
-function onDocumentLMB(){if(!isLMB)
-    isLMB=!0}
-function onDocumentMouseReset(){isLMB=isRMB=!1}
-function onDocumentMouseWheel(event){var zoomStep=0.02;if(event.wheelDelta<0&&zoomAmount-(zoomStep*zoomFactor)>1.5)
-    zoomAmount-=(zoomStep*zoomFactor);else if(event.wheelDelta>0&&zoomAmount+(zoomStep*zoomFactor)<5)
-    zoomAmount+=(zoomStep*zoomFactor);camera.setZoom(zoomAmount);camera.updateProjectionMatrix()}
-function onWindowResize(){camera.aspect=window.innerWidth/window.innerHeight;camera.setSize(window.innerWidth,window.innerHeight);camera.updateProjectionMatrix();WebGLRenderer.setSize(window.innerWidth,window.innerHeight);cssRenderer.setSize(window.innerWidth,window.innerHeight)}
+function onDocumentMouseMove(a){mouse.x=a.clientX/window.innerWidth*2-1;mouse.y=2*-(a.clientY/window.innerHeight)+1}function onDocumentLMB(){isLMB||(isLMB=!0)}function onDocumentMouseReset(){isLMB=isRMB=!1}function onDocumentMouseWheel(a){0>a.wheelDelta&&1.5<zoomAmount-.02*zoomFactor?zoomAmount-=.02*zoomFactor:0<a.wheelDelta&&5>zoomAmount+.02*zoomFactor&&(zoomAmount+=.02*zoomFactor);camera.setZoom(zoomAmount);camera.updateProjectionMatrix()}
+function onWindowResize(){camera.aspect=window.innerWidth/window.innerHeight;camera.setSize(window.innerWidth,window.innerHeight);camera.updateProjectionMatrix();WebGLRenderer.setSize(window.innerWidth,window.innerHeight);cssRenderer.setSize(window.innerWidth,window.innerHeight)};
