@@ -22,10 +22,6 @@ $(document).ready(function() {
 
 	$('#time_step_scale').click(function () {
 		mustScale = this.checked;
-		if(mustScale)
-            $('#time_step_unit').text(`X: ${(sizeX/newSizeX).toFixed(2)} Y: ${(sizeY/newSizeY).toFixed(2)} Z: ${(sizeZ/newSizeZ).toFixed(2)}` + ' unit(s)');
-        else
-            $('#time_step_unit').text('1 unit');
         updateSceneFilters();
         updateMapLayerDisplay(mustScale);
     });
@@ -73,7 +69,7 @@ $(document).ready(function() {
             updateSceneFilters();
 			$('#time_step_int_value').text(ui.values[0] + " - " + ui.values[1]);
 			newSizeY = Math.abs(ui.values[1] - ui.values[0]); offsetNY = ui.values[0];
-			$('#one_layer_extrusion').prop('checked', false); mustExtrude = false; extrudeLayer = -1;
+			//$('#one_layer_extrusion').prop('checked', false); mustExtrude = false; extrudeLayer = -1;
 			updateMapLayerDisplay(mustScale);
 		}
 	});
@@ -128,20 +124,14 @@ $(document).ready(function() {
 		slide: function( event, ui ) {
 			BRUSH_SIZE = ui.value/10;
             $( "#brush_size_handle" ).text( BRUSH_SIZE );
-			updateBrushSizeFilter(BRUSH_SIZE);
+			updateBrushSizeFilter();
 		}
 	});
 
     $('#one_layer_extrusion').click(function () {
         mustExtrude = this.checked;
-        if(this.checked && extrudeLayer != -1) {
-            $('#time_step_scale').prop('checked', false);
-            mustScale = false;
-            updateOneLayerFilter();
-
-        }
-        else if(!this.checked)
-        	resetScene();
+        updateOneLayerFilter();
+        updateBrushSizeFilter();
     });
 
     $( "#one_layer" ).slider({
@@ -151,11 +141,11 @@ $(document).ready(function() {
             $( "#one_layer_handle" ).text( $( this ).slider( "value" ) );
         },
         slide: function( event, ui ) {
-            $('#time_step_scale').prop('checked', false); mustScale = false;
             $( "#one_layer_handle" ).text( ui.value );
             extrudeLayer = ui.value;
             newSizeY = 1; offsetNY = ui.value;
             updateOneLayerFilter();
+            //updateSceneFilters();
         }
     });
 

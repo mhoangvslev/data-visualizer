@@ -11,14 +11,13 @@ function updateCameraFOVFilter(fov) {
     camera.setFov(fovAmount);
 }
 
-function updateBrushSizeFilter(bsize) {
+function updateBrushSizeFilter() {
     CUnitCluster.traverse(function (child) {
-        if(child instanceof CUnit){
-            if(mustExtrude){
-                child.setCunitSize(bsize, child.getScalePerWeight() * 0.5, bsize);
-            }
+        if(child instanceof CUnit) {
+            if (mustExtrude)
+                child.setCunitSize(BRUSH_SIZE, child.getScalePerWeight() * 0.5, BRUSH_SIZE);
             else
-                child.setCunitSize(bsize, bsize, bsize);
+                child.setCunitSize(BRUSH_SIZE, BRUSH_SIZE, BRUSH_SIZE);
         }
     });
 }
@@ -28,15 +27,11 @@ function updateSceneFilters() {
     CUnitCluster.traverse(function (child) {
         if (child instanceof CUnit) {
             if (((child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() <= timeStepUpperBound ) &&
-                (child.getCellY() >= xLowerBound && child.getCellY() <= xUpperBound ) &&
-                (child.getCellX() >= yLowerBound && child.getCellX() <= yUpperBound ) &&
-                (child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
-            ) /*|| (extrudeLayer !== -1 && child.getTimeStep() === extrudeLayer))*/ {
+                    (child.getCellY() >= xLowerBound && child.getCellY() <= xUpperBound ) &&
+                    (child.getCellX() >= yLowerBound && child.getCellX() <= yUpperBound ) &&
+                    (child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
+                )) {
                 child.getMesh().visible = true;
-                if (mustExtrude) {
-                    child.getMesh().scale.y = child.getScalePerWeight();
-                    child.getMesh().position.y = (size/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeY;
-                }
             }
             else {
                 child.getMesh().visible = false;
@@ -45,12 +40,13 @@ function updateSceneFilters() {
     });
 
     if(mustScale)
-        document.getElementById('time_step_unit').innerHTML = `X: ${(200*newSizeX/sizeX).toFixed(2)}m Y: ${(sizeY/newSizeY).toFixed(2)}x Z: ${(200*newSizeZ/sizeZ).toFixed(2)}m` + ' unit(s)';
+        document.getElementById('time_step_unit').innerHTML = `X: ${(200*newSizeZ/sizeZ).toFixed(2)}m Y: ${(sizeY/newSizeY).toFixed(2)}x Z: ${(200*newSizeX/sizeX).toFixed(2)}m`;
     else
         document.getElementById('time_step_unit').innerHTML = '1 unit';
 }
 
 function updateOneLayerFilter() {
+    //resetScene();
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit){
             if(child.getTimeStep() === extrudeLayer) {

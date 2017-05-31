@@ -121,7 +121,7 @@ baseOXZGridHelper.renderOrder = 1;
 
 var GEO_PRISM = new THREE.CylinderGeometry( dimension, dimension, dimension, 6, 4 );
 var GEO_CUBE = new THREE.BoxGeometry( dimension, dimension, dimension);
-var BRUSH_SIZE = size/step;
+var BRUSH_SIZE = 1;
 
 var CAMERA_SPAWN = new THREE.Vector3(size, size, size);
 

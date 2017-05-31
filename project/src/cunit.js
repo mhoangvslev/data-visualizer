@@ -40,6 +40,7 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
     this.mesh.position.z = -this.cell_x - offsetZ;
     this.mesh.position.y = this.time_step - offsetY;
 	this.mesh.renderOrder = 2;
+	this.currentSize = this.mesh.scale.x;
 
 	// Always calculate in this order
     this.bearing = this.calcBearing();
@@ -81,6 +82,7 @@ CUnit.prototype.reinitiate = function () {
 
 CUnit.prototype.setCunitSize = function (x, y, z) {
     this.mesh.scale.set(x, y, z) ;
+    this.currentSize = this.mesh.scale.x;
 
     // Recalculate the offset
     offsetZ = -size/2 + this.mesh.scale.z*this.dimension/2;
@@ -88,9 +90,16 @@ CUnit.prototype.setCunitSize = function (x, y, z) {
     offsetY = size/2 - this.mesh.scale.y*this.dimension/2;
 
     // Recalculate the position
-    this.mesh.position.x = this.cell_y - offsetX;
-    this.mesh.position.z = -this.cell_x - offsetZ;
-    this.mesh.position.y = this.time_step - offsetY;
+    if(mustScale){
+        this.mesh.position.z = -(this.cell_x - yLowerBound) * (sizeZ / newSizeZ) - offsetZ;
+        this.mesh.position.y = (this.time_step - timeStepLowerBound) * (sizeY / newSizeY) - offsetY;
+        this.mesh.position.x = (this.cell_y - xLowerBound) * (sizeX / newSizeX) - offsetX;
+    }
+    else {
+        this.mesh.position.x = this.cell_y - offsetX;
+        this.mesh.position.z = -this.cell_x - offsetZ;
+        this.mesh.position.y = this.time_step - offsetY;
+    }
 };
 
 CUnit.prototype.getCellY = function () {
@@ -181,4 +190,8 @@ CUnit.prototype.update = function () {
     this.bearing = this.calcBearing();
     this.latitude = this.calcLatitude();
     this.longitude = this.calcLongitude();
+};
+
+CUnit.prototype.getCurrentSize = function () {
+    return this.currentSize;
 };
