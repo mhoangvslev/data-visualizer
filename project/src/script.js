@@ -209,29 +209,27 @@ $(document).ready(function() {
         }
     });
 
-	var handle = $( "#camera_fov_handle" );
 	$( "#camera_fov" ).slider({
 		min: 50,
 		max: 100,
 		value: 90,
 		create: function() {
-			handle.text( $( this ).slider( "value" ) );
+            $('#camera_fov_handle').text( $( this ).slider( "value" ) );
 		},
 		slide: function( event, ui ) {
-			handle.text( ui.value );
+            $('#camera_fov_handle').text( ui.value );
 			updateCameraFOVFilter(ui.value);
 		}
 	});
 
-	var handle = $( "#zoom_speed_handle" );
 	$( "#zoom_speed" ).slider({
 		min: 1,
 		max: 10,
 		create: function() {
-			handle.text( $( this ).slider( "value" ) );
+            $('#zoom_speed_handle').text( $( this ).slider( "value" ) );
 		},
 		slide: function( event, ui ) {
-			handle.text( ui.value );
+            $('#zoom_speed_handle').text( ui.value );
 			updateZoomSpeedFilter(ui.value);
 		}
 	});

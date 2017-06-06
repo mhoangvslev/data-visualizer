@@ -2,6 +2,7 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 init();
+//initCSS3D();
 animate();
 
 function init() {
@@ -9,7 +10,7 @@ function init() {
 	document.body.appendChild(container);
 
     // Renderer
-    WebGLRenderer = new THREE.CanvasRenderer({alpha: true});
+    WebGLRenderer = new THREE.CanvasRenderer({alpha: true, antialias: true});
     WebGLRenderer.setClearColor( 0xf0f0f0 );
     WebGLRenderer.setPixelRatio( window.devicePixelRatio );
     WebGLRenderer.setSize( window.innerWidth, window.innerHeight );
@@ -71,26 +72,16 @@ function init() {
     //mapMeshBBox = new THREE.Box3().setFromObject(mapMesh);
     WebGLScene.add( mapMesh );
 
-    /*var mapLayerPlane = new THREE.Mesh(mapGeo, new THREE.MeshBasicMaterial({color: 0x000000, transparent: true, opacity: 0, blending: THREE.NoBlending}));
-    mapLayerPlane.rotation.copy(mapMesh.rotation);
-    mapLayerPlane.position.copy(mapMesh.position);
-    mapLayerPlane.position.y = baseOXYGridHelper.position.y - 10;
-    WebGLScene.add(mapLayerPlane);*/
-
+    // Open street map layer
     mapLayer = createCSS3DObject(OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc).replace("ZOOM", 10));
     mapLayer.rotation.copy(mapMesh.rotation);
-    mapLayer.position.copy(mapMesh.position);
-    mapLayer.position.z = baseOXYGridHelper.position.z + 10;
-    mapLayer.position.x = baseOXYGridHelper.position.x -10;
-    mapLayer.position.y = baseOXYGridHelper.position.y - 25;
+    mapLayer.position.copy(baseOXYGridHelper.position);
+    mapLayer.scale.copy(baseOXYGridHelper.scale);
 
-    var percentBorder = 0.05;
-    /*mapLayer.scale.x /= (1 + percentBorder) * (689 / size); MAP_SCALE_FACTOR_X = mapLayer.scale.x;
-    mapLayer.scale.y /= (1 + percentBorder) * (661 / size); MAP_SCALE_FACTOR_Y = mapLayer.scale.y;*/
-    mapLayer.scale.x = 0.46;
-    mapLayer.scale.y = 0.46;
+    mapLayer.scale.x = 0.36;
+     mapLayer.scale.y = 0.34;
     mapLayer.renderOrder = 0;
-	cssScene.add(mapLayer);
+    cssScene.add(mapLayer);
 
 	// Cubes
     for (var entry of processedData) {
@@ -108,13 +99,7 @@ function init() {
 	container.appendChild( stats.dom );
 
 	// Camera
-	camera = new THREE.CombinedCamera(window.innerWidth/2, window.innerHeight/2, 90, 1, 1000, -500, 1000);
-	camera.isPerspectiveCamera = true; camera.isOrthographicCamera = false;
-	camera.position.copy(CAMERA_SPAWN);
-	camera.lookAt(new THREE.Vector3(size/2, size/2, size/2));
-
-    /*camera1 = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
-    camera1.position.set( 500, 350, 750 );*/
+	camera = perspectiveCamera;
 
 	controls = new THREE.OrbitControls( camera, cssRenderer.domElement );
 	controls.addEventListener( 'change', render ); // remove when using animation loop
@@ -127,7 +112,7 @@ function init() {
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	document.addEventListener( 'contextmenu', onDocumentLMB, false );
 	document.addEventListener( 'mouseup', onDocumentMouseReset, false );
-	document.addEventListener( 'wheel', onDocumentMouseWheel, false);
+	document.addEventListener( 'wheel', onDocumentMouseWheel, true);
 
 	window.addEventListener( 'resize', onWindowResize, false );
 
@@ -166,6 +151,9 @@ function update() {
 function render() {
     cssRenderer.render( cssScene, camera );
     WebGLRenderer.render( WebGLScene, camera );
+
+    /*setCSSWorld();
+    setCSSCamera(camera, fovValue);*/
 }
 
 

@@ -113,3 +113,46 @@ a {
     display: inline-block;
 }
 
+.MapLayer {
+    -webkit-transform: scale(0.4, 0.4);
+}
+
+.animated {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+    -webkit-transform: scale(0.4, 0.4);
+}
+
+@-webkit-keyframes bounceInDown {
+    0%, 60%, 75%, 90%, 100% {
+        -webkit-transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+        transition-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+    }
+
+    100% {
+        -webkit-transform: translate3d(-50%, -75%, -50%) rotateX(270deg) rotateY(180deg) rotateZ(180deg) scale(0.4, 0.4);
+        transform: translate3d(-50%, -750%, -50%) rotateX(270deg) rotateY(180deg) rotateZ(180deg) scale(0.4, 0.4);
+    }
+}
+
+
+@keyframes bounceInDown {
+    0%, 60%, 75%, 90%, 100% {
+        -webkit-transition-timing-function: linear;
+        transition-timing-function: linear;
+    }
+
+    100% {
+        -webkit-transform: translate3d(-50%, -75%, 0) rotateX(270deg) rotateY(180deg) rotateZ(180deg) scale(0.4, 0.4);
+        -ms-transform: translate3d(-50%, -75%, 0) rotateX(270deg) rotateY(180deg) rotateZ(180deg) scale(0.4, 0.4);
+        transform: translate3d(-50%, -75%, 0) rotateX(270deg) rotateY(180deg) rotateZ(180deg) scale(0.4, 0.4);
+    }
+}
+
+.bounceInDown {
+    -webkit-animation-name: bounceInDown;
+    animation-name: bounceInDown;
+}
+

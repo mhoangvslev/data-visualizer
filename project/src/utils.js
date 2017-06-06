@@ -84,15 +84,21 @@ function webglAvailable() {
 }
 
 function setOrthographic() {
+    isInPerspectiveMode = false;
+    camera = combinedCamera;
     resetLabel();
     camera.toOrthographic();
-    camera.setZoom(7); zoomAmount = 7;
+    camera.setZoom(5); zoomAmount = 5;
     document.getElementById('fov').innerHTML = 'Orthographic mode' ;
 }
 function setPerspective() {
+    isInPerspectiveMode = true;
+    camera = perspectiveCamera;
+    mapLayer.scale.x = 0.36;
+    mapLayer.scale.y = 0.34;
     resetLabel();
-    camera.toPerspective();
-    camera.setZoom(1); zoomAmount = 1; camera.position.copy(CAMERA_SPAWN);
+    //camera.toPerspective();
+    camera.setZoom(5); zoomAmount = 5; camera.position.copy(CAMERA_SPAWN);
     document.getElementById('fov').innerHTML = 'Perspective mode' ;
 }
 
@@ -196,77 +202,19 @@ function resetScene() {
 
 function createCSS3DObject(s) {
     // create outerdiv and set inner HTML from supplied string
-    var div = document.createElement('div');
+     var div = document.createElement('div');
+    //var div = document.getElementById('css-camera');
     div.innerHTML = s;
+    //div.className = 'animated bounceInDown' ;
 
     div.style.opacity = 0.7;
-    /*// set some values on the div to style it, standard CSS
+    // set some values on the div to style it, standard CSS
     div.style.width = `${661}px`;
     div.style.height = `${689}px`;
-    div.style.zIndex = 4;*/
+    div.style.webkitTransformStyle = "preserve-3d";
+    div.style.zIndex = 4;
 
     // create a CSS3Dobject and return it.
     var object = new THREE.CSS3DObject(div);
     return object;
-}
-
-function createSides(s, geometry) {
-
-    // merge these, or compensate the offset
-    for (var iFace = 0 ; iFace < geometry.faces.length; iFace+=2) {
-
-        // create a new object
-        var side = createCSS3DObject(s);
-
-        // get this face and the next which both make the cube
-        var face = geometry.faces[iFace];
-        var faceNext = geometry.faces[iFace+1];
-
-        // First reposition the div elements based on the two faces
-        // that make up the side of the cube
-        //console.log(face);
-        var centroid = new THREE.Vector3();
-        centroid.copy( geometry.vertices[face.a] )
-            .add( geometry.vertices[face.b] )
-            .add( geometry.vertices[face.c] )
-            .add( geometry.vertices[faceNext.a] )
-            .add( geometry.vertices[faceNext.b] )
-            .add( geometry.vertices[faceNext.c] )
-            .divideScalar( 6 );
-
-        side.position.x = centroid.x;
-        side.position.y = centroid.y;
-        side.position.z = centroid.z;
-
-        // Now we need to rotate the div to the correct position
-        var up = new THREE.Vector3(0,0,1);
-        var normal = geometry.faces[iFace].normal;;
-
-        // We calculate the axis on which to rotate by
-        // selecting the cross of the vectors
-        var axis = new THREE.Vector3();
-        axis.crossVectors(up,normal);
-
-        // based on the axis, in relation to our normal vector
-        // we can calculate the angle.
-        var angle = Math.atan2(axis.length(), up.dot(normal));
-        axis.normalize();
-
-        // now we can use matrix function to rotate the object so
-        // it is aligned with the normal from the face
-        var matrix4 = new THREE.Matrix4();
-        matrix4.makeRotationAxis(axis,angle);
-
-        side.rotation.setFromRotationMatrix(matrix4);
-        cssScene.add(side);
-        sides.push(side);
-    }
-}
-
-function calcLatitude(cell_y) {
-    return LAT_MIN + (cell_y * 0.2) / 111.321;
-}
-
-function  calcLongitude(cell_x, latitude) {
-    return LNG_MIN + (cell_x*0.2)/(Math.cos(latitude) * 111.321);
 }

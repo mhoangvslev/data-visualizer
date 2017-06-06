@@ -135,7 +135,7 @@ var labelOrigin, labelT, labelLng, labelLat;
 // Embed layer from OpenStreet Map
 // A empty div is added in front of it to prevent users from interacting with the cube
 var OSMFrame= '<div id="OSMLayerBlocker" style="position:fixed;width:100%;height:100%;"></div>'+
-    `<iframe id="OSMLayer" width="${661}" height="${689}" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
+    `<iframe id="OSMLayer" width="${661}px" height="${689}px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
     'src="http://www.openstreetmap.org/export/embed.html?map=ZOOM&amp;bbox=LOCATION&amp;layers=MAPTYPE;" ' +
     'style="border: 1px solid black"></iframe>';
 
@@ -153,3 +153,15 @@ var loc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
 var mapoption = '';
 var maptype = 'mapnik' + mapoption;
 var sides = [];
+
+// Camera types
+var isInPerspectiveMode = true;
+
+var combinedCamera = new THREE.CombinedCamera(window.innerWidth, window.innerHeight, 90, 1, 1000, -500, 1000);
+combinedCamera.isPerspectiveCamera = true;
+combinedCamera.isOrthographicCamera = false;
+combinedCamera.position.copy(CAMERA_SPAWN);
+combinedCamera.lookAt(new THREE.Vector3(size/2, size/2, size/2));
+
+var perspectiveCamera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
+perspectiveCamera.position.set( 500, 350, 750 );
