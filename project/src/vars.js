@@ -156,12 +156,34 @@ var sides = [];
 
 // Camera types
 var isInPerspectiveMode = true;
+var orthographicCamera = new THREE.CombinedCamera(window.innerWidth, window.innerHeight, 90, 1, 1000, -500, 1000);
+orthographicCamera.isPerspectiveCamera = true;
+orthographicCamera.isOrthographicCamera = false;
 
-var combinedCamera = new THREE.CombinedCamera(window.innerWidth, window.innerHeight, 90, 1, 1000, -500, 1000);
-combinedCamera.isPerspectiveCamera = true;
-combinedCamera.isOrthographicCamera = false;
-combinedCamera.position.copy(CAMERA_SPAWN);
-combinedCamera.lookAt(new THREE.Vector3(size/2, size/2, size/2));
+//var orthographicCamera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 5000 );
+orthographicCamera.position.copy(CAMERA_SPAWN);
+orthographicCamera.lookAt(new THREE.Vector3(size/2, size/2, size/2));
 
 var perspectiveCamera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
 perspectiveCamera.position.set( 500, 350, 750 );
+
+THREE.OrthographicCamera.prototype.getEffectiveFOV = function () {
+    return THREE.Math.RAD2DEG * 2 * Math.atan(Math.tan( THREE.Math.DEG2RAD * 0.5 * this.fov ) / this.zoom );
+};
+
+// Renderers
+WebGLRenderer = new THREE.CanvasRenderer({alpha: true, antialias: true});
+WebGLRenderer.setClearColor( 0xf0f0f0 );
+WebGLRenderer.setPixelRatio( window.devicePixelRatio );
+WebGLRenderer.setSize( window.innerWidth, window.innerHeight );
+//WebGLRenderer.domElement.style.position = 'absolute';
+WebGLRenderer.domElement.style.top = 0;
+// make sure original renderer appears on top of CSS renderer
+WebGLRenderer.domElement.style.zIndex   = 1;
+
+cssRenderer = new THREE.CSS3DRenderer();
+cssRenderer.setSize( window.innerWidth, window.innerHeight );
+cssRenderer.domElement.style.position = 'absolute';
+cssRenderer.domElement.style.top = 0;
+cssRenderer.domElement.style.margin = 0;
+cssRenderer.domElement.style.padding = 0;
