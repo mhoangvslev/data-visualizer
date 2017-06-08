@@ -10,7 +10,22 @@ function init() {
 	document.body.appendChild(container);
 
     // Renderer
+    WebGLRenderer = new THREE.CanvasRenderer({alpha: true, antialias: true});
+    WebGLRenderer.setClearColor( 0xf0f0f0 );
+    WebGLRenderer.setPixelRatio( window.devicePixelRatio );
+    WebGLRenderer.setSize( window.innerWidth, window.innerHeight );
+    //WebGLRenderer.domElement.style.position = 'absolute';
+    WebGLRenderer.domElement.style.top = 0;
+    // make sure original renderer appears on top of CSS renderer
+    WebGLRenderer.domElement.style.zIndex   = 1;
     container.appendChild( WebGLRenderer.domElement );
+
+    cssRenderer = new THREE.CSS3DRenderer();
+    cssRenderer.setSize( window.innerWidth, window.innerHeight );
+    cssRenderer.domElement.style.position = 'absolute';
+    cssRenderer.domElement.style.top = 0;
+    cssRenderer.domElement.style.margin = 0;
+    cssRenderer.domElement.style.padding = 0;
     container.appendChild( cssRenderer.domElement );
 
     //cssRenderer.domElement.appendChild( WebGLRenderer.domElement );
@@ -89,6 +104,9 @@ function init() {
 	controls = new THREE.OrbitControls( camera, cssRenderer.domElement );
 	controls.addEventListener( 'change', render ); // remove when using animation loop
 	controls.enableZoom = true;
+
+    /*controls = new THREE.TrackballControls( camera );
+    controls.rotateSpeed = 4;*/
 
 	// Event
 	document.addEventListener( 'mousemove', onDocumentMouseMove, false );

@@ -71,17 +71,6 @@ function roundRect(ctx, x, y, w, h, r)
     ctx.stroke();
 }
 
-function resetMap() {
-    mapLayer.rotation.copy(mapMesh.rotation);
-    mapLayer.position.copy(baseOXYGridHelper.position);
-    mapLayer.scale.copy(baseOXYGridHelper.scale);
-
-    mapLayer.scale.x = 0.36;
-    mapLayer.scale.y = 0.34;
-    mapLayer.renderOrder = 0;
-    updateMapAlphaFilter(1);
-}
-
 function webglAvailable() {
     try {
         var canvas = document.createElement( 'canvas' );
@@ -95,131 +84,99 @@ function webglAvailable() {
 }
 
 function setOrthographic() {
-    if(isInPerspectiveMode) {
-        isInPerspectiveMode = false;
-        camera = orthographicCamera;
-        resetLabel();
-        camera.toOrthographic();
-        camera.setZoom(5);
-        zoomAmount = 5;
-        document.getElementById('fov').innerHTML = 'Orthographic mode';
-    }
+    isInPerspectiveMode = false;
+    camera = combinedCamera;
+    resetLabel();
+    camera.toOrthographic();
+    camera.setZoom(5); zoomAmount = 5;
+    document.getElementById('fov').innerHTML = 'Orthographic mode' ;
 }
 function setPerspective() {
-    if(!isInPerspectiveMode) {
-        isInPerspectiveMode = true;
-        camera = perspectiveCamera;
-        resetMap();
-        mapLayer.scale.x = 0.36;
-        mapLayer.scale.y = 0.34;
-        resetLabel();
-        zoomAmount = 5;
-        camera.zoom = zoomAmount;
-        //camera.position.copy(CAMERA_SPAWN);
-        document.getElementById('fov').innerHTML = 'Perspective mode';
-    }
+    isInPerspectiveMode = true;
+    camera = perspectiveCamera;
+    mapLayer.scale.x = 0.36;
+    mapLayer.scale.y = 0.34;
+    resetLabel();
+    //camera.toPerspective();
+    camera.setZoom(5); zoomAmount = 5; camera.position.copy(CAMERA_SPAWN);
+    document.getElementById('fov').innerHTML = 'Perspective mode' ;
 }
 
 function switchFrontCamera() {
-    if(!isInPerspectiveMode) {
-        resetMap();
-        resetLabel();
-        camera.position.x = Math.cos(2 * Math.PI) * sizeX;
-        camera.position.z = Math.sin(2 * Math.PI) * sizeZ;
-        camera.position.y = 0;
-        camera.lookAt(WebGLScene.position);
-        camera.updateProjectionMatrix();
-        document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude/Timestep';
-        labelLat.visible = false;
-        updateMapAlphaFilter(0);
-    }
+    resetLabel();
+    camera.position.x = Math.cos( 2*Math.PI ) * size;
+    camera.position.z = Math.sin( 2*Math.PI ) * size;
+    camera.position.y = 0;
+    camera.lookAt( WebGLScene.position );
+    camera.updateProjectionMatrix();
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude/Timestep' ;
+    labelLat.visible = false;
+    //document.getElementById('debug_tool').innerHTML = `Camera: ${camera.rotation.x} | ${camera.position.x}`;
 }
 
 function switchBackCamera() {
-    if(!isInPerspectiveMode) {
-        resetMap();
-        resetLabel();
-        camera.position.x = Math.cos(Math.PI) * sizeX;
-        camera.position.z = Math.sin(Math.PI) * sizeZ;
-        camera.position.y = 0;
-        camera.lookAt(WebGlScene.position);
-        camera.updateProjectionMatrix();
-        labelLat.visible = false;
-        document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Timestep';
-        updateMapAlphaFilter(0);
-    }
+    resetLabel();
+    camera.position.x = Math.cos( Math.PI ) * size;
+    camera.position.z = Math.sin( Math.PI ) * size;
+    camera.position.y = 0;
+    camera.lookAt( WebGlScene.position );
+    camera.updateProjectionMatrix();
+    labelLat.visible = false;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Timestep' ;
 }
 
 function switchLeftCamera() {
-    if(!isInPerspectiveMode) {
-        resetMap();
-        resetLabel();
-        camera.position.x = Math.cos(1.5 * Math.PI) * sizeX;
-        camera.position.z = Math.sin(1.5 * Math.PI) * sizeZ;
-        camera.position.y = 0;
-        camera.lookAt(WebGlScene.position);
-        camera.updateProjectionMatrix();
-        labelLng.visible = false;
-        labelOrigin.position.x -= 35;
-        document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Timestep';
-        updateMapAlphaFilter(0);
-    }
+    resetLabel();
+    camera.position.x = Math.cos( 1.5 * Math.PI ) * size;
+    camera.position.z = Math.sin( 1.5 * Math.PI ) * size;
+    camera.position.y = 0;
+    camera.lookAt( WebGlScene.position );
+    camera.updateProjectionMatrix();
+    labelLng.visible = false;
+    labelOrigin.position.x -= 35;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Timestep' ;
 }
 
 function switchRightCamera() {
-    if(!isInPerspectiveMode) {
-        resetMap();
-        resetLabel();
-        camera.position.x = Math.cos(Math.PI / 2) * sizeX;
-        camera.position.z = Math.sin(Math.PI / 2) * sizeZ;
-        camera.position.y = 0;
-        camera.lookAt(WebGlScene.position);
-        camera.updateProjectionMatrix();
-        labelLng.visible = false;
-        labelOrigin.position.x += 20;
-        document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Timestep';
-        updateMapAlphaFilter(0);
-    }
+    resetLabel();
+    camera.position.x = Math.cos( Math.PI/2 ) * size;
+    camera.position.z = Math.sin( Math.PI/2 ) * size;
+    camera.position.y = 0;
+    camera.lookAt( WebGlScene.position );
+    camera.updateProjectionMatrix();
+    labelLng.visible = false;
+    labelOrigin.position.x += 20;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Timestep' ;
 }
 
 function switchTopCamera() {
-    if(!isInPerspectiveMode) {
-        resetMap();
-        resetLabel();
-        camera.position.x = 0;
-        camera.position.z = Math.sin(2 * Math.PI) * sizeZ;
-        camera.position.y = Math.cos(2 * Math.PI) * sizeY;
-        camera.lookAt(WebGLScene.position);
-        camera.updateProjectionMatrix();
-        labelT.visible = false;
-        labelLng.position.z += 10;
-        labelLng.position.x -= 30;
-        labelLat.position.x -= 50;
-        labelOrigin.position.x -= 30;
-        document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Latitude';
+    resetLabel();
+    camera.position.x = 0;
+    camera.position.z = Math.sin( 2 * Math.PI ) * size;
+    camera.position.y = Math.cos( 2 * Math.PI ) * size;
+    camera.lookAt( WebGLScene.position );
+    camera.updateProjectionMatrix();
+    labelT.visible = false;
+    labelLng.position.z += 10; labelLng.position.x -= 30; labelLat.position.x -= 50; labelOrigin.position.x -= 30;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Latitude' ;
 
-        // Adjust map layer manually
-        updateMapScaleXFilter(0.323);
-        updateMapScaleYFilter(0.313);
-        updateMapOffsetX(3);
-        updateMapOffsetZ(-3);
-    }
+    // Adjust map layer manually
+    updateMapScaleXFilter(0.34);
+    updateMapScaleYFilter(0.33);
+    updateMapOffsetX(2);
+    updateMapOffsetZ(-1);
 }
 
 function switchBottomCamera() {
-    if(!isInPerspectiveMode) {
-        resetMap();
-        resetLabel();
-        camera.position.x = 0;
-        camera.position.z = Math.sin(Math.PI) * sizeZ;
-        camera.position.y = Math.cos(Math.PI) * sizeY;
-        camera.lookAt(WebGlScene.position);
-        camera.updateProjectionMatrix();
-        labelT.visible = false;
-        labelLng.position.z += 20;
-        document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Longitude';
-        updateMapAlphaFilter(0);
-    }
+    resetLabel();
+    camera.position.x = 0;
+    camera.position.z = Math.sin( Math.PI ) * size;
+    camera.position.y = Math.cos( Math.PI ) * size;
+    camera.lookAt( WebGlScene.position );
+    camera.updateProjectionMatrix();
+    labelT.visible = false;
+    labelLng.position.z += 20;
+    document.getElementById('fov').innerHTML = 'Orthographic mode: Latitude / Longitude' ;
 }
 
 function resetLabel(){

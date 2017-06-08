@@ -236,25 +236,25 @@ $(document).ready(function() {
 
     $( "#map_scale_x" ).slider({
         min: 1,
-        max: 10000,
+        max: 1000,
         create: function() {
             $('#map_scale_x_handle').text( $( this ).slider( "value" ) );
         },
         slide: function( event, ui ) {
-            $('#map_scale_x_handle').text( ui.value/1000 );
-            updateMapScaleXFilter(ui.value/1000);
+            $('#map_scale_x_handle').text( ui.value/100 );
+            updateMapScaleXFilter(ui.value/100);
         }
     });
 
     $( "#map_scale_y" ).slider({
         min: 1,
-        max: 10000,
+        max: 1000,
         create: function() {
             $('#map_scale_y_handle').text( $( this ).slider( "value" ) );
         },
         slide: function( event, ui ) {
-            $('#map_scale_y_handle').text( ui.value/1000 );
-            updateMapScaleYFilter(ui.value/1000);
+            $('#map_scale_y_handle').text( ui.value/100 );
+            updateMapScaleYFilter(ui.value/100);
         }
     });
 
