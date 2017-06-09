@@ -169,12 +169,12 @@ CUnit.prototype.calcBearing = function () {
 
 
 CUnit.prototype.getLongitude = function () {
-    return THREE.Math.radToDeg(this.longitude);
+    return THREE.Math.radToDeg(this.longitude).toFixed(6);
     //return THREE.Math.radToDeg(this.calcLongitude());
 };
 
 CUnit.prototype.getLatitude = function () {
-    return THREE.Math.radToDeg(this.latitude);
+    return THREE.Math.radToDeg(this.latitude).toFixed(6);
     //return THREE.Math.radToDeg(this.calcLatitude());
 };
 

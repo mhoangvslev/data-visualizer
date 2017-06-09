@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>ExCELL Project - Data Visualization</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="web/style_min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/themes/smoothness/jquery-ui.css" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="src/script_min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD41YLU4BuYQN0E91t7IA1UeONzzoF3PpA" type="text/javascript"></script>
+</head>
+<body onload="cleanMap();">
+    <!-- Include required plugins/modules from three.js library-->
+    <script src="../build/three.min.js"></script>
+    <script src="../examples/js/controls/OrbitControls.js"></script>
+    <script src="../examples/js/Detector.js"></script>
+    <script src="../examples/js/libs/stats.min.js"></script>
+    <script src="../examples/js/libs/dat.gui.min.js"></script>
+    <script src="../examples/js/cameras/CombinedCamera.js"></script>
+    <script src="../examples/js/renderers/CanvasRenderer.js"></script>
+    <script src="../examples/js/renderers/Projector.js"></script>
+    <script src="../examples/js/renderers/CSS3DRenderer.js"></script>
+    <script src="../examples/js/controls/TrackballControls.js"></script>
+    <script src="../examples/js/THREEx.KeyboardState.js"></script>
+    <script src="../examples/js/THREEx.FullScreen.js"></script>
+    <script src="../examples/js/THREEx.WindowResize.js"></script>
+
+    <!-- Include dependencies
+         Compile functions before using them in main -->
+    <script src="src/utils_min.js"></script>
+    <script src="src/vars_min.js"></script>
+    <script src="src/cunit_min.js"></script>
+    <script src="src/events_min.js"></script>
+    <script src="src/ui_min.js"></script>
+
+    <!-- Canvas -->
+	<div id="container">
+        <div class="unitScale">
+            <img src="data/unit.png"/>
+            <div id="time_step_unit"> 1 unit</div>
+        </div>
+        <div class="controlPanel panel panel-primary draggable-panel toolbar-panel ui-draggable ui-resizable" id="toolbox-tools">
+            <div class="panel-heading lang-panel-header-tools">
+                <div class="row">
+                    <div class="col-md-2">Control Panel</div>
+                    <div class="col-md-8">
+                        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#cameraCP">Camera control</button>
+                        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#sceneCP">Scene control</button>
+                        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#miscCP">Miscellaneous</button>
+                        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#mapCP">Map control</button>
+                        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#how-to">User guide</button>
+                        <button type="button" class="btn btn-default" data-toggle="collapse" data-target="#about">About</button>
+                    </div>
+                    <div class="col-md-2">
+                        <!--<i class="fa fa-times pull-right close-panel" id="close-toolbox-tools"></i>-->
+                        <i class="fa pull-right fa-chevron-down" id="toggle-toolbox-tools"></i>
+                    </div>
+                </div>
+            </div>
+            <div id="cunit_info"></div>
+            <div class="cameraControl">
+                <div id="cameraCP" class="collapse">
+                    <h3> Camera options</h3>
+                    Mode: <a onclick="setOrthographic();return false;">Orthographic </a> |
+                    <a  onclick="setPerspective();return false;">Perspective</a><br>
+                    Views: <a  onclick="switchTopCamera();return false;">Top</a> |
+                    <a  onclick="switchBottomCamera();return false;">Bottom</a> |
+                    <a  onclick="switchLeftCamera();return false;">Left</a> |
+                    <a  onclick="switchRightCamera();return false;">Right</a> |
+                    <a  onclick="switchFrontCamera();return false;">Front</a> |
+                    <a  onclick="switchBackCamera();return false;">Back</a> |
+                    <br/>
+                    <div id="fov"></div>
+                    <div id="debug_tool"></div>
+                </div>
+            </div>
+            <div class="mapControl">
+                <div id="mapCP" class="collapse">
+                    <h3>Map layout options</h3>
+                    <div class="row">
+                        <div class="col-md-4"> Static/Dynamic Map</div>
+                        <div class="col-md-8"><input id="dynamic_map" type="checkbox"/></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4"> Interactive map</div>
+                        <div class="col-md-8"><input id="map_interactive" type="checkbox"/></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map transparency</div>
+                        <div class="col-md-8"><div id="map_opacity"><div id="map_opacity_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map scale X</div>
+                        <div class="col-md-8"><div id="map_scale_x"><div id="map_scale_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map scale Y</div>
+                        <div class="col-md-8"><div id="map_scale_y"><div id="map_scale_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map offset x</div>
+                        <div class="col-md-8"><div id="map_offset_x"><div id="map_offset_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map offset z</div>
+                        <div class="col-md-8"><div id="map_offset_z"><div id="map_offset_z_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Map offset y</div>
+                        <div class="col-md-8"><div id="map_offset_y"><div id="map_offset_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"><label for="map_type">Select map type</label></div>
+                        <div class="col-md-4">
+                            <select name="map_type" id="map_type">
+                                <option>Standard</option>
+                                <option>Cyclable</option>
+                                <option>Transport</option>
+                                <option>Humanitarian</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            Markers<input id="map_markers" type="checkbox"/>
+                        </div>
+                        <div class="col-md-2">
+                            Map data<input id="map_data" type="checkbox"/>
+                        </div>
+                        <div class="col-md-2">
+                            GPS Traces<input id="map_gps_trace" type="checkbox"/>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="sceneOptions">
+                <div id="sceneCP" class="collapse">
+                    <h3>Scene options</h3>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Time step</div>
+                        <div class="col-md-6"><div id="time_step_int"></div></div>
+                        <div class="col-md-2">Interval: <div id="time_step_int_value"></div></div>
+                        <div class="col-md-2">Scale to grid? <input id="time_step_scale" type="checkbox"/></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Longitude</div>
+                        <div class="col-md-8"><div id="cell_x_int"></div></div>
+                        <div class="col-md-2">Interval: <div id="cell_x_int_value"></div></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Latitude</div>
+                        <div class="col-md-8"><div id="cell_y_int"></div></div>
+                        <div class="col-md-2">Interval: <div id="cell_y_int_value"></div></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">1-layer</div>
+                        <div class="col-md-8"><div id="one_layer"><div id="one_layer_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2">Extrusion?<input id="one_layer_extrusion" type="checkbox"/></div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Brush size</div>
+                        <div class="col-md-8"><div id="brush_size"><div id="brush_size_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">ZScore filter</div>
+                        <div class="col-md-6"><div id="zscore_int"></div></div>
+                        <div class="col-md-2">Interval: <div id="zscore_int_value"></div></div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center">Map display</div>
+                        <div class="col-md-8"><div id="map_display"><div id="map_display_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="miscOptions">
+                <div id="miscCP" class="collapse">
+                    <h3>Miscellaneous</h3>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Camera FOV</div>
+                        <div class="col-md-8"><div id="camera_fov"><div id="camera_fov_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Zoom factor</div>
+                        <div class="col-md-8"><div id="zoom_speed"><div id="zoom_speed_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-2"></div>
+                    </div><br/>
+                    <div class="row">
+                        <div class="col-md-2 text-center"> Geometry</div>
+                        <div class="col-md-8">
+                            <a onclick="updateGeometryFilter(GEO_CUBE); return false;">Cube</a> |
+                            <a onclick="updateGeometryFilter(GEO_PRISM); return false;">Prism</a>
+                        </div>
+                        <div class="col-md-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="userGuide">
+                <div id="how-to" class="collapse">
+                    <h2> User manuel</h2>
+                    [INSERT INTRODUCTION HERE]
+                    <h3> Control </h3>
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-2 text-center"> Rotate the cube</div>
+                        <div class="col-md-6">Hold LMB + Drag</div>
+                        <div class="col-md-2">
+                            <img class="img-responsive cp-icons" src="data/ctrl_a.png"/>
+                        </div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-2 text-center"> Translate the cube</div>
+                        <div class="col-md-6">Hold RMB + Drag</div>
+                        <div class="col-md-2">
+                            <img class="img-responsive cp-icons" src="data/ctrl_b.png"/>
+                        </div>
+                        <div class="col-md-1"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-2 text-center"> Zoom</div>
+                        <div class="col-md-6">Scroll MMB. Change 'Zoom factor' via [Control Panel] -> [Miscellaneous]</div>
+                        <div class="col-md-2"><img class="img-responsive cp-icons" src="https://d30y9cdsu7xlg0.cloudfront.net/png/393040-200.png" /></div>
+                        <div class="col-md-1"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="About">
+                <div id="about" class="collapse">
+                    <h3>New York City - USA</h3>
+                    <div id="google_map" style="width: 500px; height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Always call the main file at the end-->
+	<script src="src/main_min.js"></script>
+</body>
+</html>

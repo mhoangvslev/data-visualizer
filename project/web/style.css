@@ -156,3 +156,11 @@ a {
     animation-name: bounceInDown;
 }
 
+#outerOSM {
+    position: relative; width: 661px; height: 689px;
+}
+
+#innerOSM {
+    clip: rect(133px 536px 557px 130px); position: absolute; top: auto; top: auto
+}
+

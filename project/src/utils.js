@@ -94,8 +94,9 @@ function setOrthographic() {
 function setPerspective() {
     isInPerspectiveMode = true;
     camera = perspectiveCamera;
-    mapLayer.scale.x = 0.36;
-    mapLayer.scale.y = 0.34;
+    mapLayer.scale.x = 0.586245;
+    mapLayer.scale.y = 0.557175;
+    updateMapOffsetX(-2);
     resetLabel();
     //camera.toPerspective();
     camera.setZoom(5); zoomAmount = 5; camera.position.copy(CAMERA_SPAWN);
@@ -161,8 +162,8 @@ function switchTopCamera() {
     document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Latitude' ;
 
     // Adjust map layer manually
-    updateMapScaleXFilter(0.34);
-    updateMapScaleYFilter(0.33);
+    updateMapScaleXFilter(0.525);
+    updateMapScaleYFilter(0.51);
     updateMapOffsetX(2);
     updateMapOffsetZ(-1);
 }
@@ -218,3 +219,14 @@ function createCSS3DObject(s) {
     var object = new THREE.CSS3DObject(div);
     return object;
 }
+
+function tile2long(x,z) {
+    return (x/Math.pow(2,z)*360-180);
+}
+function tile2lat(y,z) {
+    var n=Math.PI-2*Math.PI*y/Math.pow(2,z);
+    return (180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
+}
+
+function long2tile(lon,zoom) { return (Math.floor((lon+180)/360*Math.pow(2,zoom))); }
+function lat2tile(lat,zoom)  { return (Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom))); }

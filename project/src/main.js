@@ -73,13 +73,16 @@ function init() {
     WebGLScene.add( mapMesh );
 
     // Open street map layer
-    mapLayer = createCSS3DObject(OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc).replace("ZOOM", 10));
+    var s = OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc).replace("ZOOM", 12).replace("MRKERS", markers);
+    console.log(s);
+    mapLayer = createCSS3DObject(s);
     mapLayer.rotation.copy(mapMesh.rotation);
     mapLayer.position.copy(baseOXYGridHelper.position);
     mapLayer.scale.copy(baseOXYGridHelper.scale);
 
-    mapLayer.scale.x = 0.36;
-     mapLayer.scale.y = 0.34;
+    mapLayer.scale.x = 0.586245;
+    mapLayer.scale.y = 0.557175;
+    updateMapOffsetX(-2);
     mapLayer.renderOrder = 0;
     cssScene.add(mapLayer);
 

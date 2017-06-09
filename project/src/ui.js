@@ -26,10 +26,10 @@ function updateSceneFilters() {
     resetScene();
     CUnitCluster.traverse(function (child) {
         if (child instanceof CUnit) {
-            if (((child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() <= timeStepUpperBound ) &&
-                    (child.getCellY() >= xLowerBound && child.getCellY() <= xUpperBound ) &&
-                    (child.getCellX() >= yLowerBound && child.getCellX() <= yUpperBound ) &&
-                    (child.getZScore() >= zScoreLowerBound && child.getZScore() <= zScoreUpperBound)
+            if (((child.getTimeStep() > timeStepLowerBound && child.getTimeStep() < timeStepUpperBound ) &&
+                    (child.getCellY() > xLowerBound && child.getCellY() < xUpperBound ) &&
+                    (child.getCellX() > yLowerBound && child.getCellX() < yUpperBound ) &&
+                    (child.getZScore() > zScoreLowerBound && child.getZScore() < zScoreUpperBound)
                 )) {
                 child.getMesh().visible = true;
             }
@@ -163,8 +163,8 @@ function updateMapLayerDisplay(bScale) {
         resetScene();
     }
     console.log(decodeURIComponent(newLoc));
-    var url = ("http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE").replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
-    //console.log(url);
+    var url = (`http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS&amp;%23map=ZOOM%2F${(LAT_MIN + LAT_MAX)/2}%2F${(LNG_MIN+LNG_MAX)/2}`).replace("LOCATION", newLoc).replace("MAPTYPE", maptype).replace("ZOOM", 12).replace("MARKERS", markers);
+    console.log(decodeURIComponent(url));
     document.getElementById("OSMLayer").setAttribute("src", url);
 }
 

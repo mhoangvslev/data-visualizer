@@ -7,7 +7,7 @@ var sizeX = 237, sizeY = size, sizeZ = 235;
 var newSizeX = sizeX, newSizeY = sizeY, newSizeZ = sizeZ;
 var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
 var processedData, dataAmount;
-var fileName = 'gistar_output_d.json';
+var fileName = 'gistar_output_d';
 
 var TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND, ZSCORE_LOWER_BOUND, ZSCORE_UPPER_BOUND, ZSCORE_SCALE, X_LOWER_BOUND, X_UPPER_BOUND, Y_LOWER_BOUND, Y_UPPER_BOUND;
 var xLowerBound, xUpperBound, yLowerBound, yUpperBound, timeStepLowerBound, timeStepUpperBound, zScoreLowerBound, zScoreUpperBound;
@@ -16,7 +16,7 @@ var X_SCALE, Y_SCALE, Z_SCALE;
 
 var CSVLoader = new THREE.FileLoader();
 CSVLoader.setResponseType('text');
-CSVLoader.load(`./data/${fileName}`, function (text) {
+CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
     processedData = JSON.parse(text);
     dataAmount = processedData.length;
 
@@ -133,25 +133,27 @@ var LABEL_LNG_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x + (size - 
 var labelOrigin, labelT, labelLng, labelLat;
 
 // Embed layer from OpenStreet Map
-// A empty div is added in front of it to prevent users from interacting with the cube
-var OSMFrame= '<div id="OSMLayerBlocker" style="position:fixed;width:100%;height:100%;"></div>'+
-    `<iframe id="OSMLayer" width="${661}px" height="${689}px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
-    'src="http://www.openstreetmap.org/export/embed.html?map=ZOOM&amp;bbox=LOCATION&amp;layers=MAPTYPE;" ' +
-    'style="border: 1px solid black"></iframe>';
-
-var GMFrame ='<div style="position:fixed;width:100%;height:100%;"></div>'+
-    '<iframe src="https://www.google.com/maps/embed?pb=!1m17!1m11!1m3!1d1213.93486794387!2d-74.25689642554477!3d40.548215515832084!2m2!1f5.6871391876627335!2f0!3m2!1i1024!2i768!4f35!3m3!1m2!1s0x0%3A0x0!2zNDDCsDMyJzUwLjAiTiA3NMKwMTUnMzIuNyJX!5e1!3m2!1sen!2sde!4v1496044141280" ' +
-    'width="661" height="689" frameborder="0" style="border: 1px solid black"</iframe>';
 
 var locations = [];
 
+var zoom = 13;
 var LNG_MIN = -74.25909, LNG_MAX = -73.70009, LAT_MIN = 40.477399, LAT_MAX = 40.917577;
+//var LNG_MIN = -74.38705, LNG_MAX = -73.74435, LAT_MIN = 40.520063, LAT_MAX = 40.874064;
 var newLngMin = LNG_MIN, newLatMin = LAT_MIN, newLngMax = LNG_MAX, newLatMax = LAT_MAX;
 var loc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
+
+// A empty div is added in front of it to prevent users from interacting with the cube
+var OSMFrame='<div id="outerOSM"><div id="innerOSM">'+
+    '<div id="OSMLayerBlocker" style="position:fixed;width:100%;height:100%;"></div>'+
+    `<iframe id="OSMLayer" width="${661}px" height="${689}px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
+    `src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS&amp;%23map=ZOOM%2F${(LAT_MIN + LAT_MAX)/2}%2F${(LNG_MIN+LNG_MAX)/2}" ` +
+    'style="border: 1px solid black"></iframe>' +
+    '</div></div>';
 
 // Choose between roadmap, satellite, hybrid or terrain
 var mapoption = '';
 var maptype = 'mapnik' + mapoption;
+var markers = encodeURIComponent(`${LAT_MIN},${LNG_MIN}`);
 var sides = [];
 
 // Camera types
@@ -165,3 +167,5 @@ combinedCamera.lookAt(new THREE.Vector3(size/2, size/2, size/2));
 
 var perspectiveCamera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
 perspectiveCamera.position.set( 500, 350, 750 );
+
+
