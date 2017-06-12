@@ -26,10 +26,10 @@ function updateSceneFilters() {
     resetScene();
     CUnitCluster.traverse(function (child) {
         if (child instanceof CUnit) {
-            if (((child.getTimeStep() > timeStepLowerBound && child.getTimeStep() < timeStepUpperBound ) &&
-                    (child.getCellY() > xLowerBound && child.getCellY() < xUpperBound ) &&
-                    (child.getCellX() > yLowerBound && child.getCellX() < yUpperBound ) &&
-                    (child.getZScore() > zScoreLowerBound && child.getZScore() < zScoreUpperBound)
+            if (((child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() < timeStepUpperBound ) &&
+                    (child.getCellY() >= xLowerBound && child.getCellY() < xUpperBound ) &&
+                    (child.getCellX() >= yLowerBound && child.getCellX() < yUpperBound ) &&
+                    (child.getZScore() >= zScoreLowerBound && child.getZScore() < zScoreUpperBound)
                 )) {
                 child.getMesh().visible = true;
             }
@@ -40,20 +40,74 @@ function updateSceneFilters() {
     });
 
     if(mustScale)
-        document.getElementById('time_step_unit').innerHTML = `X: ${(200*newSizeZ/sizeZ).toFixed(2)}m Y: ${(sizeY/newSizeY).toFixed(2)}x Z: ${(200*newSizeX/sizeX).toFixed(2)}m`;
+        document.getElementById('time_step_unit').innerHTML = `X: ${(200*newSizeZ/step).toFixed(2)}m Y: ${(sizeTime/newSizeY/step).toFixed(2)}x Z: ${(200*newSizeX/step).toFixed(2)}m`;
     else
-        document.getElementById('time_step_unit').innerHTML = '1 unit';
+        document.getElementById('time_step_unit').innerHTML = `X: ${(200*sizeLat/step).toFixed(2)}m Y: ${(200*sizeTime/step).toFixed(2)}x Z: ${(200*sizeLng/step).toFixed(2)}m`;
+}
+
+function updateMapLayerDisplay(bScale) {
+    var newLoc;
+    if(bScale) {
+        CUnitCluster.traverse(function (child) {
+            if (child instanceof CUnit) {
+                // Reposition
+                child.getMesh().position.z = -(child.getCellX() - yLowerBound) * (sizeLat / newSizeZ) - offsetZ;
+                child.getMesh().position.x = (child.getCellY() - xLowerBound) * (sizeLng / newSizeX) - offsetX;
+
+                if (mustExtrude) {
+                    child.getMesh().scale.y = child.getScalePerWeight();
+                    child.getMesh().position.y = (sizeTime/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeTime;
+                }
+                else
+                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * (sizeTime / newSizeY) - offsetY;
+
+                // Calculate new bounding box for OSM Layer
+
+                if (child.getCellX() == yLowerBound) {
+                    newLngMin = child.getLongitude();
+                }
+
+                if (child.getCellX() == yUpperBound) {
+                    newLngMax = child.getLongitude();
+                }
+
+                if (child.getCellY() == xLowerBound) {
+                    newLatMin = child.getLatitude();
+                }
+
+                if (child.getCellY() == xUpperBound) {
+                    newLatMax = child.getLatitude();
+                }
+            }
+        });
+
+        newLoc = encodeURIComponent(`${newLngMin},${newLatMin},${newLngMax},${newLatMax}`);
+    }
+    else {
+        newLoc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
+        resetScene();
+    }
+    //console.log(decodeURIComponent(newLoc));
+    var url = (`http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS&amp`).replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
+    //console.log(decodeURIComponent(url));
+    document.getElementById("OSMLayer").setAttribute("src", url);
 }
 
 function updateOneLayerFilter() {
-    //resetScene();
+    resetScene();
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit){
-            if(child.getTimeStep() === extrudeLayer) {
+            if(
+                 child.getTimeStep() === extrudeLayer &&
+                (child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() < timeStepUpperBound ) &&
+                (child.getCellY() >= xLowerBound && child.getCellY() < xUpperBound ) &&
+                (child.getCellX() >= yLowerBound && child.getCellX() < yUpperBound ) &&
+                (child.getZScore() >= zScoreLowerBound && child.getZScore() < zScoreUpperBound)
+                ){
                 child.getMesh().visible = true;
                 if (mustExtrude) {
                     child.getMesh().scale.y = child.getScalePerWeight();
-                    child.getMesh().position.y = (size/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeY;
+                    child.getMesh().position.y = (sizeTime/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeTime;
                 }
             }
             else {
@@ -65,7 +119,7 @@ function updateOneLayerFilter() {
 
 function updateMapAlphaFilter(val) {
     mapMesh.material.opacity = val;
-    document.getElementById("OSMLayer").style.opacity = val;
+    document.getElementById("outerOSM").style.opacity = val;
 }
 
 function updateGeometryFilter(newGeo) {
@@ -75,8 +129,6 @@ function updateGeometryFilter(newGeo) {
        }
     });
 }
-
-
 
 function updateDynamicMapFilter(b){
     if(b){
@@ -116,56 +168,6 @@ function updateMapOffsetZ(val) {
 
 function updateMapOffsetY(val) {
     mapLayer.position.y = baseOXYGridHelper.position.y + val;
-}
-
-function updateMapLayerDisplay(bScale) {
-    var newLoc;
-    if(bScale) {
-        CUnitCluster.traverse(function (child) {
-            if (child instanceof CUnit) {
-                // Reposition
-                child.getMesh().position.z = -(child.getCellX() - yLowerBound) * (sizeZ / newSizeZ) - offsetZ;
-                child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * (sizeY / newSizeY) - offsetY;
-                child.getMesh().position.x = (child.getCellY() - xLowerBound) * (sizeX / newSizeX) - offsetX;
-
-                //Recalculate lng and alt
-                child.update();
-
-                // Calculate new bounding box for OSM Layer
-
-                if (child.getCellX() == yLowerBound) {
-                    newLngMin = child.getLongitude();
-                }
-
-                if (child.getCellX() == yUpperBound) {
-                    newLngMax = child.getLongitude();
-                }
-
-                if (child.getCellY() == xLowerBound) {
-                    newLatMin = child.getLatitude();
-                }
-
-                if (child.getCellY() == xUpperBound) {
-                    newLatMax = child.getLatitude();
-                }
-            }
-        });
-
-        /*newLatMin = calcLatitude(xLowerBound);
-        newLatMax = calcLatitude(xUpperBound);
-        newLngMin = calcLongitude(yLowerBound, newLatMin);
-        newLngMax = calcLongitude(yUpperBound, newLatMax);*/
-
-        newLoc = encodeURIComponent(`${newLngMin},${newLatMin},${newLngMax},${newLatMax}`);
-    }
-    else {
-        newLoc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
-        resetScene();
-    }
-    console.log(decodeURIComponent(newLoc));
-    var url = (`http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS&amp;%23map=ZOOM%2F${(LAT_MIN + LAT_MAX)/2}%2F${(LNG_MIN+LNG_MAX)/2}`).replace("LOCATION", newLoc).replace("MAPTYPE", maptype).replace("ZOOM", 12).replace("MARKERS", markers);
-    console.log(decodeURIComponent(url));
-    document.getElementById("OSMLayer").setAttribute("src", url);
 }
 
 function updateMapLayerType(val){

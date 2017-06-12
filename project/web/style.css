@@ -161,6 +161,7 @@ a {
 }
 
 #innerOSM {
-    clip: rect(133px 536px 557px 130px); position: absolute; top: auto; top: auto
+    /*top right bottom left*/
+    clip: rect(133px 536px 557px 130px); position: absolute; top: auto; right: auto;
 }
 

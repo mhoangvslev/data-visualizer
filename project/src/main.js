@@ -59,21 +59,21 @@ function init() {
     mapMat.needsUpdate = true;
     textureGeo.wrapS = THREE.RepeatWrapping;
     textureGeo.wrapT = THREE.RepeatWrapping;
-    var mapGeo = new THREE.PlaneGeometry( size, size );
+    var mapGeo = new THREE.PlaneGeometry( sizeLat, sizeLng );
     mapMesh = new THREE.Mesh( mapGeo, mapMat );
     mapMesh.rotation.x = - ( Math.PI / 2 );
     mapMesh.position.x = baseOXYGridHelper.position.x;
     mapMesh.position.z = baseOXYGridHelper.position.z;
     mapMesh.position.y = baseOXYGridHelper.position.y - 0.5;
-    mapMesh.scale.x = (sizeX/size);
-    mapMesh.scale.y = (sizeZ/size);
+    mapMesh.scale.x = (sizeLng/size);
+    mapMesh.scale.y = (sizeLat/size);
     mapMesh.renderOrder = 0;
     mapMesh.visible = false;
     //mapMeshBBox = new THREE.Box3().setFromObject(mapMesh);
     WebGLScene.add( mapMesh );
 
     // Open street map layer
-    var s = OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc).replace("ZOOM", 12).replace("MRKERS", markers);
+    var s = OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc);
     console.log(s);
     mapLayer = createCSS3DObject(s);
     mapLayer.rotation.copy(mapMesh.rotation);
@@ -116,8 +116,9 @@ function init() {
 	document.addEventListener( 'contextmenu', onDocumentLMB, false );
 	document.addEventListener( 'mouseup', onDocumentMouseReset, false );
 	document.addEventListener( 'wheel', onDocumentMouseWheel, true);
+    document.getElementById('time_step_unit').innerHTML = `X: ${(200*sizeLat/step).toFixed(2)}m Y: ${(200*sizeTime/step).toFixed(2)}x Z: ${(200*sizeLng/step).toFixed(2)}m`;
 
-	window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener( 'resize', onWindowResize, false );
 
     THREEx.WindowResize(cssRenderer, camera);
     THREEx.WindowResize(WebGLRenderer, camera);

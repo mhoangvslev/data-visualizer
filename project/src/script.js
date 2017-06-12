@@ -69,8 +69,9 @@ $(document).ready(function() {
             updateSceneFilters();
 			$('#time_step_int_value').text(ui.values[0] + " - " + ui.values[1]);
 			newSizeY = Math.abs(ui.values[1] - ui.values[0]); offsetNY = ui.values[0];
-			//$('#one_layer_extrusion').prop('checked', false); mustExtrude = false; extrudeLayer = -1;
+			$('#one_layer_extrusion').prop('checked', false); mustExtrude = false; extrudeLayer = -1;
 			updateMapLayerDisplay(mustScale);
+			updateSceneFilters();
 		}
 	});
 
@@ -83,8 +84,8 @@ $(document).ready(function() {
             xLowerBound = ui.values[0]; xUpperBound = ui.values[1];
             $('#cell_x_int_value').text(ui.values[0] + " - " + ui.values[1]);
             newSizeX = Math.abs(ui.values[1] - ui.values[0]); offsetNX = ui.values[0];
-            updateSceneFilters();
             updateMapLayerDisplay(mustScale);
+            updateSceneFilters();
         }
     });
 
@@ -97,8 +98,8 @@ $(document).ready(function() {
             yLowerBound = ui.values[0]; yUpperBound = ui.values[1];
             $('#cell_y_int_value').text(ui.values[0] + " - " + ui.values[1]);
             newSizeZ = Math.abs(ui.values[1] - ui.values[0]); offsetNZ = ui.values[0];
-            updateSceneFilters();
             updateMapLayerDisplay(mustScale);
+            updateSceneFilters();
         }
     });
 
@@ -144,8 +145,8 @@ $(document).ready(function() {
             $( "#one_layer_handle" ).text( ui.value );
             extrudeLayer = ui.value;
             newSizeY = 1; offsetNY = ui.value;
-            updateOneLayerFilter();
             //updateSceneFilters();
+            updateOneLayerFilter();
         }
     });
 
@@ -163,7 +164,7 @@ $(document).ready(function() {
 
     $( "#map_offset_x" ).slider({
         min: -200,
-        max: sizeX,
+        max: sizeLng,
         create: function() {
             $( "#map_offset_x_handle" ).text( $( this ).slider( "value" ) );
         },
@@ -175,7 +176,7 @@ $(document).ready(function() {
 
     $( "#map_offset_y" ).slider({
         min: -200,
-        max: sizeY,
+        max: sizeTime,
         create: function() {
             $( "#map_offset_y_handle" ).text( $( this ).slider( "value" ) );
         },
@@ -187,7 +188,7 @@ $(document).ready(function() {
 
     $( "#map_offset_z" ).slider({
         min: -200,
-        max: sizeZ,
+        max: sizeLat,
         create: function() {
             $( "#map_offset_z_handle" ).text( $( this ).slider( "value" ) );
         },

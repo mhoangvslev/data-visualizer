@@ -18,10 +18,11 @@ function onDocumentMouseReset() {
 
 function onDocumentMouseWheel( event ) {
     if(!isInPerspectiveMode) {
+        //console.log('zomming');
         var zoomStep = 0.02;
         if (event.wheelDelta < 0 && zoomAmount - (zoomStep * zoomFactor) > 1.5)
             zoomAmount -= (zoomStep * zoomFactor);
-        else if (event.wheelDelta > 0 && zoomAmount + (zoomStep * zoomFactor) < 5)
+        else if (event.wheelDelta > 0)
             zoomAmount += (zoomStep * zoomFactor);
         camera.setZoom(zoomAmount);
         camera.updateProjectionMatrix();

@@ -3,8 +3,8 @@
  */
 
 var size = 300, step = 50;
-var sizeX = 237, sizeY = size, sizeZ = 235;
-var newSizeX = sizeX, newSizeY = sizeY, newSizeZ = sizeZ;
+var sizeLng = 237, sizeTime = size, sizeLat = 235;
+var newSizeX = sizeLng, newSizeY = sizeTime, newSizeZ = sizeLat;
 var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
 var processedData, dataAmount;
 var fileName = 'gistar_output_d';
@@ -67,10 +67,6 @@ CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
     axisZScale = (Z_SCALE > size) ? size/(Z_SCALE + 1) : 1;
 
     ZSCORE_SCALE = ZSCORE_UPPER_BOUND - ZSCORE_LOWER_BOUND;
-
-    console.log(`X Scale: ${axisXScale} | ${X_SCALE}`);
-    console.log(`Z Scale: ${axisZScale} | ${Z_SCALE}`);
-    console.log(`Y Scale: ${axisYScale} | ${Y_SCALE}`);
 });
 
 var stats, camera, controls, WebGLRenderer, cssRenderer;
@@ -85,50 +81,56 @@ var zoomAmount = 1;
 var zoomFactor = 5;
 var isLMB = false, isRMB = false;
 
-var offsetZ = -size/2 + (size/step)/2;
-var offsetX = size/2 - (size/step)/2;
-var offsetY = size/2 - (size/step)/2;
+// Offset along axis X, Z, Y
+var offsetZ = -sizeLng/2 + (sizeLng/step)/2;
+var offsetX = sizeLat/2 - (sizeLat/step)/2 ;
+var offsetY = sizeTime/2 - (sizeTime/step)/2;
 
 var mapMesh, mapMat, mapLayer;
-var dimension = size/step;
+var dimensionX = sizeLng/step;
+var dimensionY = sizeTime/step;
+var dimensionZ = sizeLat/step;
 
 var extrudeLayer = -1, mustExtrude = false, mustScale = false;
 
+// Base plane (O - Lat - Lng)
 var baseOXYGridHelper = new THREE.GridHelper(size, step);
-baseOXYGridHelper.position.z = (size - sizeZ)/2;
-baseOXYGridHelper.position.x = -(size - sizeX)/2;
+baseOXYGridHelper.position.z = 0;
+baseOXYGridHelper.position.x = 0;
 baseOXYGridHelper.position.y = -size/2;
-baseOXYGridHelper.scale.x = (sizeX/size);
-baseOXYGridHelper.scale.z = (sizeZ/size);
+baseOXYGridHelper.scale.x = (sizeLat/size);
+baseOXYGridHelper.scale.z = (sizeLng/size);
 baseOXYGridHelper.renderOrder = 1;
 
+// Plane along Longitude axis (O - Time - Lng)
 var baseOYZGridHelper = new THREE.GridHelper(size, step);
 baseOYZGridHelper.rotation.z = (Math.PI/2);
 baseOYZGridHelper.rotation.y = (Math.PI/2);
-baseOYZGridHelper.position.x = baseOXYGridHelper.position.x;
-baseOYZGridHelper.position.z = baseOXYGridHelper.position.z + size/2 - (size - sizeZ)/2;
+baseOYZGridHelper.position.x = baseOXYGridHelper.position.x ;
+baseOYZGridHelper.position.z = baseOXYGridHelper.position.z + sizeLng/2;
 baseOYZGridHelper.position.y = baseOXYGridHelper.position.y + size/2;
-baseOYZGridHelper.scale.z = (sizeX/size);
+baseOYZGridHelper.scale.z = (sizeLat/size);
 baseOYZGridHelper.renderOrder = 1;
 
+// Plane along Latitude axis (O - Time - Lat)
 var baseOXZGridHelper = new THREE.GridHelper(size, step);
 baseOXZGridHelper.rotation.z = (Math.PI/2);
-baseOXZGridHelper.position.x = baseOXYGridHelper.position.x -size/2 + (size - sizeX)/2;
+baseOXZGridHelper.position.x = baseOXYGridHelper.position.x - sizeLat/2;
 baseOXZGridHelper.position.z = baseOXYGridHelper.position.z;
 baseOXZGridHelper.position.y = baseOXYGridHelper.position.y + size/2;
-baseOXZGridHelper.scale.z = (sizeX/size);
+baseOXZGridHelper.scale.z = (sizeLng/size);
 baseOXZGridHelper.renderOrder = 1;
 
-var GEO_PRISM = new THREE.CylinderGeometry( dimension, dimension, dimension, 6, 4 );
-var GEO_CUBE = new THREE.BoxGeometry( dimension, dimension, dimension);
+var GEO_PRISM = new THREE.CylinderGeometry(dimensionX, dimensionZ, dimensionY, 6, 4);
+var GEO_CUBE = new THREE.BoxGeometry(dimensionX, dimensionY, dimensionZ);
 var BRUSH_SIZE = 1;
 
 var CAMERA_SPAWN = new THREE.Vector3(size, size, size);
 
-var LABEL_ORIGIN_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x - (size - sizeX/2), baseOXYGridHelper.position.y, baseOXYGridHelper.position.z + (size - sizeZ/2));
-var LABEL_TIME_SPAWN = new THREE.Vector3( baseOXZGridHelper.position.x, baseOXZGridHelper.position.y + (size - sizeY/2), baseOXZGridHelper.position.z + (size - sizeZ/2) );
-var LABEL_LAT_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x - (size - sizeX/2), baseOXYGridHelper.position.y - size*0.1, - baseOXYGridHelper.position.z - (size - sizeZ/2) );
-var LABEL_LNG_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x + (size - sizeX/2), baseOXYGridHelper.position.y - size*0.1, baseOXYGridHelper.position.z + (size - sizeZ/2) );
+var LABEL_ORIGIN_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x - (size - sizeLng/2), baseOXYGridHelper.position.y, baseOXYGridHelper.position.z + (size - sizeLat/2));
+var LABEL_TIME_SPAWN = new THREE.Vector3( baseOXZGridHelper.position.x, baseOXZGridHelper.position.y + (size - sizeTime/2), baseOXZGridHelper.position.z + (size - sizeLat/2) );
+var LABEL_LAT_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x - (size - sizeLng/2), baseOXYGridHelper.position.y - size*0.1, - baseOXYGridHelper.position.z - (size - sizeLat/2) );
+var LABEL_LNG_SPAWN = new THREE.Vector3( baseOXYGridHelper.position.x + (size - sizeLng/2), baseOXYGridHelper.position.y - size*0.1, baseOXYGridHelper.position.z + (size - sizeLat/2) );
 
 var labelOrigin, labelT, labelLng, labelLat;
 
@@ -143,10 +145,10 @@ var newLngMin = LNG_MIN, newLatMin = LAT_MIN, newLngMax = LNG_MAX, newLatMax = L
 var loc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
 
 // A empty div is added in front of it to prevent users from interacting with the cube
-var OSMFrame='<div id="outerOSM"><div id="innerOSM">'+
+var OSMFrame='<div id="outerOSM" style="opacity: 1"><div id="innerOSM">'+
     '<div id="OSMLayerBlocker" style="position:fixed;width:100%;height:100%;"></div>'+
     `<iframe id="OSMLayer" width="${661}px" height="${689}px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
-    `src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS&amp;%23map=ZOOM%2F${(LAT_MIN + LAT_MAX)/2}%2F${(LNG_MIN+LNG_MAX)/2}" ` +
+    `src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS&amp" ` +
     'style="border: 1px solid black"></iframe>' +
     '</div></div>';
 
@@ -163,7 +165,7 @@ var combinedCamera = new THREE.CombinedCamera(window.innerWidth, window.innerHei
 combinedCamera.isPerspectiveCamera = true;
 combinedCamera.isOrthographicCamera = false;
 combinedCamera.position.copy(CAMERA_SPAWN);
-combinedCamera.lookAt(new THREE.Vector3(size/2, size/2, size/2));
+combinedCamera.lookAt(new THREE.Vector3(sizeLng/2, sizeTime/2, sizeLat/2));
 
 var perspectiveCamera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
 perspectiveCamera.position.set( 500, 350, 750 );

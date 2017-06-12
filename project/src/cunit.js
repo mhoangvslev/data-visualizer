@@ -73,9 +73,11 @@ CUnit.prototype.reinitiate = function () {
         opacity: this.opacity
     });
 
-    this.mesh.position.x = this.cell_y - offsetX;
+    //this.mesh.visible = true;
+
+    /*this.mesh.position.x = this.cell_y - offsetX;
     this.mesh.position.z = -this.cell_x - offsetZ;
-    this.mesh.position.y = this.time_step - offsetY;
+    this.mesh.position.y = this.time_step - offsetY;*/
 
     //this.setCunitSize(1, 1, 1);
 };
@@ -85,15 +87,15 @@ CUnit.prototype.setCunitSize = function (x, y, z) {
     this.currentSize = this.mesh.scale.x;
 
     // Recalculate the offset
-    offsetZ = -size/2 + this.mesh.scale.z*this.dimension/2;
-    offsetX = size/2 - this.mesh.scale.x*this.dimension/2;
-    offsetY = size/2 - this.mesh.scale.y*this.dimension/2;
+    offsetZ = -sizeLng/2 + this.mesh.scale.z*this.dimension/2;
+    offsetX = sizeLat/2 - this.mesh.scale.x*this.dimension/2;
+    offsetY = sizeTime/2 - this.mesh.scale.y*this.dimension/2;
 
     // Recalculate the position
     if(mustScale){
-        this.mesh.position.z = -(this.cell_x - yLowerBound) * (sizeZ / newSizeZ) - offsetZ;
-        this.mesh.position.y = (this.time_step - timeStepLowerBound) * (sizeY / newSizeY) - offsetY;
-        this.mesh.position.x = (this.cell_y - xLowerBound) * (sizeX / newSizeX) - offsetX;
+        this.mesh.position.z = -(this.cell_x - yLowerBound) * (sizeLat / newSizeZ) - offsetZ;
+        this.mesh.position.y = (this.time_step - timeStepLowerBound) * (sizeTime / newSizeY) - offsetY;
+        this.mesh.position.x = (this.cell_y - xLowerBound) * (sizeLng / newSizeX) - offsetX;
     }
     else {
         this.mesh.position.x = this.cell_y - offsetX;
@@ -123,7 +125,7 @@ CUnit.prototype.getDimension = function () {
 };
 
 CUnit.prototype.getScalePerWeight = function () {
-    return (this.zscore - ZSCORE_LOWER_BOUND)*sizeY*0.1/ZSCORE_SCALE;
+    return (this.zscore - ZSCORE_LOWER_BOUND)*sizeTime*0.1/ZSCORE_SCALE;
 };
 
 /**

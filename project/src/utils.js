@@ -105,8 +105,8 @@ function setPerspective() {
 
 function switchFrontCamera() {
     resetLabel();
-    camera.position.x = Math.cos( 2*Math.PI ) * size;
-    camera.position.z = Math.sin( 2*Math.PI ) * size;
+    camera.position.x = Math.cos( 2*Math.PI ) * sizeLng;
+    camera.position.z = Math.sin( 2*Math.PI ) * sizeLat;
     camera.position.y = 0;
     camera.lookAt( WebGLScene.position );
     camera.updateProjectionMatrix();
@@ -117,8 +117,8 @@ function switchFrontCamera() {
 
 function switchBackCamera() {
     resetLabel();
-    camera.position.x = Math.cos( Math.PI ) * size;
-    camera.position.z = Math.sin( Math.PI ) * size;
+    camera.position.x = Math.cos( Math.PI ) * sizeLng;
+    camera.position.z = Math.sin( Math.PI ) * sizeLat;
     camera.position.y = 0;
     camera.lookAt( WebGlScene.position );
     camera.updateProjectionMatrix();
@@ -128,8 +128,8 @@ function switchBackCamera() {
 
 function switchLeftCamera() {
     resetLabel();
-    camera.position.x = Math.cos( 1.5 * Math.PI ) * size;
-    camera.position.z = Math.sin( 1.5 * Math.PI ) * size;
+    camera.position.x = Math.cos( 1.5 * Math.PI ) * sizeLng;
+    camera.position.z = Math.sin( 1.5 * Math.PI ) * sizeLat;
     camera.position.y = 0;
     camera.lookAt( WebGlScene.position );
     camera.updateProjectionMatrix();
@@ -140,8 +140,8 @@ function switchLeftCamera() {
 
 function switchRightCamera() {
     resetLabel();
-    camera.position.x = Math.cos( Math.PI/2 ) * size;
-    camera.position.z = Math.sin( Math.PI/2 ) * size;
+    camera.position.x = Math.cos( Math.PI/2 ) * sizeLng;
+    camera.position.z = Math.sin( Math.PI/2 ) * sizeLat;
     camera.position.y = 0;
     camera.lookAt( WebGlScene.position );
     camera.updateProjectionMatrix();
@@ -153,8 +153,8 @@ function switchRightCamera() {
 function switchTopCamera() {
     resetLabel();
     camera.position.x = 0;
-    camera.position.z = Math.sin( 2 * Math.PI ) * size;
-    camera.position.y = Math.cos( 2 * Math.PI ) * size;
+    camera.position.z = Math.sin( 2 * Math.PI ) * sizeLat;
+    camera.position.y = Math.cos( 2 * Math.PI ) * sizeTime;
     camera.lookAt( WebGLScene.position );
     camera.updateProjectionMatrix();
     labelT.visible = false;
@@ -171,8 +171,8 @@ function switchTopCamera() {
 function switchBottomCamera() {
     resetLabel();
     camera.position.x = 0;
-    camera.position.z = Math.sin( Math.PI ) * size;
-    camera.position.y = Math.cos( Math.PI ) * size;
+    camera.position.z = Math.sin( Math.PI ) * sizeLat;
+    camera.position.y = Math.cos( Math.PI ) * sizeTime;
     camera.lookAt( WebGlScene.position );
     camera.updateProjectionMatrix();
     labelT.visible = false;
