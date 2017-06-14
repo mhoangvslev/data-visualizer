@@ -94,9 +94,10 @@ function setOrthographic() {
 function setPerspective() {
     isInPerspectiveMode = true;
     camera = perspectiveCamera;
-    mapLayer.scale.x = 0.586245;
-    mapLayer.scale.y = 0.557175;
-    updateMapOffsetX(-2);
+    updateMapScaleXFilter(0.582245);
+    updateMapScaleYFilter(0.561175);
+    updateMapOffsetX(-1);
+    updateMapOffsetZ(0);
     resetLabel();
     //camera.toPerspective();
     camera.setZoom(5); zoomAmount = 5; camera.position.copy(CAMERA_SPAWN);
@@ -162,10 +163,10 @@ function switchTopCamera() {
     document.getElementById('fov').innerHTML = 'Orthographic mode: Longitude / Latitude' ;
 
     // Adjust map layer manually
-    updateMapScaleXFilter(0.525);
-    updateMapScaleYFilter(0.51);
-    updateMapOffsetX(2);
-    updateMapOffsetZ(-1);
+    updateMapScaleXFilter(0.522);
+    updateMapScaleYFilter(0.505);
+    updateMapOffsetX(-1);
+    updateMapOffsetZ(0);
 }
 
 function switchBottomCamera() {
@@ -220,13 +221,54 @@ function createCSS3DObject(s) {
     return object;
 }
 
-function tile2long(x,z) {
-    return (x/Math.pow(2,z)*360-180);
-}
-function tile2lat(y,z) {
-    var n=Math.PI-2*Math.PI*y/Math.pow(2,z);
-    return (180/Math.PI*Math.atan(0.5*(Math.exp(n)-Math.exp(-n))));
-}
+function createDynamicGridHelper(axis, step) {
+    console.log('Scaling');
+    var o = new THREE.Object3D();
+    switch(axis){
+        case 'OXY':
+            var geometry = new THREE.Geometry();
+            geometry.vertices.push(new THREE.Vector3( -size/2, 0, 0 ) );
+            geometry.vertices.push(new THREE.Vector3( size/2, 0, 0 ) );
 
-function long2tile(lon,zoom) { return (Math.floor((lon+180)/360*Math.pow(2,zoom))); }
-function lat2tile(lat,zoom)  { return (Math.floor((1-Math.log(Math.tan(lat*Math.PI/180) + 1/Math.cos(lat*Math.PI/180))/Math.PI)/2 *Math.pow(2,zoom))); }
+            linesMaterial = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 1, linewidth: 1 } );
+
+            for ( var i = 0; i <= newSizeZ; i ++ ) {
+                var line = new THREE.Line( geometry, linesMaterial );
+                line.position.z = ( i * sizeLng/newSizeZ ) - size/2;
+                o.add( line );
+            }
+
+            for ( var i = 0; i <= newSizeX; i ++ ) {
+                var line = new THREE.Line( geometry, linesMaterial );
+                line.position.x = ( i * sizeLat/newSizeX ) - size/2;
+                line.rotation.y = 90 * Math.PI / 180;
+                o.add( line );
+            }
+
+
+            o.renderOrder = 1;
+            break;
+
+        case 'OYZ':
+            baseOYZGridHelper = new THREE.GridHelper(size, step);
+            baseOYZGridHelper.rotation.z = (Math.PI/2);
+            baseOYZGridHelper.rotation.y = (Math.PI/2);
+            baseOYZGridHelper.position.x = baseOXYGridHelper.position.x ;
+            baseOYZGridHelper.position.z = baseOXYGridHelper.position.z + sizeLng/2;
+            baseOYZGridHelper.position.y = baseOXYGridHelper.position.y + size/2;
+            baseOYZGridHelper.scale.z = (sizeLat/size);
+            baseOYZGridHelper.renderOrder = 1;
+            break;
+
+        default:
+            baseOXZGridHelper = new THREE.GridHelper(size, step);
+            baseOXZGridHelper.rotation.z = (Math.PI/2);
+            baseOXZGridHelper.position.x = baseOXYGridHelper.position.x - sizeLat/2;
+            baseOXZGridHelper.position.z = baseOXYGridHelper.position.z;
+            baseOXZGridHelper.position.y = baseOXYGridHelper.position.y + size/2;
+            baseOXZGridHelper.scale.z = (sizeLng/size);
+            baseOXZGridHelper.renderOrder = 1;
+            break;
+    }
+    return o;
+}

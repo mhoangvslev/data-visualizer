@@ -80,17 +80,20 @@ function updateMapLayerDisplay(bScale) {
                 }
             }
         });
-
         newLoc = encodeURIComponent(`${newLngMin},${newLatMin},${newLngMax},${newLatMax}`);
+
     }
     else {
         newLoc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
         resetScene();
     }
     //console.log(decodeURIComponent(newLoc));
-    var url = (`http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS&amp`).replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
+    var url = ('http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS').replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
     //console.log(decodeURIComponent(url));
     document.getElementById("OSMLayer").setAttribute("src", url);
+    createDynamicGridHelper('OXY', newSizeZ);
+    createDynamicGridHelper('OYZ', newSizeZ);
+    createDynamicGridHelper('OXZ', newSizeX);
 }
 
 function updateOneLayerFilter() {

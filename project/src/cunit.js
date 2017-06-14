@@ -5,24 +5,6 @@
 function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
 	THREE.Object3D.call( this );
 
-    // Operations
-    this.getColorPerWeight = function(zscore){
-        if(zscore < -2.58)
-            return new THREE.Color(0x3366cc);
-        else if(zscore >= -2.58 && zscore < -1.96)
-            return new THREE.Color(0x9999cc);
-        else if(zscore >= -1.96 && zscore < -1.65)
-            return new THREE.Color(0xc0c0c0);
-        else if(zscore >= -1.65 && zscore < 1.65)
-            return new THREE.Color(0xffffcc);
-        else if(zscore >= 1.65 && zscore < 1.96)
-            return new THREE.Color(0xffcc99);
-        else if(zscore >= 1.96 && zscore < 2.58)
-            return new THREE.Color(0xff6666);
-        else
-            return new THREE.Color(0xcc3333);
-    };
-
 	// Attributes
 	this.type = 'CUnit';
     this.color = this.getColorPerWeight(zscore);
@@ -36,9 +18,9 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
         opacity: this.opacity,
     }));
     this.mesh.name = `Longitude: ${longitude} | Latitude: ${latitude} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
-    this.mesh.position.x = this.cell_y - offsetX;
-    this.mesh.position.z = -this.cell_x - offsetZ;
-    this.mesh.position.y = this.time_step - offsetY;
+    this.mesh.position.x = this.cell_y * (sizeLat/size) - offsetX;
+    this.mesh.position.z = -this.cell_x * (sizeLng/size) - offsetZ;
+    this.mesh.position.y = this.time_step * (sizeTime/size) - offsetY;
 	this.mesh.renderOrder = 2;
 	this.currentSize = this.mesh.scale.x;
 
@@ -66,6 +48,23 @@ CUnit.prototype.changeGeometry = function(newGeo){
   this.mesh.geometry = newGeo;
 };
 
+CUnit.prototype.getColorPerWeight = function(zscore){
+    if(zscore < -2.58)
+        return new THREE.Color(0x3366cc);
+    else if(zscore >= -2.58 && zscore < -1.96)
+        return new THREE.Color(0x9999cc);
+    else if(zscore >= -1.96 && zscore < -1.65)
+        return new THREE.Color(0xc0c0c0);
+    else if(zscore >= -1.65 && zscore < 1.65)
+        return new THREE.Color(0xffffcc);
+    else if(zscore >= 1.65 && zscore < 1.96)
+        return new THREE.Color(0xffcc99);
+    else if(zscore >= 1.96 && zscore < 2.58)
+        return new THREE.Color(0xff6666);
+    else
+        return new THREE.Color(0xcc3333);
+};
+
 CUnit.prototype.reinitiate = function () {
     this.mesh.material = new THREE.MeshPhongMaterial({
         color: this.getColorPerWeight(this.zscore),
@@ -75,9 +74,9 @@ CUnit.prototype.reinitiate = function () {
 
     //this.mesh.visible = true;
 
-    /*this.mesh.position.x = this.cell_y - offsetX;
-    this.mesh.position.z = -this.cell_x - offsetZ;
-    this.mesh.position.y = this.time_step - offsetY;*/
+    /*this.mesh.position.x = this.cell_y * (sizeLat/size) - offsetX;
+     this.mesh.position.z = -this.cell_x * (sizeLng/size) - offsetZ;
+     this.mesh.position.y = this.time_step * (sizeTime/size) - offsetY;*/
 
     //this.setCunitSize(1, 1, 1);
 };
@@ -98,9 +97,9 @@ CUnit.prototype.setCunitSize = function (x, y, z) {
         this.mesh.position.x = (this.cell_y - xLowerBound) * (sizeLng / newSizeX) - offsetX;
     }
     else {
-        this.mesh.position.x = this.cell_y - offsetX;
-        this.mesh.position.z = -this.cell_x - offsetZ;
-        this.mesh.position.y = this.time_step - offsetY;
+        this.mesh.position.x = this.cell_y * (sizeLat/size) - offsetX;
+        this.mesh.position.z = -this.cell_x * (sizeLng/size) - offsetZ;
+        this.mesh.position.y = this.time_step * (sizeTime/size) - offsetY;
     }
 };
 

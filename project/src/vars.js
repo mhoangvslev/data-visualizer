@@ -2,9 +2,10 @@
  * Created by Minh Hoang DANG on 05/05/2017.
  */
 
-var size = 300, step = 50;
+var size = 300;
 var sizeLng = 237, sizeTime = size, sizeLat = 235;
 var newSizeX = sizeLng, newSizeY = sizeTime, newSizeZ = sizeLat;
+var step = 50;
 var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
 var processedData, dataAmount;
 var fileName = 'gistar_output_d';
@@ -61,11 +62,6 @@ CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
     X_SCALE = X_UPPER_BOUND - X_LOWER_BOUND;
     Y_SCALE = TIME_STEP_UPPER_BOUND - TIME_STEP_LOWER_BOUND;
     Z_SCALE = Y_UPPER_BOUND - Y_LOWER_BOUND;
-
-    axisXScale = (X_SCALE > size) ? size/(X_SCALE + 1) : 1;
-    axisYScale = (Y_SCALE > size) ? size/(Y_SCALE + 1) : (Y_SCALE + 1)/size;
-    axisZScale = (Z_SCALE > size) ? size/(Z_SCALE + 1) : 1;
-
     ZSCORE_SCALE = ZSCORE_UPPER_BOUND - ZSCORE_LOWER_BOUND;
 });
 
@@ -93,6 +89,7 @@ var dimensionZ = sizeLat/step;
 
 var extrudeLayer = -1, mustExtrude = false, mustScale = false;
 
+
 // Base plane (O - Lat - Lng)
 var baseOXYGridHelper = new THREE.GridHelper(size, step);
 baseOXYGridHelper.position.z = 0;
@@ -101,6 +98,9 @@ baseOXYGridHelper.position.y = -size/2;
 baseOXYGridHelper.scale.x = (sizeLat/size);
 baseOXYGridHelper.scale.z = (sizeLng/size);
 baseOXYGridHelper.renderOrder = 1;
+
+var test = createDynamicGridHelper('OXY', 100);
+WebGLScene.add(test);
 
 // Plane along Longitude axis (O - Time - Lng)
 var baseOYZGridHelper = new THREE.GridHelper(size, step);
@@ -148,7 +148,7 @@ var loc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
 var OSMFrame='<div id="outerOSM" style="opacity: 1"><div id="innerOSM">'+
     '<div id="OSMLayerBlocker" style="position:fixed;width:100%;height:100%;"></div>'+
     `<iframe id="OSMLayer" width="${661}px" height="${689}px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
-    `src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS&amp" ` +
+    `src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS" ` +
     'style="border: 1px solid black"></iframe>' +
     '</div></div>';
 

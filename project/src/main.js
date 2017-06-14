@@ -72,6 +72,7 @@ function init() {
     //mapMeshBBox = new THREE.Box3().setFromObject(mapMesh);
     WebGLScene.add( mapMesh );
 
+
     // Open street map layer
     var s = OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc);
     console.log(s);
@@ -80,9 +81,10 @@ function init() {
     mapLayer.position.copy(baseOXYGridHelper.position);
     mapLayer.scale.copy(baseOXYGridHelper.scale);
 
-    mapLayer.scale.x = 0.586245;
-    mapLayer.scale.y = 0.557175;
-    updateMapOffsetX(-2);
+    updateMapScaleXFilter(0.582245);
+    updateMapScaleYFilter(0.561175);
+    updateMapOffsetX(-1);
+    updateMapOffsetZ(0);
     mapLayer.renderOrder = 0;
     cssScene.add(mapLayer);
 
@@ -150,6 +152,10 @@ function update() {
 	}
 	controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
 	stats.update();
+
+	axisYScale = timeStepUpperBound - timeStepLowerBound;
+	axisZScale = yUpperBound - yLowerBound;
+	axisXScale = xUpperBound - xLowerBound;
 }
 
 function render() {
