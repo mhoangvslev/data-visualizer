@@ -214,10 +214,11 @@ function createCSS3DObject(s) {
     div.style.width = `${661}px`;
     div.style.height = `${689}px`;
     div.style.webkitTransformStyle = "preserve-3d";
-    div.style.zIndex = 4;
+    div.style.zIndex = -1;
 
     // create a CSS3Dobject and return it.
     var object = new THREE.CSS3DObject(div);
+    object.renderOrder = 4;
     return object;
 }
 

@@ -16,7 +16,7 @@ function updateBrushSizeFilter() {
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit) {
             if (mustExtrude)
-                child.setCunitSize(dimensionX * BRUSH_SIZE, child.getScalePerWeight() * 0.5, dimensionZ * BRUSH_SIZE);
+                child.setCunitSize(dimensionX * BRUSH_SIZE, child.getScalePerWeight(), dimensionZ * BRUSH_SIZE);
             else
                 child.setCunitSize(dimensionX * BRUSH_SIZE, dimensionY * BRUSH_SIZE, dimensionZ * BRUSH_SIZE);
         }
@@ -53,13 +53,12 @@ function updateMapLayerDisplay(bScale) {
                 child.getMesh().position.z = -(child.getCellX() - yLowerBound) * dimensionX - offsetZ;
                 child.getMesh().position.x = (child.getCellY() - xLowerBound) * dimensionZ - offsetX;
 
-                if (mustExtrude) {
-                    var newScale = child.getScalePerWefight();
-                    child.getMesh().scale.y = newScale;
-                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY + newScale/2 - sizeTime/2;
-                }
+                if (mustExtrude)
+                    child.getMesh().position.y = (child.getScalePerWeight() - sizeTime)/2;
                 else
                     child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY;
+
+                updateBrushSizeFilter();
 
                 // Calculate new bounding box for OSM Layer
                 if (child.getCellX() === yLowerBound)
@@ -115,11 +114,13 @@ function updateOneLayerFilter() {
                 (child.getZScore() >= zScoreLowerBound && child.getZScore() < zScoreUpperBound)
                 ){
                 child.getMesh().visible = true;
-                if (mustExtrude) {
-                    var newScale = child.getScalePerWeight();
-                    child.getMesh().scale.y = newScale;
-                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY + newScale/2 - sizeTime/2;
+                if (mustExtrude)
+                    child.getMesh().position.y = (child.getScalePerWeight() - sizeTime)/2;
+                else{
+                    //console.log(dimensionX, dimensionY, dimensionZ);
+                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY;
                 }
+                updateBrushSizeFilter();
             }
             else {
                 child.getMesh().visible = false;

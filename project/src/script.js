@@ -144,7 +144,7 @@ $(document).ready(function() {
         slide: function( event, ui ) {
             $( "#one_layer_handle" ).text( ui.value );
             extrudeLayer = ui.value;
-            newSizeY = 1; offsetNY = ui.value;
+            offsetNY = ui.value;
             //updateSceneFilters();
             updateOneLayerFilter();
         }

@@ -115,7 +115,7 @@ CUnit.prototype.getZScore = function () {
 };
 
 CUnit.prototype.getScalePerWeight = function () {
-    return (this.zscore - ZSCORE_LOWER_BOUND)*sizeTime*0.5/ZSCORE_SCALE;
+    return (this.zscore - ZSCORE_LOWER_BOUND)*sizeTime/ZSCORE_SCALE;
 };
 
 /**

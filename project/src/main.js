@@ -17,7 +17,7 @@ function init() {
     //WebGLRenderer.domElement.style.position = 'absolute';
     WebGLRenderer.domElement.style.top = 0;
     // make sure original renderer appears on top of CSS renderer
-    WebGLRenderer.domElement.style.zIndex   = 1;
+    WebGLRenderer.domElement.style.zIndex = 1;
     container.appendChild( WebGLRenderer.domElement );
 
     cssRenderer = new THREE.CSS3DRenderer();
@@ -26,6 +26,7 @@ function init() {
     cssRenderer.domElement.style.top = 0;
     cssRenderer.domElement.style.margin = 0;
     cssRenderer.domElement.style.padding = 0;
+    WebGLRenderer.domElement.style.zIndex = 0;
     container.appendChild( cssRenderer.domElement );
 
     //cssRenderer.domElement.appendChild( WebGLRenderer.domElement );

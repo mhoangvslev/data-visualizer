@@ -3,8 +3,8 @@
  */
 
 var size = 300;
-//var sizeLng = 237, sizeTime = size, sizeLat = 235;
-var sizeLng = 311, sizeTime = size, sizeLat = 245;
+var sizeLng = 237, sizeTime = size, sizeLat = 235;
+//var sizeLng = 311, sizeTime = size, sizeLat = 245;
 var newSizeZ = sizeLng, newSizeY = sizeTime, newSizeX = sizeLat;
 var step = 50;
 var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
