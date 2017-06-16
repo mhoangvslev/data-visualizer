@@ -25,7 +25,6 @@
 
 		<script src="js/vr/DaydreamController.js"></script>
 		<script src="js/vr/WebVR.js"></script>
-		<script src="js/vr/WebVRCamera.js"></script>
 
 		<script>
 
@@ -41,7 +40,7 @@
 
 			var container;
 			var camera, scene, ray, raycaster, renderer;
-			var gamepad, vrdisplay;
+			var gamepad;
 
 			var room;
 
@@ -119,18 +118,14 @@
 				renderer.sortObjects = false;
 				container.appendChild( renderer.domElement );
 
+				renderer.vr.enabled = true;
+
 				//
 
-				WEBVR.getVRDisplay( function ( display ) {
+				WEBVR.getVRDisplay( function ( device ) {
 
-					if ( display !== undefined ) {
-
-						vrdisplay = display;
-						camera = new THREE.WebVRCamera( display, renderer );
-
-					}
-
-					document.body.appendChild( WEBVR.getButton( display, renderer.domElement ) );
+					renderer.vr.setDevice( device );
+					document.body.appendChild( WEBVR.getButton( device, renderer.domElement ) );
 
 				} );
 
@@ -171,14 +166,13 @@
 
 			function animate() {
 
-				gamepad.update();
-				render();
-
-				( vrdisplay ? vrdisplay : window ).requestAnimationFrame( animate );
+				renderer.animate( render );
 
 			}
 
 			function render() {
+
+				gamepad.update();
 
 				var delta = clock.getDelta() * 60;
 

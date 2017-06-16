@@ -432,8 +432,10 @@ THREE.ColladaLoader.prototype = {
 
 			var keyframes = prepareAnimationData( data, defaultMatrix );
 
+			if ( node.type !== 'JOINT' ) console.warn( 'THREE.ColladaLoader: Animation data for invalid node with ID "%s" found. The loader only supports animation of bones (skeletal animation).', node.id );
+
 			var animation = {
-				name: '.bones[' + node.sid + ']',
+				name: '.skeleton.bones[' + node.sid + ']',
 				keyframes: keyframes
 			}
 
@@ -864,7 +866,7 @@ THREE.ColladaLoader.prototype = {
 			var BONE_LIMIT = 4;
 
 			var build = {
-				bones: {},
+				joints: [], // this must be an array to preserve the joint order
 				indices: {
 					array: [],
 					stride: BONE_LIMIT
@@ -949,7 +951,7 @@ THREE.ColladaLoader.prototype = {
 				var name = jointSource.array[ i ];
 				var boneInverse = new THREE.Matrix4().fromArray( inverseSource.array, i * inverseSource.stride ).transpose();
 
-				build.bones[ name ] = boneInverse;
+				build.joints.push( { name: name, boneInverse: boneInverse } );
 
 			}
 
@@ -1883,6 +1885,8 @@ THREE.ColladaLoader.prototype = {
 
 		function buildGeometry( data ) {
 
+			var build = {};
+
 			var sources = data.sources;
 			var vertices = data.vertices;
 			var primitives = data.primitives;
@@ -1900,7 +1904,7 @@ THREE.ColladaLoader.prototype = {
 			var geometry = new THREE.BufferGeometry();
 			geometry.name = data.name || '';
 
-			var materials = [];
+			var materialKeys = [];
 
 			var start = 0, count = 0;
 			var array;
@@ -1925,7 +1929,7 @@ THREE.ColladaLoader.prototype = {
 
 				// material
 
-				materials.push( getMaterial( primitive.material ) );
+				materialKeys.push( primitive.material );
 
 				// geometry data
 
@@ -1986,48 +1990,11 @@ THREE.ColladaLoader.prototype = {
 			if ( skinIndex.array.length > 0 ) geometry.addAttribute( 'skinIndex', new THREE.Float32BufferAttribute( skinIndex.array, skinIndex.stride ) );
 			if ( skinWeight.array.length > 0 ) geometry.addAttribute( 'skinWeight', new THREE.Float32BufferAttribute( skinWeight.array, skinWeight.stride ) );
 
-			// setup material
+			build.data = geometry;
+			build.type = primitives[ 0 ].type;
+			build.materialKeys = materialKeys;
 
-			var material = ( materials.length === 1 ) ? materials[ 0 ] : materials;
-
-			// setup object
-
-			var object;
-
-			switch ( primitives[ 0 ].type ) {
-
-				case 'lines':
-					object = new THREE.LineSegments( geometry, material );
-					break;
-
-				case 'linestrips':
-					object = new THREE.Line( geometry, material );
-					break;
-
-				case 'triangles':
-				case 'polylist':
-
-					if ( geometry.attributes.skinIndex ) {
-
-						for ( var i = 0, l = materials.length; i < l; i ++ ) {
-
-							materials[ i ].skinning = true;
-
-						}
-
-						object = new THREE.SkinnedMesh( geometry, material );
-
-					} else {
-
-						object = new THREE.Mesh( geometry, material );
-
-					}
-
-					break;
-
-			}
-
-			return object;
+			return build;
 
 		}
 
@@ -2251,7 +2218,8 @@ THREE.ColladaLoader.prototype = {
 						break;
 
 					case 'skeleton':
-						data.skeleton = parseId( child.textContent );;
+						if ( data.skeleton !== undefined ) console.warn( 'THREE.ColladaLoader: The loader only supports one skeleton per instance_controller.' );
+						data.skeleton = parseId( child.textContent );
 						break;
 
 					default:
@@ -2267,21 +2235,100 @@ THREE.ColladaLoader.prototype = {
 
 		function getSkeleton( root, controller ) {
 
-			var boneArray = [];
-			var boneInverseArray = [];
+			var boneData = [];
+			var missingBoneData = [];
+			var sortedBoneData = [];
+
+			var joints = controller.skin.joints;
+
+			root.updateMatrixWorld( true );
+
+			// setup bone data from visual scene
 
 			root.traverse( function( object ) {
 
 				if ( object.isBone === true ) {
 
-					boneArray.push( object );
-					boneInverseArray.push( controller.skin.bones[ object.name ] );
+					var boneInverse;
+
+					for ( var i = 0; i < joints.length; i ++ ) {
+
+						var joint = joints[ i ];
+
+						if ( joint.name === object.name ) {
+
+							boneInverse = joint.boneInverse;
+							break;
+
+						}
+
+					}
+
+					if ( boneInverse === undefined ) {
+
+						// Unfortunately, there can be joints in the visual scene that are not part of the
+						// corresponding controller. In this case, we have to create a boneInverse matrix
+						// for the respective bone. These bone won't affect any vertices, because there are no skin indices
+						// and weights defined for it. But we still have to add the bone to the sorted bone list in order to
+						// ensure a correct animation of the model.
+
+						boneInverse = new THREE.Matrix4().getInverse( object.matrixWorld );
+						missingBoneData.push( { bone: object, boneInverse: boneInverse } );
+
+						console.warn( 'THREE.ColladaLoader: Missing data for bone: %s.', object.name );
+
+					} else {
+
+						boneData.push( { bone: object, boneInverse: boneInverse } );
+
+					}
 
 				}
 
 			} );
 
-			return new THREE.Skeleton( boneArray, boneInverseArray );
+			// sort bone data (the order is defined in the corresponding controller)
+
+			for ( var i = 0; i < joints.length; i ++ ) {
+
+				for ( var j = 0; j < boneData.length; j ++ ) {
+
+					var data = boneData[ j ];
+
+					if ( data.bone.name === joints[ i ].name ) {
+
+						sortedBoneData[ i ] = data;
+						break;
+
+					}
+
+				}
+
+			}
+
+			// add missing bone data at the end of the list
+
+			for ( var i = 0; i < missingBoneData.length; i ++ ) {
+
+				sortedBoneData.push( missingBoneData[ i ] );
+
+			}
+
+			// setup arrays for skeleton creation
+
+			var bones = [];
+			var boneInverses = [];
+
+			for ( var i = 0; i < sortedBoneData.length; i ++ ) {
+
+				var data = sortedBoneData[ i ];
+
+				bones.push( data.bone );
+				boneInverses.push( data.boneInverse );
+
+			}
+
+			return new THREE.Skeleton( bones, boneInverses );
 
 		}
 
@@ -2300,7 +2347,7 @@ THREE.ColladaLoader.prototype = {
 
 			for ( var i = 0, l = nodes.length; i < l; i ++ ) {
 
-				objects.push( getNode( nodes[ i ] ).clone() );
+				objects.push( getNode( nodes[ i ] ) );
 
 			}
 
@@ -2314,14 +2361,15 @@ THREE.ColladaLoader.prototype = {
 
 				var instance = instanceControllers[ i ];
 				var controller = getController( instance.id );
-				var object = getGeometry( controller.id ).clone();
+				var geometry = getGeometry( controller.id );
+				var materials = resolveMaterialBinding( geometry.materialKeys, instance.materials );
+				var object = getObject( geometry, materials );
 
 				var node = getNode( instance.skeleton );
 				var skeleton = getSkeleton( node, controller );
 
 				object.bind( skeleton, controller.skin.bindMatrix );
 				object.normalizeSkinWeights();
-				object.bones = skeleton.bones; // this is necessary for property binding
 				object.add( node ); // bone hierarchy is a child of the skinned mesh
 
 				objects.push( object );
@@ -2337,7 +2385,9 @@ THREE.ColladaLoader.prototype = {
 			for ( var i = 0, l = instanceGeometries.length; i < l; i ++ ) {
 
 				var instance = instanceGeometries[ i ];
-				var object = getGeometry( instance.id ).clone();
+				var geometry = getGeometry( instance.id );
+				var materials = resolveMaterialBinding( geometry.materialKeys, instance.materials );
+				var object = getObject( geometry, materials );
 				objects.push( object );
 
 			}
@@ -2369,6 +2419,68 @@ THREE.ColladaLoader.prototype = {
 			object.name = ( type === 'JOINT' ) ? data.sid : data.name;
 			object.matrix.copy( matrix );
 			object.matrix.decompose( object.position, object.quaternion, object.scale );
+
+			return object;
+
+		}
+
+		function resolveMaterialBinding( keys, instanceMaterials ) {
+
+			var materials = [];
+
+			for ( var i = 0, l = keys.length; i < l; i ++ ) {
+
+				var id = instanceMaterials[ keys[ i ] ];
+				materials.push( getMaterial( id ) );
+
+			}
+
+			return materials;
+
+		}
+
+		function getObject( geometry, materials ) {
+
+			var object;
+
+			var skinning = ( geometry.data.attributes.skinIndex !== undefined );
+
+			if ( skinning ) {
+
+				for ( var i = 0, l = materials.length; i < l; i ++ ) {
+
+					materials[ i ].skinning = true;
+
+				}
+
+			}
+
+			var material = ( materials.length === 1 ) ? materials[ 0 ] : materials;
+
+			switch ( geometry.type ) {
+
+				case 'lines':
+					object = new THREE.LineSegments( geometry.data, material );
+					break;
+
+				case 'linestrips':
+					object = new THREE.Line( geometry.data, material );
+					break;
+
+				case 'triangles':
+				case 'polylist':
+					if ( skinning ) {
+
+						object = new THREE.SkinnedMesh( geometry.data, material );
+
+					} else {
+
+						object = new THREE.Mesh( geometry.data, material );
+
+					}
+					break;
+
+			}
 
 			return object;
 
