@@ -33,15 +33,6 @@ function init() {
     // World
 	// Grid
 
-	// Base OXY Grid
-    WebGLScene.add(baseOXYGridHelper);
-
-    // Base OYZ Grid
-	WebGLScene.add(baseOYZGridHelper);
-
-    // Base OXZ Grid
-    WebGLScene.add(baseOXZGridHelper);
-
     labelOrigin = makeTextSprite("O"); labelOrigin.position.copy(LABEL_ORIGIN_SPAWN);
 	WebGLScene.add( labelOrigin );
 	labelT = makeTextSprite("Time"); labelT.position.copy(LABEL_TIME_SPAWN);
@@ -81,8 +72,8 @@ function init() {
     mapLayer.position.copy(baseOXYGridHelper.position);
     mapLayer.scale.copy(baseOXYGridHelper.scale);
 
-    updateMapScaleXFilter(0.582245);
-    updateMapScaleYFilter(0.561175);
+    updateMapScaleXFilter(0.582245 * mapScaleOffsetX);
+    updateMapScaleYFilter(0.561175 * mapScaleOffsetY);
     updateMapOffsetX(-1);
     updateMapOffsetZ(0);
     mapLayer.renderOrder = 0;
@@ -90,7 +81,7 @@ function init() {
 
 	// Cubes
     for (var entry of processedData) {
-        var cunit = new CUnit(size/step, entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore'], entry['pvalue']);
+        var cunit = new CUnit(entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore'], entry['pvalue']);
         CUnitCluster.add(cunit);
         WebGLScene.add(cunit.getMesh());
     }
@@ -118,7 +109,7 @@ function init() {
 	document.addEventListener( 'contextmenu', onDocumentLMB, false );
 	document.addEventListener( 'mouseup', onDocumentMouseReset, false );
 	document.addEventListener( 'wheel', onDocumentMouseWheel, true);
-    document.getElementById('time_step_unit').innerHTML = `X: ${(200*sizeLat/step).toFixed(2)}m Y: ${(200*sizeTime/step).toFixed(2)}x Z: ${(200*sizeLng/step).toFixed(2)}m`;
+    //document.getElementById('time_step_unit').innerHTML = `Lat: ${(200*newSizeX/sizeLat).toFixed(2)}m | Lng: ${(200*newSizeZ/sizeLng).toFixed(2)}m`;
 
     window.addEventListener( 'resize', onWindowResize, false );
 
@@ -152,10 +143,6 @@ function update() {
 	}
 	controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
 	stats.update();
-
-	axisYScale = timeStepUpperBound - timeStepLowerBound;
-	axisZScale = yUpperBound - yLowerBound;
-	axisXScale = xUpperBound - xLowerBound;
 }
 
 function render() {

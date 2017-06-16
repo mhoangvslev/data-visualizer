@@ -12,18 +12,20 @@ function updateCameraFOVFilter(fov) {
 }
 
 function updateBrushSizeFilter() {
+    updateVars();
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit) {
             if (mustExtrude)
-                child.setCunitSize(BRUSH_SIZE, child.getScalePerWeight() * 0.5, BRUSH_SIZE);
+                child.setCunitSize(dimensionX * BRUSH_SIZE, child.getScalePerWeight() * 0.5, dimensionZ * BRUSH_SIZE);
             else
-                child.setCunitSize(BRUSH_SIZE, BRUSH_SIZE, BRUSH_SIZE);
+                child.setCunitSize(dimensionX * BRUSH_SIZE, dimensionY * BRUSH_SIZE, dimensionZ * BRUSH_SIZE);
         }
     });
 }
 
 function updateSceneFilters() {
     resetScene();
+    updateVars();
     CUnitCluster.traverse(function (child) {
         if (child instanceof CUnit) {
             if (((child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() < timeStepUpperBound ) &&
@@ -38,49 +40,56 @@ function updateSceneFilters() {
             }
         }
     });
-
-    if(mustScale)
-        document.getElementById('time_step_unit').innerHTML = `X: ${(200*newSizeZ/step).toFixed(2)}m Y: ${(sizeTime/newSizeY/step).toFixed(2)}x Z: ${(200*newSizeX/step).toFixed(2)}m`;
-    else
-        document.getElementById('time_step_unit').innerHTML = `X: ${(200*sizeLat/step).toFixed(2)}m Y: ${(200*sizeTime/step).toFixed(2)}x Z: ${(200*sizeLng/step).toFixed(2)}m`;
+    //document.getElementById('time_step_unit').innerHTML = `Lat: ${(200*newSizeX/sizeLat).toFixed(2)}m | Lng: ${(200*newSizeZ/sizeLng).toFixed(2)}m`;
 }
 
 function updateMapLayerDisplay(bScale) {
+    updateVars();
     var newLoc;
     if(bScale) {
         CUnitCluster.traverse(function (child) {
             if (child instanceof CUnit) {
                 // Reposition
-                child.getMesh().position.z = -(child.getCellX() - yLowerBound) * (sizeLat / newSizeZ) - offsetZ;
-                child.getMesh().position.x = (child.getCellY() - xLowerBound) * (sizeLng / newSizeX) - offsetX;
+                child.getMesh().position.z = -(child.getCellX() - yLowerBound) * dimensionX - offsetZ;
+                child.getMesh().position.x = (child.getCellY() - xLowerBound) * dimensionZ - offsetX;
 
                 if (mustExtrude) {
-                    child.getMesh().scale.y = child.getScalePerWeight();
-                    child.getMesh().position.y = (sizeTime/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeTime;
+                    var newScale = child.getScalePerWefight();
+                    child.getMesh().scale.y = newScale;
+                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY + newScale/2 - sizeTime/2;
                 }
                 else
-                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * (sizeTime / newSizeY) - offsetY;
+                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY;
 
                 // Calculate new bounding box for OSM Layer
-
-                if (child.getCellX() == yLowerBound) {
+                if (child.getCellX() === yLowerBound)
                     newLngMin = child.getLongitude();
-                }
 
-                if (child.getCellX() == yUpperBound) {
+                if (child.getCellX() === yUpperBound)
                     newLngMax = child.getLongitude();
-                }
 
-                if (child.getCellY() == xLowerBound) {
+                if (child.getCellY() === xLowerBound)
                     newLatMin = child.getLatitude();
-                }
 
-                if (child.getCellY() == xUpperBound) {
+                if (child.getCellY() === xUpperBound)
                     newLatMax = child.getLatitude();
-                }
             }
         });
         newLoc = encodeURIComponent(`${newLngMin},${newLatMin},${newLngMax},${newLatMax}`);
+        // Base plane (O - Lat - Lng)
+        redrawDynamicGridHelper(baseOXYGridHelper, sizeLat, sizeLng, newSizeX, newSizeZ);
+
+        // Plane along Longitude axis (O - Time - Lng)
+        redrawDynamicGridHelper(baseOYZGridHelper, sizeLng, sizeTime, newSizeZ, newSizeY);
+
+        // Plane along Latitude axis (O - Time - Lat)
+        redrawDynamicGridHelper(baseOXZGridHelper, sizeLat, sizeTime, newSizeX, newSizeY);
+
+        // Update CUnit size
+        dimensionX = sizeLat/newSizeX;
+        dimensionY = sizeTime/newSizeY;
+        dimensionZ = sizeLng/newSizeZ;
+        updateBrushSizeFilter();
 
     }
     else {
@@ -91,13 +100,11 @@ function updateMapLayerDisplay(bScale) {
     var url = ('http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS').replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
     //console.log(decodeURIComponent(url));
     document.getElementById("OSMLayer").setAttribute("src", url);
-    createDynamicGridHelper('OXY', newSizeZ);
-    createDynamicGridHelper('OYZ', newSizeZ);
-    createDynamicGridHelper('OXZ', newSizeX);
 }
 
 function updateOneLayerFilter() {
     resetScene();
+    updateVars();
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit){
             if(
@@ -109,8 +116,9 @@ function updateOneLayerFilter() {
                 ){
                 child.getMesh().visible = true;
                 if (mustExtrude) {
-                    child.getMesh().scale.y = child.getScalePerWeight();
-                    child.getMesh().position.y = (sizeTime/2 + child.getMesh().scale.y*child.getDimension()/2) - sizeTime;
+                    var newScale = child.getScalePerWeight();
+                    child.getMesh().scale.y = newScale;
+                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY + newScale/2 - sizeTime/2;
                 }
             }
             else {

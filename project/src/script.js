@@ -83,7 +83,7 @@ $(document).ready(function() {
         slide: function( event, ui ) {
             xLowerBound = ui.values[0]; xUpperBound = ui.values[1];
             $('#cell_x_int_value').text(ui.values[0] + " - " + ui.values[1]);
-            newSizeX = Math.abs(ui.values[1] - ui.values[0]); offsetNX = ui.values[0];
+            newSizeZ = Math.abs(ui.values[1] - ui.values[0]); offsetNX = ui.values[0];
             updateMapLayerDisplay(mustScale);
             updateSceneFilters();
         }
@@ -97,7 +97,7 @@ $(document).ready(function() {
         slide: function( event, ui ) {
             yLowerBound = ui.values[0]; yUpperBound = ui.values[1];
             $('#cell_y_int_value').text(ui.values[0] + " - " + ui.values[1]);
-            newSizeZ = Math.abs(ui.values[1] - ui.values[0]); offsetNZ = ui.values[0];
+            newSizeX = Math.abs(ui.values[1] - ui.values[0]); offsetNZ = ui.values[0];
             updateMapLayerDisplay(mustScale);
             updateSceneFilters();
         }
@@ -118,12 +118,12 @@ $(document).ready(function() {
 
 	$( "#brush_size" ).slider({
 		min: 1,
-		max: 50,
+		max: 5,
 		create: function() {
             $( "#brush_size_handle" ).text( $( this ).slider( "value" ) );
 		},
 		slide: function( event, ui ) {
-			BRUSH_SIZE = ui.value/10;
+			BRUSH_SIZE = ui.value;
             $( "#brush_size_handle" ).text( BRUSH_SIZE );
 			updateBrushSizeFilter();
 		}

@@ -2,7 +2,7 @@
 /**
  * Created by Minh Hoang DANG on 04/19/2017.
  */
-function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
+function CUnit(latitude, longitude, time_step, zscore, pvalue) {
 	THREE.Object3D.call( this );
 
 	// Attributes
@@ -10,7 +10,7 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
     this.color = this.getColorPerWeight(zscore);
 	this.opacity = 1;
 	this.geometry = GEO_CUBE;
-	this.cell_x = longitude; this.cell_y = latitude; this.time_step = time_step, this.zscore = zscore; this.dimension = dimension;
+	this.cell_x = longitude; this.cell_y = latitude; this.time_step = time_step, this.zscore = zscore;
 
 	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshPhongMaterial({
         color: this.color,
@@ -18,9 +18,9 @@ function CUnit(dimension, latitude, longitude, time_step, zscore, pvalue) {
         opacity: this.opacity,
     }));
     this.mesh.name = `Longitude: ${longitude} | Latitude: ${latitude} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
-    this.mesh.position.x = this.cell_y * (sizeLat/size) - offsetX;
-    this.mesh.position.z = -this.cell_x * (sizeLng/size) - offsetZ;
-    this.mesh.position.y = this.time_step * (sizeTime/size) - offsetY;
+    this.mesh.position.x = this.cell_y * dimensionX - offsetX;
+    this.mesh.position.z = -this.cell_x * dimensionZ - offsetZ;
+    this.mesh.position.y = this.time_step * dimensionY - offsetY;
 	this.mesh.renderOrder = 2;
 	this.currentSize = this.mesh.scale.x;
 
@@ -74,33 +74,28 @@ CUnit.prototype.reinitiate = function () {
 
     //this.mesh.visible = true;
 
-    /*this.mesh.position.x = this.cell_y * (sizeLat/size) - offsetX;
-     this.mesh.position.z = -this.cell_x * (sizeLng/size) - offsetZ;
-     this.mesh.position.y = this.time_step * (sizeTime/size) - offsetY;*/
+    /*this.mesh.position.x = this.cell_y * dimensionX - offsetX;
+     this.mesh.position.z = -this.cell_x * dimensionZ - offsetZ;
+     this.mesh.position.y = this.time_step * dimensionY - offsetY;*/
 
     //this.setCunitSize(1, 1, 1);
 };
 
 CUnit.prototype.setCunitSize = function (x, y, z) {
-    this.mesh.scale.set(x, y, z) ;
+    this.mesh.scale.set(z, y, x) ;
     this.currentSize = this.mesh.scale.x;
 
-    // Recalculate the offset
-    offsetZ = -sizeLng/2 + this.mesh.scale.z*this.dimension/2;
-    offsetX = sizeLat/2 - this.mesh.scale.x*this.dimension/2;
-    offsetY = sizeTime/2 - this.mesh.scale.y*this.dimension/2;
-
     // Recalculate the position
-    if(mustScale){
-        this.mesh.position.z = -(this.cell_x - yLowerBound) * (sizeLat / newSizeZ) - offsetZ;
-        this.mesh.position.y = (this.time_step - timeStepLowerBound) * (sizeTime / newSizeY) - offsetY;
-        this.mesh.position.x = (this.cell_y - xLowerBound) * (sizeLng / newSizeX) - offsetX;
+    /*if(mustScale){
+        this.mesh.position.z = -(this.cell_x - yLowerBound) * dimensionZ - offsetZ;
+        this.mesh.position.y = (this.time_step - timeStepLowerBound) * dimensionY - offsetY;
+        this.mesh.position.x = (this.cell_y - xLowerBound) * dimensionX - offsetX;
     }
     else {
-        this.mesh.position.x = this.cell_y * (sizeLat/size) - offsetX;
-        this.mesh.position.z = -this.cell_x * (sizeLng/size) - offsetZ;
-        this.mesh.position.y = this.time_step * (sizeTime/size) - offsetY;
-    }
+        this.mesh.position.x = this.cell_y * dimensionX - offsetX;
+        this.mesh.position.z = -this.cell_x * dimensionZ - offsetZ;
+        this.mesh.position.y = this.time_step * dimensionY - offsetY;
+    }*/
 };
 
 CUnit.prototype.getCellY = function () {
@@ -119,12 +114,8 @@ CUnit.prototype.getZScore = function () {
     return this.zscore;
 };
 
-CUnit.prototype.getDimension = function () {
-    return this.dimension;
-};
-
 CUnit.prototype.getScalePerWeight = function () {
-    return (this.zscore - ZSCORE_LOWER_BOUND)*sizeTime*0.1/ZSCORE_SCALE;
+    return (this.zscore - ZSCORE_LOWER_BOUND)*sizeTime*0.5/ZSCORE_SCALE;
 };
 
 /**

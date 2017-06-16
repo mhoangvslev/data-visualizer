@@ -3,17 +3,17 @@
  */
 
 var size = 300;
-var sizeLng = 237, sizeTime = size, sizeLat = 235;
-var newSizeX = sizeLng, newSizeY = sizeTime, newSizeZ = sizeLat;
+//var sizeLng = 237, sizeTime = size, sizeLat = 235;
+var sizeLng = 311, sizeTime = size, sizeLat = 245;
+var newSizeZ = sizeLng, newSizeY = sizeTime, newSizeX = sizeLat;
 var step = 50;
 var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
+var mapScaleOffsetX = sizeLng/237, mapScaleOffsetY = sizeLat/235;
 var processedData, dataAmount;
 var fileName = 'gistar_output_d';
 
 var TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND, ZSCORE_LOWER_BOUND, ZSCORE_UPPER_BOUND, ZSCORE_SCALE, X_LOWER_BOUND, X_UPPER_BOUND, Y_LOWER_BOUND, Y_UPPER_BOUND;
 var xLowerBound, xUpperBound, yLowerBound, yUpperBound, timeStepLowerBound, timeStepUpperBound, zScoreLowerBound, zScoreUpperBound;
-var axisXScale, axisYScale, axisZScale;
-var X_SCALE, Y_SCALE, Z_SCALE;
 
 var CSVLoader = new THREE.FileLoader();
 CSVLoader.setResponseType('text');
@@ -59,9 +59,6 @@ CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
     xLowerBound = X_LOWER_BOUND; xUpperBound = X_UPPER_BOUND;
     yLowerBound = Y_LOWER_BOUND; yUpperBound = Y_UPPER_BOUND;
 
-    X_SCALE = X_UPPER_BOUND - X_LOWER_BOUND;
-    Y_SCALE = TIME_STEP_UPPER_BOUND - TIME_STEP_LOWER_BOUND;
-    Z_SCALE = Y_UPPER_BOUND - Y_LOWER_BOUND;
     ZSCORE_SCALE = ZSCORE_UPPER_BOUND - ZSCORE_LOWER_BOUND;
 });
 
@@ -77,49 +74,41 @@ var zoomAmount = 1;
 var zoomFactor = 5;
 var isLMB = false, isRMB = false;
 
+var dimensionX = sizeLat/newSizeX;
+var dimensionY = sizeTime/newSizeY;
+var dimensionZ = sizeLng/newSizeZ;
+
 // Offset along axis X, Z, Y
-var offsetZ = -sizeLng/2 + (sizeLng/step)/2;
-var offsetX = sizeLat/2 - (sizeLat/step)/2 ;
-var offsetY = sizeTime/2 - (sizeTime/step)/2;
+var offsetZ = (-sizeLat + dimensionX)/2;
+var offsetX = (sizeLng - dimensionZ)/2 ;
+var offsetY = (sizeTime - dimensionY)/2;
 
 var mapMesh, mapMat, mapLayer;
-var dimensionX = sizeLng/step;
-var dimensionY = sizeTime/step;
-var dimensionZ = sizeLat/step;
 
 var extrudeLayer = -1, mustExtrude = false, mustScale = false;
 
 
 // Base plane (O - Lat - Lng)
-var baseOXYGridHelper = new THREE.GridHelper(size, step);
+var baseOXYGridHelper = createDynamicGridHelper(sizeLat, sizeLng, newSizeX, newSizeZ);
 baseOXYGridHelper.position.z = 0;
 baseOXYGridHelper.position.x = 0;
-baseOXYGridHelper.position.y = -size/2;
-baseOXYGridHelper.scale.x = (sizeLat/size);
-baseOXYGridHelper.scale.z = (sizeLng/size);
-baseOXYGridHelper.renderOrder = 1;
+baseOXYGridHelper.position.y = -sizeTime/2;
 
-var test = createDynamicGridHelper('OXY', 100);
-WebGLScene.add(test);
 
 // Plane along Longitude axis (O - Time - Lng)
-var baseOYZGridHelper = new THREE.GridHelper(size, step);
+var baseOYZGridHelper = createDynamicGridHelper(sizeLng, sizeTime, newSizeZ, newSizeY);
 baseOYZGridHelper.rotation.z = (Math.PI/2);
 baseOYZGridHelper.rotation.y = (Math.PI/2);
 baseOYZGridHelper.position.x = baseOXYGridHelper.position.x ;
-baseOYZGridHelper.position.z = baseOXYGridHelper.position.z + sizeLng/2;
-baseOYZGridHelper.position.y = baseOXYGridHelper.position.y + size/2;
-baseOYZGridHelper.scale.z = (sizeLat/size);
-baseOYZGridHelper.renderOrder = 1;
+baseOYZGridHelper.position.z = baseOXYGridHelper.position.z + sizeLat/2;
+baseOYZGridHelper.position.y = baseOXYGridHelper.position.y + sizeTime/2;
 
 // Plane along Latitude axis (O - Time - Lat)
-var baseOXZGridHelper = new THREE.GridHelper(size, step);
+var baseOXZGridHelper = createDynamicGridHelper(sizeLat, sizeTime, newSizeX, newSizeY);
 baseOXZGridHelper.rotation.z = (Math.PI/2);
-baseOXZGridHelper.position.x = baseOXYGridHelper.position.x - sizeLat/2;
+baseOXZGridHelper.position.x = baseOXYGridHelper.position.x - sizeLng/2;
 baseOXZGridHelper.position.z = baseOXYGridHelper.position.z;
-baseOXZGridHelper.position.y = baseOXYGridHelper.position.y + size/2;
-baseOXZGridHelper.scale.z = (sizeLng/size);
-baseOXZGridHelper.renderOrder = 1;
+baseOXZGridHelper.position.y = baseOXYGridHelper.position.y + sizeTime/2;
 
 var GEO_PRISM = new THREE.CylinderGeometry(dimensionX, dimensionZ, dimensionY, 6, 4);
 var GEO_CUBE = new THREE.BoxGeometry(dimensionX, dimensionY, dimensionZ);
