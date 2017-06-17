@@ -43,9 +43,11 @@ function init() {
 	labelLat = makeTextSprite("Lat"); labelLat.position.copy(LABEL_LAT_SPAWN);
 	WebGLScene.add(labelLat);
 
-	// Berlin map below the Grid
-	textureGeoLoader = new THREE.TextureLoader();
-	var textureGeo = textureGeoLoader.load('./data/nyc_location_map_raster.png');
+	//Height map
+	// Useful example: https://github.com/mrdoob/three.js/blob/master/examples/webgl_geometry_colors.html
+    // Berlin map below the Grid
+    textureGeoLoader = new THREE.TextureLoader();
+    var textureGeo = textureGeoLoader.load('./data/nyc_location_map_raster.png');
     textureGeo.minFilter = THREE.LinearFilter;
     mapMat = new THREE.MeshPhongMaterial( { map: textureGeo } );
     mapMat.needsUpdate = true;
