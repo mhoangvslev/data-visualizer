@@ -96,7 +96,7 @@ function updateMapLayerDisplay(bScale) {
         resetScene();
     }
     //console.log(decodeURIComponent(newLoc));
-    var url = ('http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS').replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
+    var url = ('https://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE').replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
     //console.log(decodeURIComponent(url));
     document.getElementById("OSMLayer").setAttribute("src", url);
 }
