@@ -2853,12 +2853,13 @@ Object.assign( Vector3.prototype, {
 		var x = this.x, y = this.y, z = this.z;
 		var e = m.elements;
 
-		this.x = e[ 0 ] * x + e[ 4 ] * y + e[ 8 ]  * z + e[ 12 ];
-		this.y = e[ 1 ] * x + e[ 5 ] * y + e[ 9 ]  * z + e[ 13 ];
-		this.z = e[ 2 ] * x + e[ 6 ] * y + e[ 10 ] * z + e[ 14 ];
-		var w =  e[ 3 ] * x + e[ 7 ] * y + e[ 11 ] * z + e[ 15 ];
+		var w = 1 / ( e[ 3 ] * x + e[ 7 ] * y + e[ 11 ] * z + e[ 15 ] );
 
-		return this.divideScalar( w );
+		this.x = ( e[ 0 ] * x + e[ 4 ] * y + e[ 8 ]  * z + e[ 12 ] ) * w;
+		this.y = ( e[ 1 ] * x + e[ 5 ] * y + e[ 9 ]  * z + e[ 13 ] ) * w;
+		this.z = ( e[ 2 ] * x + e[ 6 ] * y + e[ 10 ] * z + e[ 14 ] ) * w;
+
+		return this;
 
 	},
 
@@ -3225,7 +3226,13 @@ Object.assign( Vector3.prototype, {
 
 	setFromMatrixPosition: function ( m ) {
 
-		return this.setFromMatrixColumn( m, 3 );
+		var e = m.elements;
+
+		this.x = e[ 12 ];
+		this.y = e[ 13 ];
+		this.z = e[ 14 ];
+
+		return this;
 
 	},
 
@@ -3244,7 +3251,6 @@ Object.assign( Vector3.prototype, {
 	},
 
 	setFromMatrixColumn: function ( m, index ) {
-
 
 		return this.fromArray( m.elements, index * 4 );
 
@@ -3639,9 +3645,19 @@ Object.assign( Matrix4.prototype, {
 
 			if ( x.lengthSq() === 0 ) {
 
-				// eye and target are in the same vertical
+				// up and z are parallel
 
-				z.z += 0.0001;
+				if ( Math.abs( up.z ) === 1 ) {
+
+					z.x += 0.0001;
+
+				} else {
+
+					z.z += 0.0001;
+
+				}
+
+				z.normalize();
 				x.crossVectors( up, z );
 
 			}
@@ -16104,7 +16120,7 @@ function WebGLAttributes( gl ) {
 			gl.bufferSubData( bufferType, updateRange.offset * array.BYTES_PER_ELEMENT,
 				array.subarray( updateRange.offset, updateRange.offset + updateRange.count ) );
 
-			updateRange.count = 0; // reset range
+			updateRange.count = -1; // reset range
 
 		}
 
@@ -18292,7 +18308,7 @@ function WebGLTextures( _gl, extensions, state, properties, capabilities, paramT
 				// (https://www.khronos.org/registry/webgl/extensions/WEBGL_depth_texture/)
 				if ( texture.type !== UnsignedInt248Type ) {
 
-				        console.warn( 'THREE.WebGLRenderer: Use UnsignedInt248Type for DepthStencilFormat DepthTexture.' );
+					console.warn( 'THREE.WebGLRenderer: Use UnsignedInt248Type for DepthStencilFormat DepthTexture.' );
 
 					texture.type = UnsignedInt248Type;
 					glType = paramThreeToGL( texture.type );
@@ -19696,6 +19712,26 @@ function WebGLCapabilities( gl, extensions, parameters ) {
  * @author mrdoob / http://mrdoob.com/
  */
 
+function ArrayCamera( array ) {
+
+	PerspectiveCamera.call( this );
+
+	this.cameras = array || [];
+
+}
+
+ArrayCamera.prototype = Object.assign( Object.create( PerspectiveCamera.prototype ), {
+
+	constructor: ArrayCamera,
+
+	isArrayCamera: true
+
+} );
+
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
 function WebVRManager( renderer ) {
 
 	var scope = this;
@@ -19709,20 +19745,20 @@ function WebVRManager( renderer ) {
 
 	}
 
-	var matrixWorldInverse = new THREE.Matrix4();
+	var matrixWorldInverse = new Matrix4();
 
-	var standingMatrix = new THREE.Matrix4();
-	var standingMatrixInverse = new THREE.Matrix4();
+	var standingMatrix = new Matrix4();
+	var standingMatrixInverse = new Matrix4();
 
-	var cameraL = new THREE.PerspectiveCamera();
-	cameraL.bounds = new THREE.Vector4( 0.0, 0.0, 0.5, 1.0 );
+	var cameraL = new PerspectiveCamera();
+	cameraL.bounds = new Vector4( 0.0, 0.0, 0.5, 1.0 );
 	cameraL.layers.enable( 1 );
 
-	var cameraR = new THREE.PerspectiveCamera();
-	cameraR.bounds = new THREE.Vector4( 0.5, 0.0, 0.5, 1.0 );
+	var cameraR = new PerspectiveCamera();
+	cameraR.bounds = new Vector4( 0.5, 0.0, 0.5, 1.0 );
 	cameraR.layers.enable( 2 );
 
-	var cameraVR = new THREE.ArrayCamera( [ cameraL, cameraR ] );
+	var cameraVR = new ArrayCamera( [ cameraL, cameraR ] );
 
 	//
 
@@ -21330,27 +21366,33 @@ function WebGLRenderer( parameters ) {
 
 		}
 
-		//
+		// render scene
 
-		var opaqueObjects = currentRenderList.opaque;
-		var transparentObjects = currentRenderList.transparent;
+		if ( camera.isArrayCamera ) {
 
-		if ( scene.overrideMaterial ) {
+			var cameras = camera.cameras;
 
-			var overrideMaterial = scene.overrideMaterial;
+			for ( var j = 0, jl = cameras.length; j < jl; j ++ ) {
 
-			if ( opaqueObjects.length ) renderObjects( opaqueObjects, scene, camera, overrideMaterial );
-			if ( transparentObjects.length ) renderObjects( transparentObjects, scene, camera, overrideMaterial );
+				var camera2 = cameras[ j ];
+				var bounds = camera2.bounds;
+
+				var x = bounds.x * _width;
+				var y = bounds.y * _height;
+				var width = bounds.z * _width;
+				var height = bounds.w * _height;
+
+				_this.setViewport( x, y, width, height );
+				_this.setScissor( x, y, width, height );
+				_this.setScissorTest( true );
+
+				renderScene( currentRenderList, scene, camera2 );
+
+			}
 
 		} else {
 
-			// opaque pass (front-to-back order)
-
-			if ( opaqueObjects.length ) renderObjects( opaqueObjects, scene, camera );
-
-			// transparent pass (back-to-front order)
-
-			if ( transparentObjects.length ) renderObjects( transparentObjects, scene, camera );
+			renderScene( currentRenderList, scene, camera );
 
 		}
 
@@ -21538,11 +21580,37 @@ function WebGLRenderer( parameters ) {
 
 	}
 
-	function renderObjects( renderList, scene, camera, overrideMaterial ) {
+	function renderScene( renderList, scene, camera ) {
 
-		for ( var i = 0, l = renderList.length; i < l; i ++ ) {
+		var opaqueObjects = renderList.opaque;
+		var transparentObjects = renderList.transparent;
 
-			var renderItem = renderList[ i ];
+		if ( scene.overrideMaterial ) {
+
+			var overrideMaterial = scene.overrideMaterial;
+
+			if ( opaqueObjects.length ) renderObjects( opaqueObjects, scene, camera, overrideMaterial );
+			if ( transparentObjects.length ) renderObjects( transparentObjects, scene, camera, overrideMaterial );
+
+		} else {
+
+			// opaque pass (front-to-back order)
+
+			if ( opaqueObjects.length ) renderObjects( opaqueObjects, scene, camera );
+
+			// transparent pass (back-to-front order)
+
+			if ( transparentObjects.length ) renderObjects( transparentObjects, scene, camera );
+
+		}
+
+	}
+
+	function renderObjects( renderItems, scene, camera, overrideMaterial ) {
+
+		for ( var i = 0, l = renderItems.length; i < l; i ++ ) {
+
+			var renderItem = renderItems[ i ];
 
 			var object = renderItem.object;
 			var geometry = renderItem.geometry;
@@ -21551,33 +21619,7 @@ function WebGLRenderer( parameters ) {
 
 			object.onBeforeRender( _this, scene, camera, geometry, material, group );
 
-			if ( camera.isArrayCamera ) {
-
-				var cameras = camera.cameras;
-
-				for ( var j = 0, jl = cameras.length; j < jl; j ++ ) {
-
-					var camera2 = cameras[ j ];
-					var bounds = camera2.bounds;
-
-					var x = bounds.x * _width;
-					var y = bounds.y * _height;
-					var width = bounds.z * _width;
-					var height = bounds.w * _height;
-
-					_this.setViewport( x, y, width, height );
-					_this.setScissor( x, y, width, height );
-					_this.setScissorTest( true );
-
-					renderObject( object, scene, camera2, geometry, material, group );
-
-				}
-
-			} else {
-
-				renderObject( object, scene, camera, geometry, material, group );
-
-			}
+			renderObject( object, scene, camera, geometry, material, group );
 
 			object.onAfterRender( _this, scene, camera, geometry, material, group );
 
@@ -36222,26 +36264,6 @@ function CubeCamera( near, far, cubeResolution ) {
 
 CubeCamera.prototype = Object.create( Object3D.prototype );
 CubeCamera.prototype.constructor = CubeCamera;
-
-/**
- * @author mrdoob / http://mrdoob.com/
- */
-
-function ArrayCamera( array ) {
-
-	PerspectiveCamera.call( this );
-
-	this.cameras = array || [];
-
-}
-
-ArrayCamera.prototype = Object.assign( Object.create( PerspectiveCamera.prototype ), {
-
-	constructor: ArrayCamera,
-
-	isArrayCamera: true
-
-} );
 
 /**
  * @author mrdoob / http://mrdoob.com/
