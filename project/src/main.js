@@ -5,6 +5,9 @@ init();
 //initCSS3D();
 animate();
 
+/**
+ * Create and manipulate the scene
+ */
 function init() {
 	var container = document.getElementById( 'container' );
 	document.body.appendChild(container);

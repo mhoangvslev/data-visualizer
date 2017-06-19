@@ -1,5 +1,8 @@
 /**
- * Created by Minh Hoang DANG on 04/05/2017.
+ * Make Sprite textes easily
+ * @param message String message
+ * @param parameters 'fontface, fontsize, etc.'
+ * @returns {defs.THREE.Sprite|Raycaster.params.Sprite|SEA3D.Sprite|*}
  */
 function makeTextSprite( message, parameters )
 {
@@ -53,7 +56,15 @@ function makeTextSprite( message, parameters )
     return sprite;
 }
 
-// function for drawing rounded rectangles
+/**
+ * Draw rounded rectangle
+ * @param ctx
+ * @param x
+ * @param y
+ * @param w
+ * @param h
+ * @param r
+ */
 function roundRect(ctx, x, y, w, h, r)
 {
     ctx.beginPath();
@@ -83,6 +94,9 @@ function webglAvailable() {
     }
 }
 
+/**
+ * Switch to orthographic mode
+ */
 function setOrthographic() {
     isInPerspectiveMode = false;
     camera = combinedCamera;
@@ -91,6 +105,10 @@ function setOrthographic() {
     camera.setZoom(5); zoomAmount = 5;
     document.getElementById('fov').innerHTML = 'Orthographic mode' ;
 }
+
+/**
+ * Switch to perspective mode
+ */
 function setPerspective() {
     isInPerspectiveMode = true;
     camera = perspectiveCamera;

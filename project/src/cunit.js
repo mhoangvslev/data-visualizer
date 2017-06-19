@@ -1,8 +1,15 @@
 /* eslint-disable space-in-parens,padded-blocks,space-before-function-paren,space-before-function-paren,semi,space-before-blocks */
+
 /**
- * Created by Minh Hoang DANG on 04/19/2017.
+ * Constructor for CUnits
+ * @param cell_y Corresponds to 'cell_y' in data structure. It could be converted to longitude point
+ * @param cell_x Corresponds to 'cell_x' in data structure. It could be converted to latitude point
+ * @param time_step Corresponds to 'time_step' in data structure
+ * @param zscore Correspond to 'zscore' in data structure. This attribute describe the status of each cell
+ * @param pvalue Correspond to 'pvalue' in data structure.
+ * @constructor
  */
-function CUnit(latitude, longitude, time_step, zscore, pvalue) {
+function CUnit(cell_y, cell_x, time_step, zscore, pvalue) {
 	THREE.Object3D.call( this );
 
 	// Attributes
@@ -10,14 +17,14 @@ function CUnit(latitude, longitude, time_step, zscore, pvalue) {
     this.color = this.getColorPerWeight(zscore);
 	this.opacity = 1;
 	this.geometry = GEO_CUBE;
-	this.cell_x = longitude; this.cell_y = latitude; this.time_step = time_step, this.zscore = zscore;
+	this.cell_x = cell_x; this.cell_y = cell_y; this.time_step = time_step, this.zscore = zscore;
 
 	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshPhongMaterial({
         color: this.color,
         transparent: true,
         opacity: this.opacity,
     }));
-    this.mesh.name = `Longitude: ${longitude} | Latitude: ${latitude} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
+    this.mesh.name = `Longitude: ${cell_x} | Latitude: ${cell_y} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
     this.mesh.position.x = this.cell_y * dimensionX - offsetX;
     this.mesh.position.z = -this.cell_x * dimensionZ - offsetZ;
     this.mesh.position.y = this.time_step * dimensionY - offsetY;
@@ -30,24 +37,33 @@ function CUnit(latitude, longitude, time_step, zscore, pvalue) {
     this.latitude = this.calcLatitude();
 	this.longitude = this.calcLongitude();
 
-	locations.push([
-        this.mesh.name,
-        this.latitude,
-        this.longitude
-    ]);
 }
 
+// Default by THREE.JS
 CUnit.prototype = Object.create( THREE.Mesh.prototype );
 CUnit.prototype.constructor = CUnit;
 
+/**
+ * Get the mesh of a chosen CUnit
+ * @returns {THREE.Mesh} CUnit's mesh
+ */
 CUnit.prototype.getMesh = function() {
 	return this.mesh;
 };
 
+/**
+ * Change the geometry of CUnit's mesh
+ * @param newGeo new Geometry
+ */
 CUnit.prototype.changeGeometry = function(newGeo){
   this.mesh.geometry = newGeo;
 };
 
+/**
+ * Determine the color of the CUnit based on its zscore value
+ * @param zscore
+ * @returns {UI.Color|defs.THREE.Color|{!url, prototype, !doc, !type}|*|Color} the color
+ */
 CUnit.prototype.getColorPerWeight = function(zscore){
     if(zscore < -2.58)
         return new THREE.Color(0x3366cc);
@@ -65,6 +81,9 @@ CUnit.prototype.getColorPerWeight = function(zscore){
         return new THREE.Color(0xcc3333);
 };
 
+/**
+ * Reset the CUnit to its default state
+ */
 CUnit.prototype.reinitiate = function () {
     this.mesh.material = new THREE.MeshPhongMaterial({
         color: this.getColorPerWeight(this.zscore),
@@ -81,6 +100,12 @@ CUnit.prototype.reinitiate = function () {
     //this.setCunitSize(1, 1, 1);
 };
 
+/**
+ * Scale the size of a CUnit
+ * @param x Along Latitude axis
+ * @param y Along Time axis
+ * @param z Along Longitude axis
+ */
 CUnit.prototype.setCunitSize = function (x, y, z) {
     this.mesh.scale.set(z, y, x) ;
     this.currentSize = this.mesh.scale.x;
@@ -98,6 +123,10 @@ CUnit.prototype.setCunitSize = function (x, y, z) {
     }*/
 };
 
+/**
+ * Get cell_y value
+ * @returns {*} cell_y value
+ */
 CUnit.prototype.getCellY = function () {
     return this.cell_y;
 };
@@ -114,6 +143,10 @@ CUnit.prototype.getZScore = function () {
     return this.zscore;
 };
 
+/**
+ * Calculate the height of the CUnit for extrusion map
+ * @returns {number}
+ */
 CUnit.prototype.getScalePerWeight = function () {
     return (this.zscore - ZSCORE_LOWER_BOUND)*sizeTime/ZSCORE_SCALE;
 };
@@ -160,20 +193,36 @@ CUnit.prototype.calcBearing = function () {
 };
 
 
+/**
+ * Returns the longitude point in degree
+ * @returns {string|*}
+ */
 CUnit.prototype.getLongitude = function () {
     return THREE.Math.radToDeg(this.longitude).toFixed(6);
     //return THREE.Math.radToDeg(this.calcLongitude());
 };
 
+/**
+ * Returns latitude point in degree
+ * @returns {string|*}
+ */
 CUnit.prototype.getLatitude = function () {
     return THREE.Math.radToDeg(this.latitude).toFixed(6);
     //return THREE.Math.radToDeg(this.calcLatitude());
 };
 
+/**
+ * Returns the angular distance
+ * @returns {*|{!type, !doc}}
+ */
 CUnit.prototype.getAngularDistance = function () {
     return THREE.Math.radToDeg(this.angularDistance);
 };
 
+/**
+ * Return the bearing
+ * @returns {number|*}
+ */
 CUnit.prototype.getBearing = function () {
     return this.bearing;
 };

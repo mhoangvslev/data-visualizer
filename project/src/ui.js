@@ -23,6 +23,9 @@ function updateBrushSizeFilter() {
     });
 }
 
+/**
+ * Prevent unwanted CUnits from being rendered
+ */
 function updateSceneFilters() {
     resetScene();
     updateVars();
@@ -43,6 +46,10 @@ function updateSceneFilters() {
     //document.getElementById('time_step_unit').innerHTML = `Lat: ${(200*newSizeX/sizeLat).toFixed(2)}m | Lng: ${(200*newSizeZ/sizeLng).toFixed(2)}m`;
 }
 
+/**
+ * Scale the CUnits to right place and update the map layer beneath the Cube
+ * @param bScale
+ */
 function updateMapLayerDisplay(bScale) {
     updateVars();
     var newLoc;
@@ -101,6 +108,9 @@ function updateMapLayerDisplay(bScale) {
     document.getElementById("OSMLayer").setAttribute("src", url);
 }
 
+/**
+ * Extrusion map / One layer handling
+ */
 function updateOneLayerFilter() {
     resetScene();
     updateVars();
@@ -129,6 +139,10 @@ function updateOneLayerFilter() {
     });
 }
 
+/**
+ * Change the opacity of the map layer
+ * @param val the opacity value
+ */
 function updateMapAlphaFilter(val) {
     mapMesh.material.opacity = val;
     document.getElementById("outerOSM").style.opacity = val;
