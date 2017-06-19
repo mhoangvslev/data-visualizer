@@ -10,7 +10,12 @@ var step = 50;
 var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
 var mapScaleOffsetX = sizeLng/237, mapScaleOffsetY = sizeLat/235;
 var processedData, dataAmount;
-var fileName = 'gistar_output_d';
+var fileName = 'gistar_output_e';
+
+// Beginning of time 1st January 2015, 0:00:00 (year, month, day, hour, minute, seconds)
+var TIME_GENESIS = new Date(2015, 0, 1, 0, 0, 0);
+console.log(TIME_GENESIS.toDateString());
+var CELL_DISTANCE = 200;
 
 var TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND, ZSCORE_LOWER_BOUND, ZSCORE_UPPER_BOUND, ZSCORE_SCALE, X_LOWER_BOUND, X_UPPER_BOUND, Y_LOWER_BOUND, Y_UPPER_BOUND;
 var xLowerBound, xUpperBound, yLowerBound, yUpperBound, timeStepLowerBound, timeStepUpperBound, zScoreLowerBound, zScoreUpperBound;

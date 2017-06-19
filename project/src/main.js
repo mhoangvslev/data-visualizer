@@ -37,7 +37,7 @@ function init() {
     // World
 	// Grid
 
-    labelOrigin = makeTextSprite("O"); labelOrigin.position.copy(LABEL_ORIGIN_SPAWN);
+    labelOrigin = makeTextSprite("Origin"); labelOrigin.position.copy(LABEL_ORIGIN_SPAWN);
 	WebGLScene.add( labelOrigin );
 	labelT = makeTextSprite("Time"); labelT.position.copy(LABEL_TIME_SPAWN);
 	WebGLScene.add( labelT );

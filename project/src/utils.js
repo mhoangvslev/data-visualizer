@@ -290,3 +290,26 @@ function updateVars() {
     offsetX = (sizeLng - dimensionZ)/2 ;
     offsetY = (sizeTime - dimensionY)/2;
 }
+
+/**
+ * Convert time step value to human readable time format
+ * @param time_step
+ * @returns {Date}
+ */
+function getTimeStampFromStep(time_step) {
+    return new Date(TIME_GENESIS.getTime() + (time_step * 7200000));
+}
+
+function getLatitudeFromY(cell_y, rad){
+    var res = LAT_MIN + (cell_y * CELL_DISTANCE* 0.001) / 111.321;
+    if(rad)
+        return THREE.Math.degToRad(res);
+    return res;
+}
+
+function getLongitudeFromX(cell_x, cell_y, rad) {
+    var res = LNG_MIN + (cell_x * CELL_DISTANCE * 0.001)/(Math.cos(getLatitudeFromY(cell_y)) * 111.321);
+    if(rad)
+        return THREE.Math.degToRad(res);
+    return res;
+}

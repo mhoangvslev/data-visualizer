@@ -19,23 +19,24 @@ function CUnit(cell_y, cell_x, time_step, zscore, pvalue) {
 	this.geometry = GEO_CUBE;
 	this.cell_x = cell_x; this.cell_y = cell_y; this.time_step = time_step, this.zscore = zscore;
 
+    // Always calculate in this order
+    // this.bearing = this.calcBearing();
+    // this.angularDistance = this.calcAngularDistance();
+    this.latitude = this.calcLatitude();
+    this.longitude = this.calcLongitude();
+    this.time_stamp = this.calcTime();
+
 	this.mesh = new THREE.Mesh(this.geometry, new THREE.MeshPhongMaterial({
         color: this.color,
         transparent: true,
         opacity: this.opacity,
     }));
-    this.mesh.name = `Longitude: ${cell_x} | Latitude: ${cell_y} | Time step: ${time_step} | ZScore: ${zscore} | PValue: ${pvalue}`;
+    this.mesh.name = `Longitude: ${this.getLongitude()} | Latitude: ${this.getLatitude()} | Time step: ${this.time_stamp.toLocaleString()} | ZScore: ${zscore}`;
     this.mesh.position.x = this.cell_y * dimensionX - offsetX;
     this.mesh.position.z = -this.cell_x * dimensionZ - offsetZ;
     this.mesh.position.y = this.time_step * dimensionY - offsetY;
 	this.mesh.renderOrder = 2;
 	this.currentSize = this.mesh.scale.x;
-
-	// Always calculate in this order
-    this.bearing = this.calcBearing();
-    this.angularDistance = this.calcAngularDistance();
-    this.latitude = this.calcLatitude();
-	this.longitude = this.calcLongitude();
 
 }
 
@@ -161,7 +162,7 @@ CUnit.prototype.calcLatitude = function () {
         Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.cos(this.angularDistance) +
         Math.cos(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(this.bearing))
     );*/
-    return THREE.Math.degToRad(LAT_MIN + (this.cell_y * 0.2) / 111.321);
+    return THREE.Math.degToRad(LAT_MIN + (this.cell_y * CELL_DISTANCE* 0.001) / 111.321);
 };
 
 /**
@@ -173,7 +174,7 @@ CUnit.prototype.calcLongitude = function () {
     /*return THREE.Math.degToRad(LNG_MIN) + Math.atan2(
         Math.sin(THREE.Math.degToRad(this.bearing))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(LAT_MIN)),
             Math.cos(this.angularDistance)-Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.latitude));*/
-    return THREE.Math.degToRad(LNG_MIN + (this.cell_x*0.2)/(Math.cos(this.latitude) * 111.321));
+    return THREE.Math.degToRad(LNG_MIN + (this.cell_x * CELL_DISTANCE * 0.001)/(Math.cos(this.latitude) * 111.321));
 };
 
 /**
@@ -181,7 +182,15 @@ CUnit.prototype.calcLongitude = function () {
  * @returns number distance in radians
  */
 CUnit.prototype.calcAngularDistance = function () {
-    return Math.sqrt(Math.pow(this.cell_x*200, 2) + Math.pow(this.cell_y*200, 2)) * 0.001/6371;
+    return Math.sqrt(Math.pow(this.cell_x*CELL_DISTANCE, 2) + Math.pow(this.cell_y*CELL_DISTANCE, 2)) * 0.001/6371;
+};
+
+/**
+ * Calculate the date for the CUnit
+ * @returns {Date}
+ */
+CUnit.prototype.calcTime = function () {
+    return getTimeStampFromStep(this.time_step);
 };
 
 /**
@@ -225,12 +234,6 @@ CUnit.prototype.getAngularDistance = function () {
  */
 CUnit.prototype.getBearing = function () {
     return this.bearing;
-};
-
-CUnit.prototype.update = function () {
-    this.bearing = this.calcBearing();
-    this.latitude = this.calcLatitude();
-    this.longitude = this.calcLongitude();
 };
 
 CUnit.prototype.getCurrentSize = function () {

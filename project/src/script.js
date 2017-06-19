@@ -67,27 +67,13 @@ $(document).ready(function() {
 		slide: function( event, ui ) {
 			timeStepLowerBound = ui.values[0]; timeStepUpperBound = ui.values[1];
             updateSceneFilters();
-			$('#time_step_int_value').text(ui.values[0] + " - " + ui.values[1]);
+			$('#time_step_int_value').text(getTimeStampFromStep(ui.values[0]).toLocaleString() + " - " + getTimeStampFromStep(ui.values[1]).toLocaleString());
 			newSizeY = Math.abs(ui.values[1] - ui.values[0]); offsetNY = ui.values[0];
 			$('#one_layer_extrusion').prop('checked', false); mustExtrude = false; extrudeLayer = -1;
 			updateMapLayerDisplay(mustScale);
 			updateSceneFilters();
 		}
 	});
-
-    $( "#cell_x_int" ).slider({
-        range: true,
-        min: X_LOWER_BOUND,
-        max: X_UPPER_BOUND,
-        values: [ X_LOWER_BOUND, X_UPPER_BOUND ],
-        slide: function( event, ui ) {
-            xLowerBound = ui.values[0]; xUpperBound = ui.values[1];
-            $('#cell_x_int_value').text(ui.values[0] + " - " + ui.values[1]);
-            newSizeZ = Math.abs(ui.values[1] - ui.values[0]); offsetNX = ui.values[0];
-            updateMapLayerDisplay(mustScale);
-            updateSceneFilters();
-        }
-    });
 
     $( "#cell_y_int" ).slider({
         range: true,
@@ -96,8 +82,22 @@ $(document).ready(function() {
         values: [ X_LOWER_BOUND, X_UPPER_BOUND ],
         slide: function( event, ui ) {
             yLowerBound = ui.values[0]; yUpperBound = ui.values[1];
-            $('#cell_y_int_value').text(ui.values[0] + " - " + ui.values[1]);
+            $('#cell_y_int_value').text(getLatitudeFromY(ui.values[0], false).toFixed(4) + " - " + getLatitudeFromY(ui.values[1]).toFixed(4));
             newSizeX = Math.abs(ui.values[1] - ui.values[0]); offsetNZ = ui.values[0];
+            updateMapLayerDisplay(mustScale);
+            updateSceneFilters();
+        }
+    });
+
+    $( "#cell_x_int" ).slider({
+        range: true,
+        min: X_LOWER_BOUND,
+        max: X_UPPER_BOUND,
+        values: [ X_LOWER_BOUND, X_UPPER_BOUND ],
+        slide: function( event, ui ) {
+            xLowerBound = ui.values[0]; xUpperBound = ui.values[1];
+            $('#cell_x_int_value').text(getLongitudeFromX(ui.values[0], yLowerBound, false).toFixed(4) + " - " + getLongitudeFromX(ui.values[1], yUpperBound, false).toFixed(4));
+            newSizeZ = Math.abs(ui.values[1] - ui.values[0]); offsetNX = ui.values[0];
             updateMapLayerDisplay(mustScale);
             updateSceneFilters();
         }
