@@ -137,7 +137,7 @@ var loc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
 var OSMFrame='<div id="outerOSM" style="opacity: 1"><div id="innerOSM">'+
     '<div id="OSMLayerBlocker" style="position:fixed;width:100%;height:100%;"></div>'+
     `<iframe id="OSMLayer" width="${661}px" height="${689}px" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" ` +
-    `src="http://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE&amp;marker=MRKERS" ` +
+    `src="https://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE" ` +
     'style="border: 1px solid black"></iframe>' +
     '</div></div>';
 

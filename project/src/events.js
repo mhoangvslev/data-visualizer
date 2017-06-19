@@ -1,5 +1,6 @@
 /**
- * Created by Minh Hoang DANG on 05/05/2017.
+ * Handle mouse move event
+ * @param event
  */
 function onDocumentMouseMove( event ) {
     //event.preventDefault();
@@ -7,6 +8,9 @@ function onDocumentMouseMove( event ) {
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 }
 
+/**
+ * Handle left click event
+ */
 function onDocumentLMB() {
     if(!isLMB)
         isLMB = true;
@@ -16,6 +20,10 @@ function onDocumentMouseReset() {
     isLMB = isRMB = false;
 }
 
+/**
+ * Handle mouse wheel event for zooming actions
+ * @param event
+ */
 function onDocumentMouseWheel( event ) {
     if(!isInPerspectiveMode) {
         //console.log('zomming');
@@ -29,6 +37,9 @@ function onDocumentMouseWheel( event ) {
     }
 }
 
+/**
+ * Update the scene based on windows dimension
+ */
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     //camera.setSize( window.innerWidth, window.innerHeight );

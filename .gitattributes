@@ -1,1 +1,4 @@
 *.svg filter=lfs diff=lfs merge=lfs -text
+project/src/out/* filter=lfs diff=lfs merge=lfs -text
+*.woff filter=lfs diff=lfs merge=lfs -text
+*.eot filter=lfs diff=lfs merge=lfs -text
