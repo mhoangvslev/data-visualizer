@@ -52,35 +52,42 @@ function updateSceneFilters() {
  */
 function updateMapLayerDisplay(bScale) {
     updateVars();
-    var newLoc;
-    if(bScale) {
-        CUnitCluster.traverse(function (child) {
-            if (child instanceof CUnit) {
-                // Reposition
+    CUnitCluster.traverse(function (child) {
+        if (child instanceof CUnit) {
+            // Reposition
+            if(bScale) {
                 child.getMesh().position.z = -(child.getCellX() - yLowerBound) * dimensionX - offsetZ;
                 child.getMesh().position.x = (child.getCellY() - xLowerBound) * dimensionZ - offsetX;
-
-                if (mustExtrude)
-                    child.getMesh().position.y = (child.getScalePerWeight() - sizeTime)/2;
-                else
-                    child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY;
-
-                updateBrushSizeFilter();
-
-                // Calculate new bounding box for OSM Layer
-                if (child.getCellX() === yLowerBound)
-                    newLngMin = child.getLongitude();
-
-                if (child.getCellX() === yUpperBound)
-                    newLngMax = child.getLongitude();
-
-                if (child.getCellY() === xLowerBound)
-                    newLatMin = child.getLatitude();
-
-                if (child.getCellY() === xUpperBound)
-                    newLatMax = child.getLatitude();
             }
-        });
+            else{
+                child.getMesh().position.z = -child.getCellX() * dimensionX - offsetZ;
+                child.getMesh().position.x = child.getCellY() * dimensionZ - offsetX;
+            }
+
+            if (mustExtrude)
+                child.getMesh().position.y = (child.getScalePerWeight() - sizeTime)/2;
+            else
+                child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY;
+
+            updateBrushSizeFilter();
+
+            // Calculate new bounding box for OSM Layer
+            if (child.getCellX() === yLowerBound)
+                newLngMin = child.getLongitude();
+
+            if (child.getCellX() === yUpperBound)
+                newLngMax = child.getLongitude();
+
+            if (child.getCellY() === xLowerBound)
+                newLatMin = child.getLatitude();
+
+            if (child.getCellY() === xUpperBound)
+                newLatMax = child.getLatitude();
+        }
+    });
+
+    var newLoc;
+    if(bScale) {
         newLoc = encodeURIComponent(`${newLngMin},${newLatMin},${newLngMax},${newLatMax}`);
         // Base plane (O - Lat - Lng)
         redrawDynamicGridHelper(baseOXYGridHelper, sizeLat, sizeLng, newSizeX, newSizeZ);

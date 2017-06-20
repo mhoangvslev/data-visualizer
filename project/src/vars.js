@@ -3,13 +3,13 @@
  */
 
 var size = 300;
-var sizeLng = 237, sizeTime = size, sizeLat = 235;
-//var sizeLng = 311, sizeTime = size, sizeLat = 245;
+//var sizeLng = 237, sizeTime = size, sizeLat = 235;
+var sizeLng = 311, sizeTime = size, sizeLat = 245;
 var newSizeZ = sizeLng, newSizeY = sizeTime, newSizeX = sizeLat;
 var step = 50;
 var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
 var mapScaleOffsetX = sizeLng/237, mapScaleOffsetY = sizeLat/235;
-var processedData, dataAmount;
+var processedData;
 var fileName = 'gistar_output_e';
 
 // Beginning of time 1st January 2015, 0:00:00 (year, month, day, hour, minute, seconds)
@@ -24,7 +24,6 @@ var CSVLoader = new THREE.FileLoader();
 CSVLoader.setResponseType('text');
 CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
     processedData = JSON.parse(text);
-    dataAmount = processedData.length;
 
     // Sorting algorithm
     TIME_STEP_LOWER_BOUND = (processedData[0])['time_step'], TIME_STEP_UPPER_BOUND = (processedData[processedData.length - 1])['time_step'];
@@ -63,6 +62,10 @@ CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
     zScoreLowerBound = ZSCORE_LOWER_BOUND; zScoreUpperBound = ZSCORE_UPPER_BOUND;
     xLowerBound = X_LOWER_BOUND; xUpperBound = X_UPPER_BOUND;
     yLowerBound = Y_LOWER_BOUND; yUpperBound = Y_UPPER_BOUND;
+
+    document.getElementById('time_step_int_value').innerHTML = getTimeStampFromStep(timeStepLowerBound).toLocaleString() + " ~ " + getTimeStampFromStep(timeStepUpperBound).toLocaleString();
+    document.getElementById('cell_y_int_value').innerHTML = getLatitudeFromY(yLowerBound, false).toFixed(4) + " ~ " + getLatitudeFromY(yUpperBound).toFixed(4);
+    document.getElementById('cell_x_int_value').innerHTML = getLongitudeFromX(xLowerBound, yLowerBound, false).toFixed(4) + " ~ " + getLongitudeFromX(xUpperBound, yUpperBound, false).toFixed(4);
 
     ZSCORE_SCALE = ZSCORE_UPPER_BOUND - ZSCORE_LOWER_BOUND;
 });

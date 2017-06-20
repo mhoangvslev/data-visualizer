@@ -2,7 +2,6 @@
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 init();
-//initCSS3D();
 animate();
 
 /**
@@ -85,7 +84,7 @@ function init() {
     mapLayer.renderOrder = 0;
     cssScene.add(mapLayer);
 
-	// Cubes
+    // Cubes
     for (var entry of processedData) {
         var cunit = new CUnit(entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore'], entry['pvalue']);
         CUnitCluster.add(cunit);
@@ -115,7 +114,6 @@ function init() {
 	document.addEventListener( 'contextmenu', onDocumentLMB, false );
 	document.addEventListener( 'mouseup', onDocumentMouseReset, false );
 	document.addEventListener( 'wheel', onDocumentMouseWheel, true);
-    //document.getElementById('time_step_unit').innerHTML = `Lat: ${(200*newSizeX/sizeLat).toFixed(2)}m | Lng: ${(200*newSizeZ/sizeLng).toFixed(2)}m`;
 
     window.addEventListener( 'resize', onWindowResize, false );
 

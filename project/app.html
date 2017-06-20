@@ -99,7 +99,7 @@
                         <div class="col-md-8"><div id="map_opacity"><div id="map_opacity_handle" class="ui-slider-handle cp-handle"></div></div></div>
                         <div class="col-md-2"></div>
                     </div><br/>
-                    <div class="row">
+                    <!--<div class="row">
                         <div class="col-md-2 text-center"> Map scale X</div>
                         <div class="col-md-8"><div id="map_scale_x"><div id="map_scale_x_handle" class="ui-slider-handle cp-handle"></div></div></div>
                         <div class="col-md-2"></div>
@@ -118,13 +118,13 @@
                         <div class="col-md-2 text-center"> Map offset z</div>
                         <div class="col-md-8"><div id="map_offset_z"><div id="map_offset_z_handle" class="ui-slider-handle cp-handle"></div></div></div>
                         <div class="col-md-2"></div>
-                    </div><br/>
+                    </div><br/>-->
                     <div class="row">
                         <div class="col-md-2 text-center"> Map offset y</div>
                         <div class="col-md-8"><div id="map_offset_y"><div id="map_offset_y_handle" class="ui-slider-handle cp-handle"></div></div></div>
                         <div class="col-md-2"></div>
                     </div><br/>
-                    <div class="row">
+                    <!--<div class="row">
                         <div class="col-md-2 text-center"><label for="map_type">Select map type</label></div>
                         <div class="col-md-4">
                             <select name="map_type" id="map_type">
@@ -143,7 +143,7 @@
                         <div class="col-md-2">
                             GPS Traces<input id="map_gps_trace" type="checkbox"/>
                         </div>
-                    </div>
+                    </div>-->
 
                 </div>
             </div>
@@ -168,7 +168,8 @@
                     </div><br/>
                     <div class="row">
                         <div class="col-md-2 text-center">1-layer</div>
-                        <div class="col-md-8"><div id="one_layer"><div id="one_layer_handle" class="ui-slider-handle cp-handle"></div></div></div>
+                        <div class="col-md-6"><div id="one_layer"></div></div>
+                        <div class="col-md-2"><div id="one_layer_handle"></div></div>
                         <div class="col-md-2">Extrusion?<input id="one_layer_extrusion" type="checkbox"/></div>
                     </div>
                     <br/>
@@ -219,7 +220,6 @@
             <div class="userGuide">
                 <div id="how-to" class="collapse">
                     <h2> User manuel</h2>
-                    [INSERT INTRODUCTION HERE]
                     <h3> Control </h3>
                     <div class="row">
                         <div class="col-md-1"></div>
@@ -251,13 +251,13 @@
             <div class="About">
                 <div id="about" class="collapse">
                     <h3>New York City - USA</h3>
-                    <div id="google_map" style="width: 500px; height: 400px;"></div>
                 </div>
             </div>
         </div>
     </div>
     
     <!-- Always call the main file at the end-->
+
 	<script src="src/main_min.js"></script>
 </body>
 </html>
