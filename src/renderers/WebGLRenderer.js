@@ -124,7 +124,9 @@ function WebGLRenderer( parameters ) {
 		_currentFramebuffer = null,
 		_currentMaterialId = - 1,
 		_currentGeometryProgram = '',
+
 		_currentCamera = null,
+		_currentArrayCamera = null,
 
 		_currentScissor = new Vector4(),
 		_currentScissorTest = null,
@@ -1257,31 +1259,25 @@ function WebGLRenderer( parameters ) {
 
 		// render scene
 
-		if ( camera.isArrayCamera ) {
+		var opaqueObjects = currentRenderList.opaque;
+		var transparentObjects = currentRenderList.transparent;
 
-			var cameras = camera.cameras;
+		if ( scene.overrideMaterial ) {
 
-			for ( var j = 0, jl = cameras.length; j < jl; j ++ ) {
+			var overrideMaterial = scene.overrideMaterial;
 
-				var camera2 = cameras[ j ];
-				var bounds = camera2.bounds;
-
-				var x = bounds.x * _width;
-				var y = bounds.y * _height;
-				var width = bounds.z * _width;
-				var height = bounds.w * _height;
-
-				_this.setViewport( x, y, width, height );
-				_this.setScissor( x, y, width, height );
-				_this.setScissorTest( true );
-
-				renderScene( currentRenderList, scene, camera2 );
-
-			}
+			if ( opaqueObjects.length ) renderObjects( opaqueObjects, scene, camera, overrideMaterial );
+			if ( transparentObjects.length ) renderObjects( transparentObjects, scene, camera, overrideMaterial );
 
 		} else {
 
-			renderScene( currentRenderList, scene, camera );
+			// opaque pass (front-to-back order)
+
+			if ( opaqueObjects.length ) renderObjects( opaqueObjects, scene, camera );
+
+			// transparent pass (back-to-front order)
+
+			if ( transparentObjects.length ) renderObjects( transparentObjects, scene, camera );
 
 		}
 
@@ -1469,48 +1465,48 @@ function WebGLRenderer( parameters ) {
 
 	}
 
-	function renderScene( renderList, scene, camera ) {
+	function renderObjects( renderList, scene, camera, overrideMaterial ) {
 
-		var opaqueObjects = renderList.opaque;
-		var transparentObjects = renderList.transparent;
+		for ( var i = 0, l = renderList.length; i < l; i ++ ) {
 
-		if ( scene.overrideMaterial ) {
-
-			var overrideMaterial = scene.overrideMaterial;
-
-			if ( opaqueObjects.length ) renderObjects( opaqueObjects, scene, camera, overrideMaterial );
-			if ( transparentObjects.length ) renderObjects( transparentObjects, scene, camera, overrideMaterial );
-
-		} else {
-
-			// opaque pass (front-to-back order)
-
-			if ( opaqueObjects.length ) renderObjects( opaqueObjects, scene, camera );
-
-			// transparent pass (back-to-front order)
-
-			if ( transparentObjects.length ) renderObjects( transparentObjects, scene, camera );
-
-		}
-
-	}
-
-	function renderObjects( renderItems, scene, camera, overrideMaterial ) {
-
-		for ( var i = 0, l = renderItems.length; i < l; i ++ ) {
-
-			var renderItem = renderItems[ i ];
+			var renderItem = renderList[ i ];
 
 			var object = renderItem.object;
 			var geometry = renderItem.geometry;
 			var material = overrideMaterial === undefined ? renderItem.material : overrideMaterial;
 			var group = renderItem.group;
 
-			object.onBeforeRender( _this, scene, camera, geometry, material, group );
+			if ( camera.isArrayCamera ) {
 
-			renderObject( object, scene, camera, geometry, material, group );
+				_currentArrayCamera = camera;
 
-			object.onAfterRender( _this, scene, camera, geometry, material, group );
+				var cameras = camera.cameras;
+
+				for ( var j = 0, jl = cameras.length; j < jl; j ++ ) {
+
+					var camera2 = cameras[ j ];
+					var bounds = camera2.bounds;
+
+					var x = bounds.x * _width;
+					var y = bounds.y * _height;
+					var width = bounds.z * _width;
+					var height = bounds.w * _height;
+
+					_this.setViewport( x, y, width, height );
+					_this.setScissor( x, y, width, height );
+					_this.setScissorTest( true );
+
+					renderObject( object, scene, camera2, geometry, material, group );
+
+				}
+
+			} else {
+
+				_currentArrayCamera = null;
+
+				renderObject( object, scene, camera, geometry, material, group );
+
+			}
 
 		}
 
@@ -1520,6 +1516,8 @@ function WebGLRenderer( parameters ) {
 
 		object.modelViewMatrix.multiplyMatrices( camera.matrixWorldInverse, object.matrixWorld );
 		object.normalMatrix.getNormalMatrix( object.modelViewMatrix );
+
+		object.onBeforeRender( _this, scene, camera, geometry, material, group );
 
 		if ( object.isImmediateRenderObject ) {
 
@@ -1536,6 +1534,8 @@ function WebGLRenderer( parameters ) {
 			_this.renderBufferDirect( camera, scene.fog, geometry, material, object, group );
 
 		}
+
+		object.onAfterRender( _this, scene, camera, geometry, material, group );
 
 	}
 
@@ -1781,10 +1781,11 @@ function WebGLRenderer( parameters ) {
 
 			}
 
+			// Avoid unneeded uniform updates per ArrayCamera's sub-camera
 
-			if ( camera !== _currentCamera ) {
+			if ( _currentCamera !== ( _currentArrayCamera || camera ) ) {
 
-				_currentCamera = camera;
+				_currentCamera = ( _currentArrayCamera || camera );
 
 				// lighting uniforms depend on the camera so enforce an update
 				// now, in case this material supports lights - or later, when
@@ -1824,9 +1825,6 @@ function WebGLRenderer( parameters ) {
 				p_uniforms.setValue( _gl, 'viewMatrix', camera.matrixWorldInverse );
 
 			}
-
-			p_uniforms.setValue( _gl, 'toneMappingExposure', _this.toneMappingExposure );
-			p_uniforms.setValue( _gl, 'toneMappingWhitePoint', _this.toneMappingWhitePoint );
 
 		}
 
@@ -1886,6 +1884,9 @@ function WebGLRenderer( parameters ) {
 		}
 
 		if ( refreshMaterial ) {
+
+			p_uniforms.setValue( _gl, 'toneMappingExposure', _this.toneMappingExposure );
+			p_uniforms.setValue( _gl, 'toneMappingWhitePoint', _this.toneMappingWhitePoint );
 
 			if ( material.lights ) {
 
