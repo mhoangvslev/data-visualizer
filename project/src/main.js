@@ -51,7 +51,7 @@ function init() {
     textureGeoLoader = new THREE.TextureLoader();
     var textureGeo = textureGeoLoader.load('./data/nyc_location_map_raster.png');
     textureGeo.minFilter = THREE.LinearFilter;
-    mapMat = new THREE.MeshPhongMaterial( { map: textureGeo } );
+    mapMat = new THREE.MeshPhongMaterial( { map: textureGeo, opacity: 0, blending: THREE.NoBlending, color: 0x000000 } );
     mapMat.needsUpdate = true;
     textureGeo.wrapS = THREE.RepeatWrapping;
     textureGeo.wrapT = THREE.RepeatWrapping;
@@ -64,14 +64,13 @@ function init() {
     mapMesh.scale.x = (sizeLng/size);
     mapMesh.scale.y = (sizeLat/size);
     mapMesh.renderOrder = 0;
-    mapMesh.visible = false;
+    mapMesh.visible = true;
     //mapMeshBBox = new THREE.Box3().setFromObject(mapMesh);
     WebGLScene.add( mapMesh );
 
 
     // Open street map layer
     var s = OSMFrame.replace("MAPTYPE", maptype).replace("LOCATION",loc);
-    console.log(s);
     mapLayer = createCSS3DObject(s);
     mapLayer.rotation.copy(mapMesh.rotation);
     mapLayer.position.copy(baseOXYGridHelper.position);
@@ -83,13 +82,6 @@ function init() {
     updateMapOffsetZ(0);
     mapLayer.renderOrder = 0;
     cssScene.add(mapLayer);
-
-    // Cubes
-    for (var entry of processedData) {
-        var cunit = new CUnit(entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore'], entry['pvalue']);
-        CUnitCluster.add(cunit);
-        WebGLScene.add(cunit.getMesh());
-    }
 
 	// lights
 	var ambientLight = new THREE.AmbientLight( 0xffffff, 0.2 );
@@ -117,8 +109,11 @@ function init() {
 
     window.addEventListener( 'resize', onWindowResize, false );
 
+
+
     THREEx.WindowResize(cssRenderer, camera);
     THREEx.WindowResize(WebGLRenderer, camera);
+
 }
 
 function animate() {

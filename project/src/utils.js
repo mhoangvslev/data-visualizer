@@ -171,7 +171,8 @@ function switchRightCamera() {
 
 function switchTopCamera() {
     resetLabel();
-    camera.position.x = 0;
+    camera.position.x = 0 ;
+    console.log(THREE.Math.radToDeg(camera.position.x));
     camera.position.z = Math.sin( 2 * Math.PI ) * sizeLat;
     camera.position.y = Math.cos( 2 * Math.PI ) * sizeTime;
     camera.lookAt( WebGLScene.position );
@@ -292,6 +293,63 @@ function updateVars() {
 }
 
 /**
+ * Update global variables for filters
+ */
+function updateChunksVars(){
+    // Sorting algorithm
+    TIME_STEP_LOWER_BOUND = ((dataChunks[selectedChunk])[0])['time_step'], TIME_STEP_UPPER_BOUND = ((dataChunks[selectedChunk])[(dataChunks[selectedChunk]).length - 1])['time_step'];
+    ZSCORE_LOWER_BOUND = ((dataChunks[selectedChunk])[0])['zscore'], ZSCORE_UPPER_BOUND = ((dataChunks[selectedChunk])[(dataChunks[selectedChunk]).length - 1])['zscore'];
+    X_LOWER_BOUND = ((dataChunks[selectedChunk])[0])['cell_x'], X_UPPER_BOUND = ((dataChunks[selectedChunk])[(dataChunks[selectedChunk]).length - 1])['cell_x'];
+    Y_LOWER_BOUND = ((dataChunks[selectedChunk])[0])['cell_y'], Y_UPPER_BOUND = ((dataChunks[selectedChunk])[(dataChunks[selectedChunk]).length - 1])['cell_y'];
+
+    for(var entry of dataChunks[selectedChunk]){
+        if(entry['time_step'] < TIME_STEP_LOWER_BOUND)
+            TIME_STEP_LOWER_BOUND = entry["time_step"];
+        if(entry["time_step"] > TIME_STEP_UPPER_BOUND)
+            TIME_STEP_UPPER_BOUND = entry["time_step"];
+
+        if(entry["zscore"] < ZSCORE_LOWER_BOUND)
+            ZSCORE_LOWER_BOUND = entry["zscore"];
+        if(entry["zscore"] > ZSCORE_UPPER_BOUND)
+            ZSCORE_UPPER_BOUND = entry["zscore"];
+
+        if(entry["cell_x"] < X_LOWER_BOUND)
+            X_LOWER_BOUND = entry["cell_x"];
+        if(entry["cell_x"] > X_UPPER_BOUND)
+            X_UPPER_BOUND = entry["cell_x"];
+
+        if(entry["cell_y"] < Y_LOWER_BOUND)
+            Y_LOWER_BOUND = entry["cell_y"];
+        if(entry["cell_y"] > Y_UPPER_BOUND)
+            X_UPPER_BOUND = entry["cell_y"];
+    }
+
+    console.log(`=========  CHUNK ${selectedChunk} =========`);
+    console.log(`Time_step: ${TIME_STEP_LOWER_BOUND} - ${TIME_STEP_UPPER_BOUND}`);
+    console.log(`zScore: ${ZSCORE_LOWER_BOUND} - ${ZSCORE_UPPER_BOUND}`);
+    console.log(`cell_x: ${X_LOWER_BOUND} - ${X_UPPER_BOUND}`);
+    console.log(`cell_y: ${Y_LOWER_BOUND} - ${Y_UPPER_BOUND}`);
+    console.log(`=========  ### =========`);
+
+
+    timeStepLowerBound = TIME_STEP_LOWER_BOUND; timeStepUpperBound = TIME_STEP_UPPER_BOUND;
+    zScoreLowerBound = ZSCORE_LOWER_BOUND; zScoreUpperBound = ZSCORE_UPPER_BOUND;
+    xLowerBound = X_LOWER_BOUND; xUpperBound = X_UPPER_BOUND;
+    yLowerBound = Y_LOWER_BOUND; yUpperBound = Y_UPPER_BOUND;
+
+    ZSCORE_SCALE = ZSCORE_UPPER_BOUND - ZSCORE_LOWER_BOUND;
+
+    /*newLatMin = getLatitudePoint(Y_LOWER_BOUND, false); newLatMax = getLatitudePoint(Y_UPPER_BOUND, false);
+    newLngMin = getLongitudePoint(X_LOWER_BOUND, Y_LOWER_BOUND, false); newLngMax = getLongitudePoint(X_UPPER_BOUND, Y_UPPER_BOUND, false);*/
+
+    //rebuildUI();
+
+    /*document.getElementById('time_step_int_value').innerHTML = getTimeStampFromStep(timeStepLowerBound).toLocaleString() + " ~ " + getTimeStampFromStep(timeStepUpperBound).toLocaleString();
+    document.getElementById('cell_y_int_value').innerHTML = newLatMin.toFixed(4) + " ~ " + newLatMax.toFixed(4);
+    document.getElementById('cell_x_int_value').innerHTML = newLngMin.toFixed(4) + " ~ " + newLngMax.toFixed(4);*/
+}
+
+/**
  * Convert time step value to human readable time format
  * @param time_step
  * @returns {Date}
@@ -300,16 +358,44 @@ function getTimeStampFromStep(time_step) {
     return new Date(TIME_GENESIS.getTime() + (time_step * 7200000));
 }
 
-function getLatitudeFromY(cell_y, rad){
-    var res = LAT_MIN + (cell_y * CELL_DISTANCE* 0.001) / 111.321;
+function getLatitudePoint(lat, rad){
+    var res = LAT_MIN + (lat * CELL_DISTANCE_LAT/LENGTH_DEG_LAT)*(LAT_MAX - LAT_MIN);
     if(rad)
         return THREE.Math.degToRad(res);
     return res;
 }
 
-function getLongitudeFromX(cell_x, cell_y, rad) {
-    var res = LNG_MIN + (cell_x * CELL_DISTANCE * 0.001)/(Math.cos(getLatitudeFromY(cell_y)) * 111.321);
+function getLongitudePoint(lng, rad) {
+    var res = LNG_MIN + (lng * CELL_DISTANCE_LNG)*(LNG_MAX - LNG_MIN)/LENGTH_DEG_LNG;
     if(rad)
         return THREE.Math.degToRad(res);
     return res;
+}
+
+function getDistanceBetweenCoordinates(lat1, lat2, lon1, lon2){
+    var R = 6371e3; // metres
+    var φ1 = THREE.Math.degToRad(lat1);
+    var φ2 = THREE.Math.degToRad(lat2);
+    var Δφ = THREE.Math.degToRad(lat2-lat1);
+    var Δλ = THREE.Math.degToRad(lon2-lon1);
+
+    var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    var d = R * c;
+    return d;
+}
+
+function getAngleDistance(cell_x, cell_y) {
+    return Math.sqrt(Math.pow(cell_x*CELL_DISTANCE_LAT, 2) + Math.pow(cell_y*CELL_DISTANCE_LAT, 2))/6371;
+}
+
+function clearScene(){
+    CUnitCluster.traverse(function (child) {
+        if(child instanceof CUnit)
+            WebGLScene.remove(child.getMesh());
+    });
+    CUnitCluster = new THREE.Object3D();
 }

@@ -35,6 +35,8 @@ function onDocumentMouseWheel( event ) {
         camera.setZoom(zoomAmount);
         camera.updateProjectionMatrix();
     }
+
+    //console.log(camera);
 }
 
 /**

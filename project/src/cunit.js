@@ -20,8 +20,8 @@ function CUnit(cell_y, cell_x, time_step, zscore, pvalue) {
 	this.cell_x = cell_x; this.cell_y = cell_y; this.time_step = time_step, this.zscore = zscore;
 
     // Always calculate in this order
-    // this.bearing = this.calcBearing();
-    // this.angularDistance = this.calcAngularDistance();
+    this.bearing = this.calcBearing();
+    this.angularDistance = this.calcAngularDistance();
     this.latitude = this.calcLatitude();
     this.longitude = this.calcLongitude();
     this.time_stamp = this.calcTime();
@@ -30,10 +30,12 @@ function CUnit(cell_y, cell_x, time_step, zscore, pvalue) {
         color: this.color,
         transparent: true,
         opacity: this.opacity,
+        blending: THREE.NoBlending
     }));
-    this.mesh.name = `Longitude: ${this.getLongitude()} | Latitude: ${this.getLatitude()} | Time step: ${this.time_stamp.toLocaleString()} | ZScore: ${zscore}`;
-    this.mesh.position.x = this.cell_y * dimensionX - offsetX;
-    this.mesh.position.z = -this.cell_x * dimensionZ - offsetZ;
+    //this.mesh.name = `Longitude: ${this.getLongitude()} | Latitude: ${this.getLatitude()} | Time step: ${this.time_stamp.toLocaleString()} | ZScore: ${zscore}`;
+    this.mesh.name = `Longitude: ${cell_y} | Latitude: ${cell_x} | Time step: ${time_step} | ZScore: ${zscore}`;
+    this.mesh.position.x = this.cell_y * dimensionZ - offsetX;
+    this.mesh.position.z = -this.cell_x * dimensionX - offsetZ;
     this.mesh.position.y = this.time_step * dimensionY - offsetY;
 	this.mesh.renderOrder = 2;
 	this.currentSize = this.mesh.scale.x;
@@ -66,8 +68,10 @@ CUnit.prototype.changeGeometry = function(newGeo){
  * @returns {UI.Color|defs.THREE.Color|{!url, prototype, !doc, !type}|*|Color} the color
  */
 CUnit.prototype.getColorPerWeight = function(zscore){
-    if(zscore < -2.58)
-        return new THREE.Color(0x3366cc);
+    if(zscore < -2.58) {
+        var lambda = (- 2.58 - ZSCORE_LOWER_BOUND)/(- 2.58 - zscore);
+        return new THREE.Color(`rgb(${Math.round(51/lambda)}, ${Math.round(102/lambda)}, ${Math.round(204 * lambda)})`);
+    }
     else if(zscore >= -2.58 && zscore < -1.96)
         return new THREE.Color(0x9999cc);
     else if(zscore >= -1.96 && zscore < -1.65)
@@ -78,8 +82,10 @@ CUnit.prototype.getColorPerWeight = function(zscore){
         return new THREE.Color(0xffcc99);
     else if(zscore >= 1.96 && zscore < 2.58)
         return new THREE.Color(0xff6666);
-    else
-        return new THREE.Color(0xcc3333);
+    else {
+        var lambda = (ZSCORE_UPPER_BOUND - 2.58)/(zscore - 2.58);
+        return new THREE.Color(`rgb(${Math.round(204*lambda)}, ${Math.round(51/lambda)}, ${Math.round(51/lambda)})`);
+    }
 };
 
 /**
@@ -87,18 +93,11 @@ CUnit.prototype.getColorPerWeight = function(zscore){
  */
 CUnit.prototype.reinitiate = function () {
     this.mesh.material = new THREE.MeshPhongMaterial({
-        color: this.getColorPerWeight(this.zscore),
+        color: this.color,
         transparent: true,
-        opacity: this.opacity
+        opacity: this.opacity,
+        blending: THREE.NoBlending
     });
-
-    //this.mesh.visible = true;
-
-    /*this.mesh.position.x = this.cell_y * dimensionX - offsetX;
-     this.mesh.position.z = -this.cell_x * dimensionZ - offsetZ;
-     this.mesh.position.y = this.time_step * dimensionY - offsetY;*/
-
-    //this.setCunitSize(1, 1, 1);
 };
 
 /**
@@ -110,18 +109,6 @@ CUnit.prototype.reinitiate = function () {
 CUnit.prototype.setCunitSize = function (x, y, z) {
     this.mesh.scale.set(z, y, x) ;
     this.currentSize = this.mesh.scale.x;
-
-    // Recalculate the position
-    /*if(mustScale){
-        this.mesh.position.z = -(this.cell_x - yLowerBound) * dimensionZ - offsetZ;
-        this.mesh.position.y = (this.time_step - timeStepLowerBound) * dimensionY - offsetY;
-        this.mesh.position.x = (this.cell_y - xLowerBound) * dimensionX - offsetX;
-    }
-    else {
-        this.mesh.position.x = this.cell_y * dimensionX - offsetX;
-        this.mesh.position.z = -this.cell_x * dimensionZ - offsetZ;
-        this.mesh.position.y = this.time_step * dimensionY - offsetY;
-    }*/
 };
 
 /**
@@ -157,12 +144,11 @@ CUnit.prototype.getScalePerWeight = function () {
  * @returns {number} Longitude point in radians
  */
 CUnit.prototype.calcLatitude = function () {
-    //console.log(`sin(${THREE.Math.degToRad(LAT_MIN)}) * cos(${this.angularDistance}) + ${THREE.Math.degToRad(bearing)}`);
     /*return Math.asin(
         Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.cos(this.angularDistance) +
         Math.cos(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(this.bearing))
     );*/
-    return THREE.Math.degToRad(LAT_MIN + (this.cell_y * CELL_DISTANCE* 0.001) / 111.321);
+    return getLatitudePoint(this.cell_y, true);
 };
 
 /**
@@ -170,11 +156,10 @@ CUnit.prototype.calcLatitude = function () {
  * @returns {*} longitude in radians
  */
 CUnit.prototype.calcLongitude = function () {
-    //console.log(`sin(${THREE.Math.degToRad(LAT_MIN)}) * cos(${this.angularDistance}) + ${THREE.Math.degToRad(bearing)}`);
     /*return THREE.Math.degToRad(LNG_MIN) + Math.atan2(
         Math.sin(THREE.Math.degToRad(this.bearing))*Math.sin(this.angularDistance)*Math.cos(THREE.Math.degToRad(LAT_MIN)),
             Math.cos(this.angularDistance)-Math.sin(THREE.Math.degToRad(LAT_MIN))*Math.sin(this.latitude));*/
-    return THREE.Math.degToRad(LNG_MIN + (this.cell_x * CELL_DISTANCE * 0.001)/(Math.cos(this.latitude) * 111.321));
+    return getLongitudePoint(this.cell_x, true);
 };
 
 /**
@@ -182,7 +167,8 @@ CUnit.prototype.calcLongitude = function () {
  * @returns number distance in radians
  */
 CUnit.prototype.calcAngularDistance = function () {
-    return Math.sqrt(Math.pow(this.cell_x*CELL_DISTANCE, 2) + Math.pow(this.cell_y*CELL_DISTANCE, 2)) * 0.001/6371;
+    //return Math.sqrt(Math.pow(this.cell_x*CELL_DISTANCE_LAT, 2) + Math.pow(this.cell_y*CELL_DISTANCE_LAT, 2))/6371;
+    return getAngleDistance(this.cell_x, this.cell_y);
 };
 
 /**
@@ -198,7 +184,7 @@ CUnit.prototype.calcTime = function () {
  * @returns {number} angle is radians
  */
 CUnit.prototype.calcBearing = function () {
-    return Math.atan2(this.cell_x - xLowerBound, this.cell_y - yLowerBound);
+    return Math.atan2(this.cell_x, this.cell_y);
 };
 
 

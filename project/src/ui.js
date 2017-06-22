@@ -41,21 +41,9 @@ function updateSceneFilters() {
             else {
                 child.getMesh().visible = false;
             }
-        }
-    });
-    //document.getElementById('time_step_unit').innerHTML = `Lat: ${(200*newSizeX/sizeLat).toFixed(2)}m | Lng: ${(200*newSizeZ/sizeLng).toFixed(2)}m`;
-}
 
-/**
- * Scale the CUnits to right place and update the map layer beneath the Cube
- * @param bScale
- */
-function updateMapLayerDisplay(bScale) {
-    updateVars();
-    CUnitCluster.traverse(function (child) {
-        if (child instanceof CUnit) {
             // Reposition
-            if(bScale) {
+            if(mustScale) {
                 child.getMesh().position.z = -(child.getCellX() - yLowerBound) * dimensionX - offsetZ;
                 child.getMesh().position.x = (child.getCellY() - xLowerBound) * dimensionZ - offsetX;
             }
@@ -69,9 +57,7 @@ function updateMapLayerDisplay(bScale) {
             else
                 child.getMesh().position.y = (child.getTimeStep() - timeStepLowerBound) * dimensionY - offsetY;
 
-            updateBrushSizeFilter();
-
-            // Calculate new bounding box for OSM Layer
+            /*// Calculate new bounding box for OSM Layer
             if (child.getCellX() === yLowerBound)
                 newLngMin = child.getLongitude();
 
@@ -82,12 +68,19 @@ function updateMapLayerDisplay(bScale) {
                 newLatMin = child.getLatitude();
 
             if (child.getCellY() === xUpperBound)
-                newLatMax = child.getLatitude();
+                newLatMax = child.getLatitude();*/
         }
     });
+}
 
+/**
+ * Scale the CUnits to right place and update the map layer beneath the Cube
+ * @param bScale
+ */
+function updateMapLayerDisplay() {
+    updateVars();
     var newLoc;
-    if(bScale) {
+    if(mustScale) {
         newLoc = encodeURIComponent(`${newLngMin},${newLatMin},${newLngMax},${newLatMax}`);
         // Base plane (O - Lat - Lng)
         redrawDynamicGridHelper(baseOXYGridHelper, sizeLat, sizeLng, newSizeX, newSizeZ);
@@ -102,17 +95,31 @@ function updateMapLayerDisplay(bScale) {
         dimensionX = sizeLat/newSizeX;
         dimensionY = sizeTime/newSizeY;
         dimensionZ = sizeLng/newSizeZ;
-        updateBrushSizeFilter();
-
     }
     else {
         newLoc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
         resetScene();
     }
-    //console.log(decodeURIComponent(newLoc));
+
+    updateBrushSizeFilter();
+
+    console.log(decodeURIComponent(newLoc));
     var url = ('https://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE').replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
-    //console.log(decodeURIComponent(url));
     document.getElementById("OSMLayer").setAttribute("src", url);
+}
+
+/**
+ * Only render selected chunk
+ */
+function updateChunksFilter(){
+    clearScene();
+    updateChunksVars();
+
+    for (var entry of dataChunks[selectedChunk]) {
+        var cunit = new CUnit(entry['cell_x'], entry['cell_y'], entry['time_step'], entry['zscore'], entry['pvalue']);
+        CUnitCluster.add(cunit);
+        WebGLScene.add(cunit.getMesh());
+    }
 }
 
 /**

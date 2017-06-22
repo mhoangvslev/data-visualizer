@@ -7,15 +7,13 @@ var size = 300;
 var sizeLng = 311, sizeTime = size, sizeLat = 245;
 var newSizeZ = sizeLng, newSizeY = sizeTime, newSizeX = sizeLat;
 var step = 50;
-var offsetNX = 0, offsetNY = 0, offsetNZ = 0;
 var mapScaleOffsetX = sizeLng/237, mapScaleOffsetY = sizeLat/235;
-var processedData;
-var fileName = 'gistar_output_e';
+var dataChunks = [], selectedChunk = 0;
+var fileName = 'gistar_output_b';
 
 // Beginning of time 1st January 2015, 0:00:00 (year, month, day, hour, minute, seconds)
 var TIME_GENESIS = new Date(2015, 0, 1, 0, 0, 0);
 console.log(TIME_GENESIS.toDateString());
-var CELL_DISTANCE = 200;
 
 var TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND, ZSCORE_LOWER_BOUND, ZSCORE_UPPER_BOUND, ZSCORE_SCALE, X_LOWER_BOUND, X_UPPER_BOUND, Y_LOWER_BOUND, Y_UPPER_BOUND;
 var xLowerBound, xUpperBound, yLowerBound, yUpperBound, timeStepLowerBound, timeStepUpperBound, zScoreLowerBound, zScoreUpperBound;
@@ -23,51 +21,24 @@ var xLowerBound, xUpperBound, yLowerBound, yUpperBound, timeStepLowerBound, time
 var CSVLoader = new THREE.FileLoader();
 CSVLoader.setResponseType('text');
 CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
-    processedData = JSON.parse(text);
+    var processedData = JSON.parse(text);
 
-    // Sorting algorithm
-    TIME_STEP_LOWER_BOUND = (processedData[0])['time_step'], TIME_STEP_UPPER_BOUND = (processedData[processedData.length - 1])['time_step'];
-    ZSCORE_LOWER_BOUND = (processedData[0])['zscore'], ZSCORE_UPPER_BOUND = (processedData[processedData.length - 1])['zscore'];
-    X_LOWER_BOUND = (processedData[0])['cell_x'], X_UPPER_BOUND = (processedData[processedData.length - 1])['cell_x'];
-    Y_LOWER_BOUND = (processedData[0])['cell_y'], Y_UPPER_BOUND = (processedData[processedData.length - 1])['cell_y'];
+    // Sort data per time_step (ascending order)
+    processedData.sort(function (a, b) {
+        return a['time_step'] - b['time_step'];
+    });
 
-    for(var entry of processedData){
-        if(entry['time_step'] < TIME_STEP_LOWER_BOUND)
-            TIME_STEP_LOWER_BOUND = entry["time_step"];
-        if(entry["time_step"] > TIME_STEP_UPPER_BOUND)
-            TIME_STEP_UPPER_BOUND = entry["time_step"];
 
-        if(entry["zscore"] < ZSCORE_LOWER_BOUND)
-            ZSCORE_LOWER_BOUND = entry["zscore"];
-        if(entry["zscore"] > ZSCORE_UPPER_BOUND)
-            ZSCORE_UPPER_BOUND = entry["zscore"];
-
-        if(entry["cell_x"] < X_LOWER_BOUND)
-            X_LOWER_BOUND = entry["cell_x"];
-        if(entry["cell_x"] > X_UPPER_BOUND)
-            X_UPPER_BOUND = entry["cell_x"];
-
-        if(entry["cell_y"] < Y_LOWER_BOUND)
-            Y_LOWER_BOUND = entry["cell_y"];
-        if(entry["cell_y"] > Y_UPPER_BOUND)
-            X_UPPER_BOUND = entry["cell_y"];
+    // Separate processed data into chunks
+    var chunkSize = 1000;
+    for (var i=0, j = processedData.length; i < j; i += chunkSize) {
+        var temparray = processedData.slice(i, i + chunkSize);
+        dataChunks.push(temparray);
     }
+    console.log(`${dataChunks.length} data chunks from ${processedData.length} data processed`);
 
-    console.log(`Time_step: ${TIME_STEP_LOWER_BOUND} - ${TIME_STEP_UPPER_BOUND}`);
-    console.log(`zScore: ${ZSCORE_LOWER_BOUND} - ${ZSCORE_UPPER_BOUND}`);
-    console.log(`cell_x: ${X_LOWER_BOUND} - ${X_UPPER_BOUND}`);
-    console.log(`cell_y: ${Y_LOWER_BOUND} - ${Y_UPPER_BOUND}`);
-
-    timeStepLowerBound = TIME_STEP_LOWER_BOUND; timeStepUpperBound = TIME_STEP_UPPER_BOUND;
-    zScoreLowerBound = ZSCORE_LOWER_BOUND; zScoreUpperBound = ZSCORE_UPPER_BOUND;
-    xLowerBound = X_LOWER_BOUND; xUpperBound = X_UPPER_BOUND;
-    yLowerBound = Y_LOWER_BOUND; yUpperBound = Y_UPPER_BOUND;
-
-    document.getElementById('time_step_int_value').innerHTML = getTimeStampFromStep(timeStepLowerBound).toLocaleString() + " ~ " + getTimeStampFromStep(timeStepUpperBound).toLocaleString();
-    document.getElementById('cell_y_int_value').innerHTML = getLatitudeFromY(yLowerBound, false).toFixed(4) + " ~ " + getLatitudeFromY(yUpperBound).toFixed(4);
-    document.getElementById('cell_x_int_value').innerHTML = getLongitudeFromX(xLowerBound, yLowerBound, false).toFixed(4) + " ~ " + getLongitudeFromX(xUpperBound, yUpperBound, false).toFixed(4);
-
-    ZSCORE_SCALE = ZSCORE_UPPER_BOUND - ZSCORE_LOWER_BOUND;
+    // Build control panel (script.js)
+    rebuildUI();
 });
 
 var stats, camera, controls, WebGLRenderer, cssRenderer;
@@ -133,12 +104,18 @@ var labelOrigin, labelT, labelLng, labelLat;
 
 // Embed layer from OpenStreet Map
 
-var locations = [];
-
 var zoom = 13;
 var LNG_MIN = -74.25909, LNG_MAX = -73.70009, LAT_MIN = 40.477399, LAT_MAX = 40.917577;
-//var LNG_MIN = -74.38705, LNG_MAX = -73.74435, LAT_MIN = 40.520063, LAT_MAX = 40.874064;
 var newLngMin = LNG_MIN, newLatMin = LAT_MIN, newLngMax = LNG_MAX, newLatMax = LAT_MAX;
+
+var LENGTH_DEG_LAT = getDistanceBetweenCoordinates(LAT_MIN, LAT_MAX, LNG_MIN, LNG_MIN);
+var LENGTH_DEG_LNG = getDistanceBetweenCoordinates(LAT_MIN, LAT_MIN, LNG_MIN, LNG_MAX);
+var CELL_DISTANCE_LAT = LENGTH_DEG_LAT / sizeLat;
+var CELL_DISTANCE_LNG = LENGTH_DEG_LNG / sizeLng;
+
+console.log(CELL_DISTANCE_LAT);
+console.log(CELL_DISTANCE_LNG);
+
 var loc = encodeURIComponent(`${LNG_MIN},${LAT_MIN},${LNG_MAX},${LAT_MAX}`);
 
 // A empty div is added in front of it to prevent users from interacting with the cube
