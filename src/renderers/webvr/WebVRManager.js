@@ -34,6 +34,8 @@ function WebVRManager( renderer ) {
 	cameraR.layers.enable( 2 );
 
 	var cameraVR = new ArrayCamera( [ cameraL, cameraR ] );
+	cameraVR.layers.enable( 1 );
+	cameraVR.layers.enable( 2 );
 
 	//
 
@@ -50,13 +52,11 @@ function WebVRManager( renderer ) {
 			currentPixelRatio = renderer.getPixelRatio();
 			currentSize = renderer.getSize();
 
-			renderer.setPixelRatio( 1 );
-			renderer.setSize( renderWidth * 2, renderHeight, false );
+			renderer.setDrawingBufferSize( renderWidth * 2, renderHeight, 1 );
 
 		} else if ( scope.enabled ) {
 
-			renderer.setPixelRatio( currentPixelRatio );
-			renderer.setSize( currentSize.width, currentSize.height, true );
+			renderer.setDrawingBufferSize( currentSize.width, currentSize.height, currentPixelRatio );
 
 		}
 
@@ -151,6 +151,11 @@ function WebVRManager( renderer ) {
 			cameraR.matrixWorldInverse.multiply( matrixWorldInverse );
 
 		}
+
+		// envMap and Mirror needs camera.matrixWorld
+
+		cameraL.matrixWorld.getInverse( cameraL.matrixWorldInverse );
+		cameraR.matrixWorld.getInverse( cameraR.matrixWorldInverse );
 
 		cameraL.projectionMatrix.fromArray( frameData.leftProjectionMatrix );
 		cameraR.projectionMatrix.fromArray( frameData.rightProjectionMatrix );
