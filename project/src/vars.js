@@ -4,11 +4,12 @@
 
 var size = 300;
 //var sizeLng = 237, sizeTime = size, sizeLat = 235;
-var sizeLng = 311, sizeTime = size, sizeLat = 245;
+//var sizeLng = 311, sizeTime = size, sizeLat = 245;
+var sizeLng = 310, sizeTime = size, sizeLat = 244;
 var newSizeZ = sizeLng, newSizeY = sizeTime, newSizeX = sizeLat;
 var step = 50;
 var mapScaleOffsetX = sizeLng/237, mapScaleOffsetY = sizeLat/235;
-var dataChunks = [], selectedChunk = 0;
+var processedData = [], dataChunks = [], selectedChunk = 0, chunkSize = 1000;
 var fileName = 'gistar_output_b';
 
 // Beginning of time 1st January 2015, 0:00:00 (year, month, day, hour, minute, seconds)
@@ -19,27 +20,7 @@ var TIME_STEP_LOWER_BOUND, TIME_STEP_UPPER_BOUND, ZSCORE_LOWER_BOUND, ZSCORE_UPP
 var xLowerBound, xUpperBound, yLowerBound, yUpperBound, timeStepLowerBound, timeStepUpperBound, zScoreLowerBound, zScoreUpperBound;
 
 var CSVLoader = new THREE.FileLoader();
-CSVLoader.setResponseType('text');
-CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
-    var processedData = JSON.parse(text);
-
-    // Sort data per time_step (ascending order)
-    processedData.sort(function (a, b) {
-        return a['time_step'] - b['time_step'];
-    });
-
-
-    // Separate processed data into chunks
-    var chunkSize = 1000;
-    for (var i=0, j = processedData.length; i < j; i += chunkSize) {
-        var temparray = processedData.slice(i, i + chunkSize);
-        dataChunks.push(temparray);
-    }
-    console.log(`${dataChunks.length} data chunks from ${processedData.length} data processed`);
-
-    // Build control panel (script.js)
-    rebuildUI();
-});
+reloadData();
 
 var stats, camera, controls, WebGLRenderer, cssRenderer;
 var WebGLScene = new THREE.Scene();

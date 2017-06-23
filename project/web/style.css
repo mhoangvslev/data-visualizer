@@ -102,6 +102,13 @@ a {
     right: 5%;
 }
 
+.otherInfo{
+    position: fixed;
+    top: 10%;
+    right: 5%;
+    text-align: left;
+}
+
 .controlPanel{
     position: fixed;
     bottom: 5%;

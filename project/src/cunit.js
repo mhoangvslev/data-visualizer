@@ -32,8 +32,13 @@ function CUnit(cell_y, cell_x, time_step, zscore, pvalue) {
         opacity: this.opacity,
         blending: THREE.NoBlending
     }));
-    //this.mesh.name = `Longitude: ${this.getLongitude()} | Latitude: ${this.getLatitude()} | Time step: ${this.time_stamp.toLocaleString()} | ZScore: ${zscore}`;
-    this.mesh.name = `Longitude: ${cell_y} | Latitude: ${cell_x} | Time step: ${time_step} | ZScore: ${zscore}`;
+    this.mesh.name = `<h3><strong>CUnit Information</strong></h3>`+
+        '<p>' + `<strong>Longitude:</strong> ${this.getLongitude()}<br/>` +
+        `<strong>Latitude:</strong> ${this.getLatitude()}<br/>`+
+        `<strong>Time step:</strong> ${this.time_stamp.toLocaleString()}<br/>`+
+        `<strong>zScore:</strong> ${zscore}<br/>`+
+        '</p>';
+    //this.mesh.name = `Longitude: ${cell_y} | Latitude: ${cell_x} | Time step: ${time_step} | ZScore: ${zscore}`;
     this.mesh.position.x = this.cell_y * dimensionZ - offsetX;
     this.mesh.position.z = -this.cell_x * dimensionX - offsetZ;
     this.mesh.position.y = this.time_step * dimensionY - offsetY;

@@ -103,7 +103,7 @@ function updateMapLayerDisplay() {
 
     updateBrushSizeFilter();
 
-    console.log(decodeURIComponent(newLoc));
+    //console.log(decodeURIComponent(newLoc));
     var url = ('https://www.openstreetmap.org/export/embed.html?bbox=LOCATION&amp;layers=MAPTYPE').replace("LOCATION", newLoc).replace("MAPTYPE", maptype);
     document.getElementById("OSMLayer").setAttribute("src", url);
 }
@@ -130,8 +130,7 @@ function updateOneLayerFilter() {
     updateVars();
     CUnitCluster.traverse(function (child) {
         if(child instanceof CUnit){
-            if(
-                 child.getTimeStep() === extrudeLayer &&
+            if(  child.getTimeStep() === extrudeLayer &&
                 (child.getTimeStep() >= timeStepLowerBound && child.getTimeStep() < timeStepUpperBound ) &&
                 (child.getCellY() >= xLowerBound && child.getCellY() < xUpperBound ) &&
                 (child.getCellX() >= yLowerBound && child.getCellX() < yUpperBound ) &&

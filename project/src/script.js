@@ -27,6 +27,23 @@ let rebuildUI = function () {
     });
 
     //Sliders
+
+    $('#chunk_submit').click(function () {
+        //console.log('click!');
+        let r = parseInt($('#chunk_size').val());
+        if(isNaN(r)) {
+            //console.log('not a number');
+            chunkSize = 1000;
+            $('#chunk_warn').html('Input is not a number!');
+        }
+        else {
+            //console.log('is a number');
+            chunkSize = r;
+            $('#chunk_warn').html('Input valid!');
+            reloadData();
+        }
+    });
+
     $( "#time_step_int" ).slider({
         range: true,
         min: TIME_STEP_LOWER_BOUND,
@@ -60,8 +77,8 @@ let rebuildUI = function () {
         slide: function( event, ui ) {
             yLowerBound = ui.values[0]; yUpperBound = ui.values[1];
             newLatMin = getLatitudePoint(yLowerBound, false); newLatMax = getLatitudePoint(yUpperBound, false);
-            //$('#cell_y_int_value').text(`${newLatMin.toFixed(4)} ~ ${newLatMax.toFixed(4)}`);
-            $('#cell_y_int_value').text(`${ui.values[0]} ~ ${ui.values[1]}`);
+            $('#cell_y_int_value').text(`${newLatMin.toFixed(4)} ~ ${newLatMax.toFixed(4)}`);
+            //$('#cell_y_int_value').text(`${ui.values[0]} ~ ${ui.values[1]}`);
             newSizeX = Math.abs(yUpperBound - yLowerBound);
             updateSceneFilters();
             updateMapLayerDisplay();
@@ -78,8 +95,8 @@ let rebuildUI = function () {
         slide: function( event, ui ) {
             xLowerBound = ui.values[0]; xUpperBound = ui.values[1];
             newLngMin = getLongitudePoint(xLowerBound, false); newLngMax = getLongitudePoint(xUpperBound, false);
-            //$('#cell_x_int_value').text(`${newLngMin.toFixed(4)} ~ ${newLngMax.toFixed(4)}`);
-            $('#cell_x_int_value').text(`${ui.values[0]} ~ ${ui.values[1]}`);
+            $('#cell_x_int_value').text(`${newLngMin.toFixed(4)} ~ ${newLngMax.toFixed(4)}`);
+            //$('#cell_x_int_value').text(`${ui.values[0]} ~ ${ui.values[1]}`);
             newSizeZ = Math.abs(xUpperBound - xLowerBound);
             updateSceneFilters();
             updateMapLayerDisplay();

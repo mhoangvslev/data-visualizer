@@ -324,13 +324,12 @@ function updateChunksVars(){
             X_UPPER_BOUND = entry["cell_y"];
     }
 
-    console.log(`=========  CHUNK ${selectedChunk} =========`);
-    console.log(`Time_step: ${TIME_STEP_LOWER_BOUND} - ${TIME_STEP_UPPER_BOUND}`);
-    console.log(`zScore: ${ZSCORE_LOWER_BOUND} - ${ZSCORE_UPPER_BOUND}`);
-    console.log(`cell_x: ${X_LOWER_BOUND} - ${X_UPPER_BOUND}`);
-    console.log(`cell_y: ${Y_LOWER_BOUND} - ${Y_UPPER_BOUND}`);
-    console.log(`=========  ### =========`);
-
+    document.getElementById('chunk_details').innerHTML = `<h3><strong>Chunk #${selectedChunk}</strong></h3>`+
+    '<p>' + `<strong>Time_step:</strong> ${TIME_STEP_LOWER_BOUND} - ${TIME_STEP_UPPER_BOUND}<br/>` +
+            `<strong>zScore:</strong> ${ZSCORE_LOWER_BOUND} - ${ZSCORE_UPPER_BOUND}<br/>`+
+            `<strong>cell_x:</strong> ${X_LOWER_BOUND} - ${X_UPPER_BOUND}<br/>`+
+            `<strong>cell_y:</strong> ${Y_LOWER_BOUND} - ${Y_UPPER_BOUND}<br/>`+
+        '</p>';
 
     timeStepLowerBound = TIME_STEP_LOWER_BOUND; timeStepUpperBound = TIME_STEP_UPPER_BOUND;
     zScoreLowerBound = ZSCORE_LOWER_BOUND; zScoreUpperBound = ZSCORE_UPPER_BOUND;
@@ -398,4 +397,32 @@ function clearScene(){
             WebGLScene.remove(child.getMesh());
     });
     CUnitCluster = new THREE.Object3D();
+}
+
+function reloadData() {
+    // Clear the arrays
+    if(processedData && dataChunks && processedData.length > 0 && dataChunks.length > 0)
+        processedData = []; dataChunks = []; selectedChunk = 0;
+
+    CSVLoader.setResponseType('text');
+    CSVLoader.load(`./data/${fileName}.minified.json`, function (text) {
+        processedData = JSON.parse(text);
+
+        // Sort data per time_step (ascending order)
+        processedData.sort(function (a, b) {
+            return a['time_step'] - b['time_step'];
+        });
+
+        // Separate processed data into chunks
+        for (var i=0, j = processedData.length; i < j; i += chunkSize) {
+            var temparray = processedData.slice(i, i + chunkSize);
+            dataChunks.push(temparray);
+        }
+        //console.log(`${dataChunks.length} data chunks from ${processedData.length} data processed`);
+        document.getElementById('chunk_info').innerHTML = `${dataChunks.length} chunks | ${processedData.length} entries`;
+
+        // Build control panel (script.js)
+        rebuildUI();
+
+    });
 }
