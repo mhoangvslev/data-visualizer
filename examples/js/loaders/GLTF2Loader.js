@@ -336,6 +336,36 @@ THREE.GLTF2Loader = ( function () {
 
 			if ( lightNode ) {
 
+				if ( light.constantAttenuation !== undefined ) {
+
+					lightNode.intensity = light.constantAttenuation;
+
+				}
+
+				if ( light.linearAttenuation !== undefined ) {
+
+					lightNode.distance = 1 / light.linearAttenuation;
+
+				}
+
+				if ( light.quadraticAttenuation !== undefined ) {
+
+					lightNode.decay = light.quadraticAttenuation;
+
+				}
+
+				if ( light.fallOffAngle !== undefined ) {
+
+					lightNode.angle = light.fallOffAngle;
+
+				}
+
+				if ( light.fallOffExponent !== undefined ) {
+
+					console.warn( 'GLTF2Loader: light.fallOffExponent not currently supported.' );
+
+				}
+
 				lightNode.name = light.name || ( 'light_' + lightId );
 				this.lights[ lightId ] = lightNode;
 
@@ -1781,17 +1811,17 @@ THREE.GLTF2Loader = ( function () {
 				// For VEC3: itemSize is 3, elementBytes is 4, itemBytes is 12.
 				var elementBytes = TypedArray.BYTES_PER_ELEMENT;
 				var itemBytes = elementBytes * itemSize;
-
+				var byteStride = json.bufferViews[accessor.bufferView].byteStride;	
 				var array;
 
 				// The buffer is not interleaved if the stride is the item size in bytes.
-				if ( accessor.byteStride && accessor.byteStride !== itemBytes ) {
+				if ( byteStride && byteStride !== itemBytes ) {
 
 					// Use the full buffer if it's interleaved.
 					array = new TypedArray( arraybuffer );
 
 					// Integer parameters to IB/IBA are in array elements, not bytes.
-					var ib = new THREE.InterleavedBuffer( array, accessor.byteStride / elementBytes );
+					var ib = new THREE.InterleavedBuffer( array, byteStride / elementBytes );
 
 					return new THREE.InterleavedBufferAttribute( ib, itemSize, accessor.byteOffset / elementBytes );
 
@@ -2767,13 +2797,11 @@ THREE.GLTF2Loader = ( function () {
 					}
 
 					if ( node.extensions
-							 && node.extensions[ EXTENSIONS.KHR_MATERIALS_COMMON ]
-							 && node.extensions[ EXTENSIONS.KHR_MATERIALS_COMMON ].light ) {
+							 && node.extensions[ EXTENSIONS.KHR_LIGHTS ]
+							 && node.extensions[ EXTENSIONS.KHR_LIGHTS ].light !== undefined ) {
 
-						var extensionLights = extensions[ EXTENSIONS.KHR_LIGHTS ].lights;
-						var light = extensionLights[ node.extensions[ EXTENSIONS.KHR_LIGHTS ].light ];
-
-						_node.add( light );
+						var lights = extensions[ EXTENSIONS.KHR_LIGHTS ].lights;
+						_node.add( lights[ node.extensions[ EXTENSIONS.KHR_LIGHTS ].light ] );
 
 					}
 
@@ -2858,6 +2886,16 @@ THREE.GLTF2Loader = ( function () {
 					}
 
 				} );
+
+				// Ambient lighting, if present, is always attached to the scene root.
+				if ( scene.extensions
+							 && scene.extensions[ EXTENSIONS.KHR_LIGHTS ]
+							 && scene.extensions[ EXTENSIONS.KHR_LIGHTS ].light !== undefined ) {
+
+					var lights = extensions[ EXTENSIONS.KHR_LIGHTS ].lights;
+					_scene.add( lights[ scene.extensions[ EXTENSIONS.KHR_LIGHTS ].light ] );
+
+				}
 
 				return _scene;
 
