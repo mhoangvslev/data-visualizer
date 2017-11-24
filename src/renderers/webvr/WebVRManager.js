@@ -2,10 +2,10 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-import { Matrix4 } from '../../math/Matrix4';
-import { Vector4 } from '../../math/Vector4';
-import { ArrayCamera } from '../../cameras/ArrayCamera';
-import { PerspectiveCamera } from '../../cameras/PerspectiveCamera';
+import { Matrix4 } from '../../math/Matrix4.js';
+import { Vector4 } from '../../math/Vector4.js';
+import { ArrayCamera } from '../../cameras/ArrayCamera.js';
+import { PerspectiveCamera } from '../../cameras/PerspectiveCamera.js';
 
 function WebVRManager( renderer ) {
 
@@ -14,16 +14,15 @@ function WebVRManager( renderer ) {
 	var device = null;
 	var frameData = null;
 
-	if ( 'VRFrameData' in window ) {
+	var poseTarget = null;
+
+	if ( typeof window !== 'undefined' && 'VRFrameData' in window ) {
 
 		frameData = new window.VRFrameData();
 
 	}
 
 	var matrixWorldInverse = new Matrix4();
-
-	var standingMatrix = new Matrix4();
-	var standingMatrixInverse = new Matrix4();
 
 	var cameraL = new PerspectiveCamera();
 	cameraL.bounds = new Vector4( 0.0, 0.0, 0.5, 1.0 );
@@ -43,7 +42,7 @@ function WebVRManager( renderer ) {
 
 	function onVRDisplayPresentChange() {
 
-		if ( device.isPresenting ) {
+		if ( device !== null && device.isPresenting ) {
 
 			var eyeParameters = device.getEyeParameters( 'left' );
 			var renderWidth = eyeParameters.renderWidth;
@@ -62,12 +61,15 @@ function WebVRManager( renderer ) {
 
 	}
 
-	window.addEventListener( 'vrdisplaypresentchange', onVRDisplayPresentChange, false );
+	if ( typeof window !== 'undefined' ) {
+
+		window.addEventListener( 'vrdisplaypresentchange', onVRDisplayPresentChange, false );
+
+	}
 
 	//
 
 	this.enabled = false;
-	this.standing = false;
 
 	this.getDevice = function () {
 
@@ -78,6 +80,12 @@ function WebVRManager( renderer ) {
 	this.setDevice = function ( value ) {
 
 		if ( value !== undefined ) device = value;
+
+	};
+
+	this.setPoseTarget = function ( object ) {
+
+		if ( object !== undefined ) poseTarget = object;
 
 	};
 
@@ -93,53 +101,51 @@ function WebVRManager( renderer ) {
 		//
 
 		var pose = frameData.pose;
+		var poseObject;
 
-		if ( pose.position !== null ) {
+		if ( poseTarget !== null ) {
 
-			camera.position.fromArray( pose.position );
+			poseObject = poseTarget;
 
 		} else {
 
-			camera.position.set( 0, 0, 0 );
+			poseObject = camera;
+
+		}
+
+		if ( pose.position !== null ) {
+
+			poseObject.position.fromArray( pose.position );
+
+		} else {
+
+			poseObject.position.set( 0, 0, 0 );
 
 		}
 
 		if ( pose.orientation !== null ) {
 
-			camera.quaternion.fromArray( pose.orientation );
+			poseObject.quaternion.fromArray( pose.orientation );
 
 		}
 
-		camera.updateMatrixWorld();
-
-		var stageParameters = device.stageParameters;
-
-		if ( this.standing && stageParameters ) {
-
-			standingMatrix.fromArray( stageParameters.sittingToStandingTransform );
-			standingMatrixInverse.getInverse( standingMatrix );
-
-			camera.matrixWorld.multiply( standingMatrix );
-			camera.matrixWorldInverse.multiply( standingMatrixInverse );
-
-		}
+		poseObject.updateMatrixWorld();
 
 		if ( device.isPresenting === false ) return camera;
 
 		//
+
+		cameraL.near = camera.near;
+		cameraR.near = camera.near;
+
+		cameraL.far = camera.far;
+		cameraR.far = camera.far;
 
 		cameraVR.matrixWorld.copy( camera.matrixWorld );
 		cameraVR.matrixWorldInverse.copy( camera.matrixWorldInverse );
 
 		cameraL.matrixWorldInverse.fromArray( frameData.leftViewMatrix );
 		cameraR.matrixWorldInverse.fromArray( frameData.rightViewMatrix );
-
-		if ( this.standing && stageParameters ) {
-
-			cameraL.matrixWorldInverse.multiply( standingMatrixInverse );
-			cameraR.matrixWorldInverse.multiply( standingMatrixInverse );
-
-		}
 
 		var parent = camera.parent;
 
@@ -191,15 +197,19 @@ function WebVRManager( renderer ) {
 
 	};
 
-	this.getStandingMatrix = function () {
-
-		return standingMatrix;
-
-	};
-
 	this.submitFrame = function () {
 
 		if ( device && device.isPresenting ) device.submitFrame();
+
+	};
+
+	this.dispose = function () {
+
+		if ( typeof window !== 'undefined' ) {
+
+			window.removeEventListener( 'vrdisplaypresentchange', onVRDisplayPresentChange );
+
+		}
 
 	};
 
